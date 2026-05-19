@@ -17,6 +17,7 @@ class ListPays extends ListRecords
         ];
     }
 
+    // Pour faire disparaître une ligne juste au dessus d'une table
     public function getBreadcrumbs(): array
     {
         return []; // ← retourne un tableau vide = pas de breadcrumb

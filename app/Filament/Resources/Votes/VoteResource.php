@@ -43,8 +43,34 @@ class VoteResource extends Resource
         //return VoteForm::configure($schema);
         return $schema
             ->schema([
-                Select::make('site_id')->relationship('site', 'nom')->required(),
-                Select::make('dispositif_id')->relationship('dispositif', 'nom')->required(),
+                //Select::make('site_id')->relationship('site', 'nom')->required(),
+                Select::make('site_id')
+                    ->options(function () {
+                        /** @var Utilisateur $user */
+                        $user = filament()->auth()->user();
+
+                        return \App\Models\Site::query()
+                            ->when($user->hasRole('Super admin'), fn($q) =>
+                                $q->where('created_by', $user->id)
+                            )
+                            ->pluck('nom', 'id');
+                    })
+                    ->label('Nom du site')
+                    ->required(),
+                //Select::make('dispositif_id')->relationship('dispositif', 'nom')->required(),
+                Select::make('dispositif_id')
+                    ->options(function () {
+                        /** @var Utilisateur $user */
+                        $user = filament()->auth()->user();
+
+                        return \App\Models\Dispositif::query()
+                            ->when($user->hasRole('Super admin'), fn($q) =>
+                                $q->where('created_by', $user->id)
+                            )
+                            ->pluck('nom', 'id');
+                    })
+                    ->label('Nom du site')
+                    ->required(),
                 Select::make('niveau')
                     ->options([
                         'satisfait' => 'Satisfait',
@@ -110,17 +136,20 @@ class VoteResource extends Resource
         if ($user->hasRole('Super admin')) {
             return $query->where('created_by', $user->id);
         }
-
+        /*
         if ($user->hasRole('Admin régional')) {
-            return $query->whereHas('dispositif.site.ville', fn($q) =>
+            // Remonter : Vote → Dispositif → Site → Ville → Region
+            $dispositifIds = \App\Models\Dispositif::whereHas('site.ville', fn($q) =>
                 $q->where('region_id', $user->region_id)
-            );
-        }
-        
-        if ($user->hasRole('Admin régional')) {
-            $dispositifIds = \App\Models\Dispositif::where('site_id', $user->site_id)
-                ->pluck('id');
+            )->pluck('id');
+
             return $query->whereIn('dispositif_id', $dispositifIds);
+        }*/
+        if ($user->hasRole('Admin régional')) {
+
+            return $query->whereHas('dispositif.site.ville', function ($q) use ($user) {
+                $q->where('region_id', $user->region_id);
+            });
         }
         
         if ($user->hasRole('Admin de site')) {

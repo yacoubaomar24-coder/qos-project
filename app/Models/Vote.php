@@ -10,6 +10,7 @@ class Vote extends Model
     use HasFactory;
 
     protected $fillable = [
+        'created_by',
         'site_id',
         'dispositif_id',
         'niveau',

@@ -14,6 +14,15 @@ class CreateDispositif extends CreateRecord
     {
         /** @var Utilisateur $user */
         $user = filament()->auth()->user();
+
+        /*
+        dd([
+            'user'       => $user?->email,
+            'user_id'    => $user?->id,
+            'instanceof' => $user instanceof Utilisateur,
+            'data'       => $data,
+        ]);*/
+
         $data['created_by'] = $user->id;
 
         return $data;

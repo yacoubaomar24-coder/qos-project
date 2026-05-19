@@ -42,9 +42,29 @@ class DispositifResource extends Resource
         //return DispositifForm::configure($schema);
         return $schema
             ->schema([
-                Select::make('site_id')->relationship('site', 'nom')->required(),
-                TextInput::make('nom')->label('Nom')->required(),
-                TextInput::make('adresse_mac')->label('Adresse MAC')->required(),
+                //Select::make('site_id')->relationship('site', 'nom')->required(),
+                Select::make('site_id')
+                    ->options(function () {
+                        /** @var Utilisateur $user */
+                        $user = filament()->auth()->user();
+
+                        return \App\Models\Site::query()
+                            ->when($user->hasRole('Super admin'), fn($q) =>
+                                $q->where('created_by', $user->id)
+                            )
+                            ->pluck('nom', 'id');
+                    })
+                    ->label('Nom du site')
+                    ->required(),
+                TextInput::make('nom')->label('Nom du dispositif')->required(),
+                TextInput::make('adresse_mac')
+                    ->label('Adresse MAC')
+                    ->placeholder('AA:BB:CC:DD:EE:FF')
+                    ->unique(ignoreRecord: true)
+                    ->rules(['regex:/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/'])
+                    ->validationMessages([
+                        'regex' => 'Format invalide. Exemple : AA:BB:CC:DD:EE:FF',
+                    ]),
                 Toggle::make('statut')->label('Actif')->default(true),
         ]);
     }
@@ -53,7 +73,7 @@ class DispositifResource extends Resource
     {
         //return DispositifsTable::configure($table);
         return $table->columns([
-                TextColumn::make('site.nom')->label('Site')->sortable(),
+                TextColumn::make('site.nom')->label('Nom du site')->sortable(),
                 TextColumn::make('nom')->searchable()->label('Nom')->sortable(),
                 TextColumn::make('adresse_mac')->searchable()->label('Adresse MAC'),
                 IconColumn::make('statut')->label('Statut')->boolean(),
@@ -114,17 +134,7 @@ class DispositifResource extends Resource
         }
         if ($user->hasRole('Admin de site')) {
             return $query->where('site_id', $user->site_id);
-        }   
-        /*
-        if ($user->hasRole('Admin régional')) {
-            $siteIds = \App\Models\Site::where('ville_id', $user->ville_id)
-                ->pluck('id');
-            return $query->whereIn('site_id', $siteIds);
         }
-
-        if ($user->hasRole('Admin de site')) {
-            return $query->where('id', $user->site_id);
-        }*/
 
         return $query->whereRaw('1 = 0');
     }
