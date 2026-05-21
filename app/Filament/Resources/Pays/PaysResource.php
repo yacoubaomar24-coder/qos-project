@@ -107,6 +107,18 @@ class PaysResource extends Resource
             return $query->where('created_by', $user->id);
         }
 
+        // Admin national voit uniquement les utilisateurs qu'il a créés pour son pays
+        if ($user->hasRole('Admin national')) {
+            return $query->where('id', $user->pays_id);
+        }
+
         return $query->whereRaw('1 = 0');
+    }
+
+    public static function canViewAny(): bool
+    {
+        /** @var \App\Models\Utilisateur $user */
+        $user = filament()->auth()->user();
+        return $user->can('view_any_RegionResource');
     }
 }

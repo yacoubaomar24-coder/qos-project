@@ -48,11 +48,41 @@ class DispositifResource extends Resource
                         /** @var Utilisateur $user */
                         $user = filament()->auth()->user();
 
-                        return \App\Models\Site::query()
-                            ->when($user->hasRole('Super admin'), fn($q) =>
-                                $q->where('created_by', $user->id)
-                            )
-                            ->pluck('nom', 'id');
+                        $query = \App\Models\Site::query();
+
+                        if ($user->hasRole('Admin')) {
+                            // Admin voit tous les sites
+                            return $query->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Super admin')) {
+                            // Super admin voit ses sites créés directement
+                            return $query->where('created_by', $user->id)->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Admin national')) {
+                            // Admin national voit les sites de son pays
+                            // Chemin : pays → régions → villes → sites
+                            $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)
+                                ->pluck('id');
+                            $villeIds  = \App\Models\Ville::whereIn('region_id', $regionIds)
+                                ->pluck('id');
+                            return $query->whereIn('ville_id', $villeIds)->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Admin régional')) {
+                            // Admin régional voit les sites de sa région
+                            $villeIds = \App\Models\Ville::where('region_id', $user->region_id)
+                                ->pluck('id');
+                            return $query->whereIn('ville_id', $villeIds)->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Admin de site')) {
+                            // Admin de site voit uniquement son site
+                            return $query->where('id', $user->site_id)->pluck('nom', 'id');
+                        }
+
+                        return [];
                     })
                     ->label('Nom du site')
                     ->required(),
@@ -123,6 +153,16 @@ class DispositifResource extends Resource
 
         if ($user->hasRole('Super admin')) {
             return $query->where('created_by', $user->id);
+        }
+
+        if ($user->hasRole('Admin national')) {
+            $villeIds = \App\Models\Ville::whereHas('region', fn($q) =>
+                $q->where('pays_id', $user->pays_id)
+            )->pluck('id');
+
+            $siteIds = \App\Models\Site::whereIn('ville_id', $villeIds)->pluck('id');
+
+            return $query->whereIn('site_id', $siteIds);
         }
 
         if ($user->hasRole('Admin régional')) {

@@ -50,12 +50,32 @@ class RegionResource extends Resource
                         /** @var Utilisateur $user */
                         $user = filament()->auth()->user();
 
+                        $query = \App\Models\Pays::query();
+
+                        if ($user->hasRole('Admin')) {
+                            // Admin voit tous les pays sans restriction
+                            return $query->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Super admin')) {
+                            // Super admin voit tous les pays qu'il a créés
+                            return $query->where('created_by', $user->id)->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Admin national')) {
+                            // Admin national voit uniquement son propre pays
+                            return $query->where('id', $user->pays_id)->pluck('nom', 'id');
+                        }
+
+                        return [];
+                        /*
                         return \App\Models\Pays::query()
                             ->when(
                                 $user->hasRole('Super admin'),
                                 fn($q) => $q->where('created_by', $user->id) // ← filtre par super admin
                             )
                             ->pluck('nom', 'id'); // ← distinct automatique car basé sur id
+                        */
                     })
                     ->searchable()
                     ->required(),
@@ -117,6 +137,10 @@ class RegionResource extends Resource
 
         if ($user->hasRole('Super admin')) {
             return $query->where('created_by', $user->id);
+        }
+
+        if ($user->hasRole('Admin national')) {
+            return $query->where('pays_id', $user->pays_id);
         }
 
         if ($user->hasRole('Admin régional')) {

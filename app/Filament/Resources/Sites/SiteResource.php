@@ -49,14 +49,32 @@ class SiteResource extends Resource
                         /** @var Utilisateur $user */
                         $user = filament()->auth()->user();
 
-                        return \App\Models\Ville::query()
-                            ->when($user->hasRole('Super admin'), fn($q) =>
-                                $q->where('created_by', $user->id)
-                            )
-                            ->when($user->hasRole('Admin régional'), fn($q) =>
-                                $q->where('region_id', $user->region_id)
-                            )
-                            ->pluck('nom', 'id');
+                        $query = \App\Models\Ville::query();
+
+                        if ($user->hasRole('Admin')) {
+                            // Admin voit toutes les villes
+                            return $query->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Super admin')) {
+                            // Super admin voit ses villes créées directement
+                            return $query->where('created_by', $user->id)->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Admin national')) {
+                            // Admin national voit les villes de son pays
+                            // Chemin direct : région → pays
+                            $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)
+                                ->pluck('id');
+                            return $query->whereIn('region_id', $regionIds)->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Admin régional')) {
+                            // Admin régional voit les villes de sa région
+                            return $query->where('region_id', $user->region_id)->pluck('nom', 'id');
+                        }
+
+                        return [];
                     })
                     ->required(),
                 TextInput::make('nom')->label('Nom')->required(),
@@ -116,6 +134,15 @@ class SiteResource extends Resource
 
         if ($user->hasRole('Super admin')) {
             return $query->where('created_by', $user->id);
+        }
+
+        if ($user->hasRole('Admin national')) {
+            // Sites dont la ville → région → pays
+            $villeIds = \App\Models\Ville::whereHas('region', fn($q) =>
+                $q->where('pays_id', $user->pays_id)
+            )->pluck('id');
+
+            return $query->whereIn('ville_id', $villeIds);
         }
 
         if ($user->hasRole('Admin régional')) {

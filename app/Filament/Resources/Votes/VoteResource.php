@@ -136,20 +136,24 @@ class VoteResource extends Resource
         if ($user->hasRole('Super admin')) {
             return $query->where('created_by', $user->id);
         }
-        /*
-        if ($user->hasRole('Admin régional')) {
-            // Remonter : Vote → Dispositif → Site → Ville → Region
-            $dispositifIds = \App\Models\Dispositif::whereHas('site.ville', fn($q) =>
-                $q->where('region_id', $user->region_id)
+
+        if ($user->hasRole('Admin national')) {
+            $villeIds = \App\Models\Ville::whereHas('region', fn($q) =>
+                $q->where('pays_id', $user->pays_id)
             )->pluck('id');
 
-            return $query->whereIn('dispositif_id', $dispositifIds);
-        }*/
-        if ($user->hasRole('Admin régional')) {
+            $siteIds = \App\Models\Site::whereIn('ville_id', $villeIds)->pluck('id');
 
-            return $query->whereHas('dispositif.site.ville', function ($q) use ($user) {
+            return $query->whereIn('site_id', $siteIds);
+        }
+        
+        if ($user->hasRole('Admin régional')) {
+            // Remonter directement via site → ville → region
+            $siteIds = \App\Models\Site::whereHas('ville', function($q) use ($user) {
                 $q->where('region_id', $user->region_id);
-            });
+            })->pluck('id');
+
+            return $query->whereIn('site_id', $siteIds);
         }
         
         if ($user->hasRole('Admin de site')) {

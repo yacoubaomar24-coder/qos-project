@@ -23,7 +23,7 @@ class MigrateExistingUserSeeder extends Seeder
         php artisan db:seed --class=RoleAndPermissionSeeder
 
         # 2. Migrer les utilisateurs existants
-        php artisan db:seed --class=MigrateExistingUsersSeeder
+        php artisan db:seed --class=MigrateExistingUserSeeder
 
         # 3. Vider le cache
         php artisan permission:cache-reset
@@ -31,6 +31,7 @@ class MigrateExistingUserSeeder extends Seeder
     private array $roleMapping = [
         'Admin'            => 'Admin',
         'Super admin'      => 'Super admin',
+        'Admin national'   => 'Admin national',
         'Admin régional'   => 'Admin régional',
         'Admin de site'    => 'Admin de site',
     ];

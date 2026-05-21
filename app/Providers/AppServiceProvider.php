@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Dispositif::class, DispositifPolicy::class);
         Gate::policy(Vote::class,       VotePolicy::class);
 
-        // Super admin passe tous les gates sans vérification
+        // Admin passe tous les gates sans vérification
         Gate::before(function (Utilisateur $user, string $ability) {
             return $user->hasRole('Admin') ? true : null;
         });

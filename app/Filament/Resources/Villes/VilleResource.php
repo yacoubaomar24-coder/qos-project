@@ -44,15 +44,34 @@ class VilleResource extends Resource
             ->schema([
                 //Select::make('region_id')->relationship('region', 'nom')->required(),
                 Select::make('region_id')
+                    ->label('Région')
                     ->options(function () {
                         /** @var Utilisateur $user */
                         $user = filament()->auth()->user();
 
-                        return \App\Models\Region::query()
-                            ->when($user->hasRole('Super admin'), fn($q) =>
-                                $q->where('created_by', $user->id)
-                            )
-                            ->pluck('nom', 'id');
+                        $query = \App\Models\Region::query();
+
+                        if ($user->hasRole('Admin')) {
+                            // Admin voit toutes les régions
+                            return $query->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Super admin')) {
+                            // Super admin voit ses régions créées directement
+                            return $query->where('created_by', $user->id)->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Admin national')) {
+                            // Admin national voit toutes les régions de son pays
+                            return $query->where('pays_id', $user->pays_id)->pluck('nom', 'id');
+                        }
+
+                        if ($user->hasRole('Admin régional')) {
+                            // Admin régional voit uniquement sa région
+                            return $query->where('id', $user->region_id)->pluck('nom', 'id');
+                        }
+
+                        return [];
                     })
                     ->required(),
                 TextInput::make('nom')->label('Nom')->required(),
@@ -103,6 +122,7 @@ class VilleResource extends Resource
 
         $query = parent::getEloquentQuery();
 
+
         if (!$user instanceof Utilisateur) {
             return $query->whereRaw('1 = 0');
         }
@@ -113,6 +133,14 @@ class VilleResource extends Resource
 
         if ($user->hasRole('Super admin')) {
             return $query->where('created_by', $user->id);
+        }
+
+        if ($user->hasRole('Admin national')) {
+            // Villes dont la région appartient à son pays
+            $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)
+                ->pluck('id');
+
+            return $query->whereIn('region_id', $regionIds);
         }
 
         if ($user->hasRole('Admin régional')) {

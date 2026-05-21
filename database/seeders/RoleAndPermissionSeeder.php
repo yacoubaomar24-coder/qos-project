@@ -18,16 +18,6 @@ class RoleAndPermissionSeeder extends Seeder
         // Vider le cache des permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        /*
-        // Créer les rôles en format lisible — cohérent avec le champ role en base
-        Role::firstOrCreate(['name' => 'Super admin',    'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Admin régional', 'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Admin de site',  'guard_name' => 'web']);
-        Role::firstOrCreate(['name' => 'Admin',          'guard_name' => 'web']);
-
-        $this->command->info('✅ Rôles créés avec succès.');
-        */
-
         // Définir toutes les permissions par ressource
         $resources = ['UtilisateurResource', 'PaysResource', 'RegionResource', 'VilleResource',
                      'SiteResource', 'DispositifResource', 'VoteResource'];
@@ -96,6 +86,37 @@ class RoleAndPermissionSeeder extends Seeder
             'create_VoteResource', 'update_VoteResource',
         ]);
 
+        // Rôle Admin national (accès total pour un pays donné)
+        $superAdmin = Role::firstOrCreate([
+            'name' => 'Admin national',
+            'guard_name' => 'web'
+        ]);
+        $superAdmin->syncPermissions([
+            
+            // Pays
+            'view_PaysResource', 'view_any_PaysResource',
+
+            // Régions
+            'view_RegionResource', 'view_any_RegionResource',
+            'create_RegionResource', 'update_RegionResource', 'delete_RegionResource',
+
+            // Villes
+            'view_VilleResource', 'view_any_VilleResource',
+            'create_VilleResource', 'update_VilleResource', 'delete_VilleResource',
+
+            // Sites
+            'view_SiteResource', 'view_any_SiteResource',
+            'create_SiteResource', 'update_SiteResource', 'delete_SiteResource',
+
+            // Dispositifs
+            'view_DispositifResource', 'view_any_DispositifResource',
+            'create_DispositifResource', 'update_DispositifResource', 'delete_DispositifResource',
+            
+            // Votes
+            'view_VoteResource', 'view_any_VoteResource',
+            'create_VoteResource', 'update_VoteResource', 'delete_VoteResource',
+        ]);
+
         // Rôle Admin régional (accès à tous les sites d'une région)
         $adminRegional = Role::firstOrCreate([
             'name' => 'Admin régional',
@@ -108,19 +129,15 @@ class RoleAndPermissionSeeder extends Seeder
 
             // Villes (lecture seule)
             'view_VilleResource', 'view_any_VilleResource',
-            'create_VilleResource', 'update_VilleResource',
 
             // Sites (accès complet)
             'view_SiteResource', 'view_any_SiteResource',
-            'create_SiteResource', 'update_SiteResource',
 
             // Dispositifs (accès complet)
             'view_DispositifResource', 'view_any_DispositifResource',
-            'create_DispositifResource', 'update_DispositifResource',
 
             // Votes (accès complet)
             'view_VoteResource', 'view_any_VoteResource',
-            'create_VoteResource', 'update_VoteResource',
         ]);
 
         // Rôle Admin de site (accès à un site spécifique)
@@ -134,11 +151,9 @@ class RoleAndPermissionSeeder extends Seeder
 
             // Dispositifs (accès complet)
             'view_DispositifResource', 'view_any_DispositifResource',
-            'create_DispositifResource', 'update_DispositifResource',
 
             // Votes (accès complet)
             'view_VoteResource', 'view_any_VoteResource',
-            'create_VoteResource', 'update_VoteResource',
         ]);
         $this->command->info('✅ Rôles et permissions synchronisés avec succès.');
     }

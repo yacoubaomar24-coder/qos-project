@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Panel;
 
-#[Fillable(['created_by', 'region_id', 'site_id','nom', 'prenom', 'numero', 'email', 'role', 'statut', 'password'])]
+#[Fillable(['created_by', 'pays_id', 'region_id', 'site_id','nom', 'prenom', 'numero', 'email', 'role', 'statut', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 
 class Utilisateur extends Authenticatable
@@ -43,6 +43,11 @@ class Utilisateur extends Authenticatable
     public function region()
     {
         return $this->belongsTo(Region::class);
+    }
+
+    public function pays()
+    {
+        return $this->belongsTo(Pays::class);
     }
 
     public function canAccessPanel(Panel $panel): bool
