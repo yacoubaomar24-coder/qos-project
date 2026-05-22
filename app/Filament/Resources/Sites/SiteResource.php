@@ -47,7 +47,8 @@ class SiteResource extends Resource
                 Select::make('ville_id')
                     ->options(function () {
                         /** @var Utilisateur $user */
-                        $user = filament()->auth()->user();
+                        //$user = filament()->auth()->user();
+                        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
 
                         $query = \App\Models\Ville::query();
 
@@ -118,10 +119,23 @@ class SiteResource extends Resource
         ];
     }
 
+    private static function getVisibleCreatorIds(\App\Models\Utilisateur $user): array
+    {
+        // IDs des Admin nationaux créés par ce Super admin
+        $adminNationalIds = \App\Models\Utilisateur::where('created_by', $user->id)
+            ->where('role', 'Admin national')
+            ->pluck('id')
+            ->toArray();
+
+        // Super admin lui-même + ses Admin nationaux
+        return array_merge([$user->id], $adminNationalIds);
+    }
+
     public static function getEloquentQuery(): Builder
     {
         /** @var Utilisateur|null $user */
-        $user  = filament()->auth()->user();
+        //$user  = filament()->auth()->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
         $query = parent::getEloquentQuery();
 
         if (!$user instanceof Utilisateur) {
@@ -133,8 +147,13 @@ class SiteResource extends Resource
         }
 
         if ($user->hasRole('Super admin')) {
-            return $query->where('created_by', $user->id);
+            $creatorIds = static::getVisibleCreatorIds($user);
+            return $query->whereIn('created_by', $creatorIds);
         }
+        /*
+        if ($user->hasRole('Super admin')) {
+            return $query->where('created_by', $user->id);
+        }*/
 
         if ($user->hasRole('Admin national')) {
             // Sites dont la ville → région → pays

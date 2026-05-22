@@ -19,4 +19,14 @@ class CreateUtilisateur extends CreateRecord
 
         return $data;
     }
+
+    protected function afterCreate(): void
+    {
+        // Assigner le rôle Spatie selon le champ role
+        $this->record->syncRoles([$this->record->role]);
+
+        \Spatie\Permission\PermissionRegistrar::class;
+        app()[\Spatie\Permission\PermissionRegistrar::class]
+            ->forgetCachedPermissions();
+    }
 }

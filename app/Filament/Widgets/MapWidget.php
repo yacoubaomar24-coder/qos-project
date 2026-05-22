@@ -25,7 +25,8 @@ class MapWidget extends Widget
     
     public function getSitesData(): array {
         /** @var Utilisateur $user */
-        $user  = filament()->auth()->user();
+        //$user  = filament()->auth()->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
         $sites = Site::with(['ville.region.pays'])
             ->where('statut', true)
             ->when($user->hasRole('Super admin'), fn($q) =>

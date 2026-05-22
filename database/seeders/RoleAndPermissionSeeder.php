@@ -93,6 +93,10 @@ class RoleAndPermissionSeeder extends Seeder
         ]);
         $superAdmin->syncPermissions([
             
+            // Utilisateurs
+            'view_UtilisateurResource', 'view_any_UtilisateurResource',
+            'create_UtilisateurResource', 'update_UtilisateurResource',
+            
             // Pays
             'view_PaysResource', 'view_any_PaysResource',
 
@@ -123,6 +127,9 @@ class RoleAndPermissionSeeder extends Seeder
             'guard_name' => 'web'
         ]);
         $adminRegional->syncPermissions([
+
+            // Utilisateurs
+            'view_UtilisateurResource', 'view_any_UtilisateurResource',
 
             // Régions (lecture seule)
             'view_RegionResource', 'view_any_RegionResource',

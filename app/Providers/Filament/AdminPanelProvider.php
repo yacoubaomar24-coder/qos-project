@@ -50,6 +50,11 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
+            ->widgets([
+                \App\Filament\Widgets\PeriodFilter::class,   // ← sort=0, en premier
+                \App\Filament\Widgets\StatsOverview::class,  // ← sort=1, en second
+                \App\Filament\Widgets\MapWidget::class,      // ← sort=2, en dernier
+            ])
             ->middleware([
                 EncryptCookies::class,
                 EncryptCookies::class,

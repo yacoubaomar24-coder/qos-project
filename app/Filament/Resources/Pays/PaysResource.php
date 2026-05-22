@@ -87,10 +87,23 @@ class PaysResource extends Resource
         ];
     }
 
+    private static function getVisibleCreatorIds(\App\Models\Utilisateur $user): array
+    {
+        // IDs des Admin nationaux créés par ce Super admin
+        $adminNationalIds = \App\Models\Utilisateur::where('created_by', $user->id)
+            ->where('role', 'Admin national')
+            ->pluck('id')
+            ->toArray();
+
+        // Super admin lui-même + ses Admin nationaux
+        return array_merge([$user->id], $adminNationalIds);
+    }
+
     public static function getEloquentQuery(): Builder
     {
         /** @var Utilisateur|null $user */
-        $user  = filament()->auth()->user();
+        //$user  = filament()->auth()->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
         $query = parent::getEloquentQuery();
 
         if (!$user instanceof Utilisateur) {
@@ -103,11 +116,15 @@ class PaysResource extends Resource
         }
 
         // Super admin voit uniquement ses propres pays
-        if ($user->hasRole('Super admin')) {
+        /*if ($user->hasRole('Super admin')) {
             return $query->where('created_by', $user->id);
+        }*/
+        if ($user->hasRole('Super admin')) {
+            $creatorIds = static::getVisibleCreatorIds($user);
+            return $query->whereIn('created_by', $creatorIds);
         }
 
-        // Admin national voit uniquement les utilisateurs qu'il a créés pour son pays
+        // Admin national voit uniquement son pays
         if ($user->hasRole('Admin national')) {
             return $query->where('id', $user->pays_id);
         }
@@ -115,10 +132,19 @@ class PaysResource extends Resource
         return $query->whereRaw('1 = 0');
     }
 
+    /*
     public static function canViewAny(): bool
     {
         /** @var \App\Models\Utilisateur $user */
-        $user = filament()->auth()->user();
+        /*$user = filament()->auth()->user();
         return $user->can('view_any_RegionResource');
+    }*/
+    public static function canViewAny(): bool
+    {
+        $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+        if (!$user instanceof \App\Models\Utilisateur) return false;
+
+        // Seuls les 3 Admin voient les pays
+        return $user->hasAnyRole(['Admin', 'Super admin', 'Admin national']);
     }
 }

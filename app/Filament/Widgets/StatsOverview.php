@@ -8,6 +8,7 @@ use App\Models\Utilisateur;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
 
 //class StatsOverview extends StatsOverviewWidget
 class StatsOverview extends BaseWidget
@@ -18,10 +19,46 @@ class StatsOverview extends BaseWidget
     // Période sélectionnée
     public string $period = 'today';
 
+    // ✅ Écouter l'événement via attribut On
+    #[On('periodChanged')]
+
+    // Pour changer la période
+    // Livewire appelle cette méthode automatiquement
+    // quand $period change via wire:model.live
+    public function updatePeriod(string $period): void
+    {
+        $this->period = $period;
+    }
+
+    private function getAuthUser(): ?Utilisateur
+    {
+        $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+        return $user instanceof Utilisateur ? $user : null;
+    }
+
+    private static function getVisibleCreatorIds(\App\Models\Utilisateur $user): array
+    {
+        // IDs des Admin nationaux créés par ce Super admin
+        $adminNationalIds = \App\Models\Utilisateur::where('created_by', $user->id)
+            ->where('role', 'Admin national')
+            ->pluck('id')
+            ->toArray();
+
+        // Super admin lui-même + ses Admin nationaux
+        return array_merge([$user->id], $adminNationalIds);
+    }
+
     protected function getStats(): array
     {
-        /** @var Utilisateur $user */
-        $user = filament()->auth()->user();
+        $user = $this->getAuthUser();
+
+        // Sécurité — si pas connecté retourner des stats vides
+        if (!$user) {
+            return [];
+        }
+
+        //** @var Utilisateur $user */
+        //$user = filament()->auth()->user();
 
         $votesQuery = $this->getFilteredVotesQuery($user);
 
@@ -100,8 +137,9 @@ class StatsOverview extends BaseWidget
         }
 
         if ($user->hasRole('Super admin')) {
-            // Super admin voit les votes de ses sites créés
-            $siteIds = Site::where('created_by', $user->id)->pluck('id');
+            // Super admin voit ses sites + sites de ses Admin nationaux
+            $creatorIds = $this->getVisibleCreatorIds($user);
+            $siteIds    = Site::whereIn('created_by', $creatorIds)->pluck('id');
             $query->whereIn('site_id', $siteIds);
 
         } elseif ($user->hasRole('Admin national')) {
@@ -140,8 +178,10 @@ class StatsOverview extends BaseWidget
         }
         
         if ($user->hasRole('Super admin')) {
-            // Super admin voit ses sites créés directement
-            $query->where('created_by', $user->id);
+            // Super admin voit ses sites + sites de ses Admin nationaux
+            $creatorIds = $this->getVisibleCreatorIds($user);
+            $query->whereIn('created_by', $creatorIds);
+
         } elseif ($user->hasRole('Admin national')) {
             // Admin national voit les sites de son pays
             $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)
@@ -204,18 +244,5 @@ class StatsOverview extends BaseWidget
         $taux = $site->total > 0 ? round(($site->satisfaits / $site->total) * 100, 1) : 0;
 
         return ['nom' => $nom, 'taux' => $taux];
-    }
-
-    // Pour changer la période
-    // Livewire appelle cette méthode automatiquement
-    // quand $period change via wire:model.live
-    public function updatedPeriod(): void
-    {
-        // Rien à faire — Livewire re-render automatiquement
-    }
-
-    public function render(): \Illuminate\Contracts\View\View
-    {
-        return view('filament.widgets.stats-overview');
     }
 }

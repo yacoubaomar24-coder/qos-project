@@ -21,7 +21,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\Traits\HasResourcePermissions;
+//use App\Filament\Resources\Traits\HasResourcePermissions;
+//use Illuminate\Support\Facades\Auth;
 
 class UtilisateurResource extends Resource
 {
@@ -41,7 +42,8 @@ class UtilisateurResource extends Resource
                 // Pour restreindre les rôles en fonction de l'utilisateur connecté
                 ->options( function () {
                     /** @var Utilisateur $user */
-                    $user = filament()->auth()->user();
+                    //$user = filament()->auth()->user();
+                    $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
 
                     // Admin voit tous les rôles
                     if ($user->hasRole('Admin')) {
@@ -80,7 +82,8 @@ class UtilisateurResource extends Resource
                 ->label('Pays')
                 ->options(function () {
                     /** @var Utilisateur $user */
-                    $user = filament()->auth()->user();
+                    //$user = filament()->auth()->user();
+                    $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
 
                     $query = \App\Models\Pays::query();
 
@@ -108,14 +111,17 @@ class UtilisateurResource extends Resource
                     // Admin de site — pas de pays
                     return [];
                 })
-                ->nullable(),
+                ->nullable()
+                ->requiredIf('role', ['Admin national', 'Admin régional', 'Admin de site'])
+                ->helperText('Obligatoire pour les rôles Admin national, régional et de site'),
             //Select::make('region_id')->relationship('region', 'nom')->nullable(),
             // Région — filtrée selon le pays et le rôle
             Select::make('region_id')
                 ->label('Région')
                 ->options(function () {
                     /** @var Utilisateur $user */
-                    $user = filament()->auth()->user();
+                    //$user = filament()->auth()->user();
+                    $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
 
                     $query = \App\Models\Region::query();
 
@@ -141,14 +147,18 @@ class UtilisateurResource extends Resource
 
                     // Admin de site — pas de région
                     return [];
-                })->nullable(),
+                })
+                ->nullable()
+                ->requiredIf('role', ['Admin régional', 'Admin de site'])
+                ->helperText('Obligatoire pour les rôles Admin régional et de site'),
             //Select::make('site_id')->relationship('site', 'nom')->nullable(),
             // Site — filtré selon la région et le rôle
             Select::make('site_id')
                 ->label('Site')
                 ->options(function () {
                     /** @var Utilisateur $user */
-                    $user = filament()->auth()->user();
+                    //$user = filament()->auth()->user();
+                    $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
 
                     $query = \App\Models\Site::query();
 
@@ -158,8 +168,22 @@ class UtilisateurResource extends Resource
                     }
 
                     if ($user->hasRole('Super admin')) {
-                        // Super admin voit uniquement ses sites créés
-                        return $query->where('created_by', $user->id)->pluck('nom', 'id');
+                        // Super admin voit les sites créés par lui et ses admins
+                        $userIds = \App\Models\Utilisateur::where('created_by', $user->id)
+                            ->pluck('id');
+
+                        // Ajouter le super admin lui-même
+                        $userIds->push($user->id);
+
+                        // ça filtre uniquement les sites qui n'ont pas des admins
+                        $usedSiteIds = Utilisateur::role('Admin de site')
+                            ->whereNotNull('site_id')
+                            ->pluck('site_id');
+
+                        return $query
+                            ->whereIn('created_by', $userIds)
+                            ->whereNotIn('id', $usedSiteIds)  // Pour les sites sans admins
+                            ->pluck('nom', 'id');
                     }
 
                     if ($user->hasRole('Admin national')) {
@@ -187,7 +211,10 @@ class UtilisateurResource extends Resource
 
                     return [];
 
-                })->nullable(),
+                })
+                ->nullable()
+                ->requiredIf('role', ['Admin de site'])
+                ->helperText('Obligatoire pour le rôle Admin de site'),
             TextInput::make('nom')->required(),
             TextInput::make('prenom')->required(),
             TextInput::make('numero')->required(),
@@ -238,7 +265,19 @@ class UtilisateurResource extends Resource
         ];
     }
     
-    //  
+    // ça permet au Super admin de voir tout ce que admin national a créé
+    private static function getVisibleCreatorIds(\App\Models\Utilisateur $user): array
+    {
+        // IDs des Admin nationaux créés par ce Super admin
+        $adminNationalIds = \App\Models\Utilisateur::where('created_by', $user->id)
+            ->where('role', 'Admin national')
+            ->pluck('id')
+            ->toArray();
+
+        // Super admin lui-même + ses Admin nationaux
+        return array_merge([$user->id], $adminNationalIds);
+    }
+
     public static function getEloquentQuery(): Builder
     {
 
@@ -248,7 +287,8 @@ class UtilisateurResource extends Resource
         /** @var Utilisateur|null $user */
 
         // Récupération de l’utilisateur actuellement connecté dans Filament
-        $user  = filament()->auth()->user();
+        //$user  = filament()->auth()->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
         
         // C'est la requête normale du modèle, puis on pourra la modifier selon le rôle ou les permissions.
         $query = parent::getEloquentQuery();
@@ -266,18 +306,16 @@ class UtilisateurResource extends Resource
         }
 
         // Super admin voit uniquement les utilisateurs qu'il a créés
-        if ($user->hasRole('Super admin')) {
+        /*if ($user->hasRole('Super admin')) {
             return $query
                 ->where('created_by', $user->id)
                 ->whereIn('role', ['Admin national', 'Admin régional', 'Admin de site']);
-        }
-
-        // Admin national voit uniquement les utilisateurs qu'il a créés pour son pays
-        /*if ($user->hasRole('Admin national')) {
-            return $query
-                ->where('created_by', $user->id)
-                ->whereIn('role', ['Admin régional', 'Admin de site']);
         }*/
+
+        if ($user->hasRole('Super admin')) {
+            $creatorIds = static::getVisibleCreatorIds($user);
+            return $query->whereIn('created_by', $creatorIds);
+        }
 
         if ($user->hasRole('Admin national')) {
             // Voit les Admin régionaux et de site de son pays
@@ -291,9 +329,11 @@ class UtilisateurResource extends Resource
                 });
         }
 
-        // Admin régional voit les utilisateurs de sa région
+        // Admin régional voit les admins de sa région
         if ($user->hasRole('Admin régional')) {
-            return $query->where('region_id', $user->region_id);
+            return $query
+                ->where('region_id', $user->region_id)
+                ->whereIn('role', ['Admin de site']); 
         }
 
         // Admin de site voit les utilisateurs de son site
@@ -310,8 +350,9 @@ class UtilisateurResource extends Resource
         // Récupère l'utilisateur connecté via Filament
         // ou via le guard web classique (Laravel normal)
         // ?? signifie que “Si la valeur de gauche est null, utiliser celle de droite.”
-        $user = filament()->auth()->user() ?? \Illuminate\Support\Facades\Auth::guard('web')->user();
-        
+        //$user = filament()->auth()->user() ?? \Illuminate\Support\Facades\Auth::guard('web')->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
         if (!$user instanceof Utilisateur) return false;
         
         // Vérifie si l'utilisateur possède la permission
@@ -321,21 +362,24 @@ class UtilisateurResource extends Resource
 
     public static function canCreate(): bool
     {
-        $user = filament()->auth()->user() ?? \Illuminate\Support\Facades\Auth::guard('web')->user();
+        //$user = filament()->auth()->user() ?? \Illuminate\Support\Facades\Auth::guard('web')->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
         if (!$user instanceof Utilisateur) return false;
         return $user->can('create_UtilisateurResource');
     }
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        $user = filament()->auth()->user() ?? \Illuminate\Support\Facades\Auth::guard('web')->user();
+        //$user = filament()->auth()->user() ?? \Illuminate\Support\Facades\Auth::guard('web')->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
         if (!$user instanceof Utilisateur) return false;
         return $user->can('update_UtilisateurResource');
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        $user = filament()->auth()->user() ?? \Illuminate\Support\Facades\Auth::guard('web')->user();
+        //$user = filament()->auth()->user() ?? \Illuminate\Support\Facades\Auth::guard('web')->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
         if (!$user instanceof Utilisateur) return false;
         return $user->can('delete_UtilisateurResource');
     }
