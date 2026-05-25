@@ -51,9 +51,9 @@ class AdminPanelProvider extends PanelProvider
                 FilamentInfoWidget::class,
             ])
             ->widgets([
-                \App\Filament\Widgets\PeriodFilter::class,   // ← sort=0, en premier
-                \App\Filament\Widgets\StatsOverview::class,  // ← sort=1, en second
-                \App\Filament\Widgets\MapWidget::class,      // ← sort=2, en dernier
+                \App\Filament\Widgets\PeriodFilter::class,
+                \App\Filament\Widgets\StatsOverview::class,  
+                \App\Filament\Widgets\MapWidget::class,   
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -81,7 +81,7 @@ class AdminPanelProvider extends PanelProvider
                 fn(): HtmlString => new HtmlString(
                     session('error')
                         ? '<div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">'
-                            . session('error')
+                            . e(session('error')) // e() protège contre les injections XSS dans le message affiché.
                             . '</div>'
                         : ''
                 )

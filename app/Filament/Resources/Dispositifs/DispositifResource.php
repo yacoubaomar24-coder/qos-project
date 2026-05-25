@@ -57,8 +57,27 @@ class DispositifResource extends Resource
                         }
 
                         if ($user->hasRole('Super admin')) {
-                            // Super admin voit ses sites créés directement
-                            return $query->where('created_by', $user->id)->pluck('nom', 'id');
+                            
+                            /** @var Utilisateur $user */
+                            $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                            $query = \App\Models\Site::query();
+                            
+                            // SUPER ADMIN
+                            if ($user->hasRole('Super admin')) {
+
+                                // Utilisateurs créés par ce super admin
+                                $userIds = \App\Models\Utilisateur::where(
+                                    'created_by',
+                                    $user->id
+                                )->pluck('id');
+
+                                // Ajouter le super admin lui-même
+                                $userIds->push($user->id);
+
+                                $query->whereIn('created_by', $userIds);
+                            }
+                            return $query->pluck('nom', 'id');
                         }
 
                         if ($user->hasRole('Admin national')) {

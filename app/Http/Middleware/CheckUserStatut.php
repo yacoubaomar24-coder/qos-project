@@ -18,7 +18,8 @@ class CheckUserStatut
     public function handle(Request $request, Closure $next): Response
     {
         /** @var Utilisateur|null $user */
-        $user = filament()->auth()->user();
+        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
+        //$user = filament()->auth()->user();
 
         if ($user instanceof Utilisateur && !$user->statut) {
             // Déconnecter l'utilisateur
@@ -29,9 +30,17 @@ class CheckUserStatut
             $request->session()->regenerateToken();
 
             // Rediriger vers login avec message
-            session()->flash('error', 'Votre compte est inactif. Contactez un administrateur.');
+            //session()->flash('error', 'Votre compte est inactif. Contactez un administrateur.');
 
-            return redirect()->to(filament()->getLoginUrl());
+            // Message flash via l'objet Request
+            $request->session()->flash(
+                'error',
+                'Votre compte est inactif. Contactez un administrateur.'
+            );
+
+            //return redirect()->to(filament()->getLoginUrl());
+            // Rediriger vers login
+            return redirect()->to('/admin/login');
         }
 
         return $next($request);

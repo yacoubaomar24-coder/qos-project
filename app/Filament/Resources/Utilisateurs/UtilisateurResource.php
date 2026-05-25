@@ -102,18 +102,39 @@ class UtilisateurResource extends Resource
                         return $query->where('id', $user->pays_id)->pluck('nom', 'id');
                     }
 
-                    if ($user->hasRole('Admin régional')) {
-                        // Admin régional voit uniquement le pays de sa région
-                        $paysId = \App\Models\Region::find($user->region_id)?->pays_id;
-                        return $query->where('id', $paysId)->pluck('nom', 'id');
-                    }
-
-                    // Admin de site — pas de pays
                     return [];
                 })
-                ->nullable()
-                ->requiredIf('role', ['Admin national', 'Admin régional', 'Admin de site'])
-                ->helperText('Obligatoire pour les rôles Admin national, régional et de site'),
+                ->default(function () {
+                    /** @var \App\Models\Utilisateur|null $user */
+                    $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+                    
+                    // Remplissage automatique pour Admin national
+                    return $user?->hasRole('Admin national')
+                        ? $user->pays_id
+                        : null;
+                })
+                ->required(function () {
+                    /** @var \App\Models\Utilisateur|null $user */
+                    $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+                    
+                    // Obligatoire uniquement pour Super admin et Admin national
+                    return $user?->hasAnyRole(['Super admin', 'Admin national']);
+                })
+                ->helperText(function () {
+                    /** @var \App\Models\Utilisateur|null $user */
+                    $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                    if ($user?->hasRole('Super admin')) {
+                        return 'Le pays est obligatoire.';
+                    }
+
+                    if ($user?->hasRole('Admin national')) {
+                        return 'Pays attribué automatiquement.';
+                    }
+
+                    return null;
+                })
+                ->nullable(),
             //Select::make('region_id')->relationship('region', 'nom')->nullable(),
             // Région — filtrée selon le pays et le rôle
             Select::make('region_id')
@@ -127,17 +148,54 @@ class UtilisateurResource extends Resource
 
                     if ($user->hasRole('Admin')) {
                         // Admin voit toutes les régions
-                        return $query->pluck('nom', 'id');
+
+                        // ça filtre uniquement les régions qui n'ont pas des admins
+                        // quand Super admin se connecte
+                        $usedRegionIds = Utilisateur::role('Admin régional')
+                            ->whereNotNull('region_id')
+                            ->pluck('region_id');
+
+                        return $query
+                            ->whereNotIn('id', $usedRegionIds)  // Pour les régions sans admins
+                            ->pluck('nom', 'id');
                     }
 
                     if ($user->hasRole('Super admin')) {
-                        // Super admin voit uniquement ses régions créées
-                        return $query->where('created_by', $user->id)->pluck('nom', 'id');
+                        // IDs des Admin nationaux créés par ce Super admin
+                        $adminNationalIds = Utilisateur::where('created_by', $user->id)
+                            ->where('role', 'Admin national')
+                            ->pluck('id');
+
+                        // Tous les créateurs visibles par ce Super admin
+                        // donc lui et ses Admin nationaux
+                        $creatorIds = $adminNationalIds->push($user->id);
+
+                        // Régions déjà attribuées à un admin régional
+                        $usedRegionIds = Utilisateur::role('Admin régional')
+                            ->whereNotNull('region_id')
+                            ->pluck('region_id');
+
+                        // Régions créées par le Super admin OU ses Admin nationaux
+                        // moins celles déjà attribuées à un admin régional
+                        return $query
+                            ->whereIn('created_by', $creatorIds)
+                            ->whereNotIn('id', $usedRegionIds)
+                            ->pluck('nom', 'id');
                     }
 
                     if ($user->hasRole('Admin national')) {
                         // Admin national voit toutes les régions de son pays
-                        return $query->where('pays_id', $user->pays_id)->pluck('nom', 'id');
+
+                        // ça filtre uniquement les régions qui n'ont pas des admins
+                        // quand admin national se connecte
+                        $usedRegionIds = Utilisateur::role('Admin régional')
+                            ->whereNotNull('region_id')
+                            ->pluck('region_id');
+
+                        return $query
+                            ->where('pays_id', $user->pays_id)
+                            ->whereNotIn('id', $usedRegionIds)  // Pour les régions sans admins
+                            ->pluck('nom', 'id');
                     }
 
                     if ($user->hasRole('Admin régional')) {
@@ -164,7 +222,15 @@ class UtilisateurResource extends Resource
 
                     if ($user->hasRole('Admin')) {
                         // Admin voit tous les sites
-                        return $query->pluck('nom', 'id');
+
+                        // ça filtre uniquement les sites qui n'ont pas des admins
+                        $usedSiteIds = Utilisateur::role('Admin de site')
+                            ->whereNotNull('site_id')
+                            ->pluck('site_id');
+
+                        return $query
+                            ->whereNotIn('id', $usedSiteIds)  // Pour les sites sans admins
+                            ->pluck('nom', 'id');
                     }
 
                     if ($user->hasRole('Super admin')) {
@@ -193,7 +259,16 @@ class UtilisateurResource extends Resource
                             ->pluck('id');
                         $villeIds  = \App\Models\Ville::whereIn('region_id', $regionIds)
                             ->pluck('id');
-                        return $query->whereIn('ville_id', $villeIds)->pluck('nom', 'id');
+
+                        // ça filtre uniquement les sites qui n'ont pas des admins
+                        $usedSiteIds = Utilisateur::role('Admin de site')
+                            ->whereNotNull('site_id')
+                            ->pluck('site_id');
+
+                        return $query
+                            ->whereIn('ville_id', $villeIds)
+                            ->whereNotIn('id', $usedSiteIds)  // Pour les sites sans admins
+                            ->pluck('nom', 'id');
                     }
 
                     if ($user->hasRole('Admin régional')) {
@@ -217,8 +292,27 @@ class UtilisateurResource extends Resource
                 ->helperText('Obligatoire pour le rôle Admin de site'),
             TextInput::make('nom')->required(),
             TextInput::make('prenom')->required(),
-            TextInput::make('numero')->required(),
-            TextInput::make('email')->required()->email(),
+            TextInput::make('numero')
+                ->unique(
+                    table: 'utilisateurs',
+                    column: 'numero',
+                    ignoreRecord: true // ← ignore l'enregistrement en cours lors de l'édition
+                )
+                ->validationMessages([
+                    'unique' => 'Ce numéro est déjà utilisé par un autre utilisateur.',
+                ])
+                ->required(),
+            TextInput::make('email')
+                ->required()
+                ->email()
+                 ->unique(
+                    table: 'utilisateurs',
+                    column: 'email',
+                    ignoreRecord: true // ← ignore l'enregistrement en cours lors de l'édition
+                )
+                ->validationMessages([
+                    'unique' => 'Cette adresse email est déjà utilisée par un autre utilisateur.',
+                ]),
             TextInput::make('password')->required()->password(),
             Toggle::make('statut')->default(true),
         ]);

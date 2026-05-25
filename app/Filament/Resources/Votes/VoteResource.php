@@ -50,11 +50,23 @@ class VoteResource extends Resource
                         //$user = filament()->auth()->user();
                         $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
 
-                        return \App\Models\Site::query()
-                            ->when($user->hasRole('Super admin'), fn($q) =>
-                                $q->where('created_by', $user->id)
-                            )
-                            ->pluck('nom', 'id');
+                        $query = \App\Models\Site::query();
+
+                        // SUPER ADMIN
+                        if ($user->hasRole('Super admin')) {
+
+                            // Utilisateurs créés par ce super admin
+                            $userIds = \App\Models\Utilisateur::where(
+                                'created_by',
+                                $user->id
+                            )->pluck('id');
+
+                            // Ajouter le super admin lui-même
+                            $userIds->push($user->id);
+
+                            $query->whereIn('created_by', $userIds);
+                        }
+                        return $query->pluck('nom', 'id');
                     })
                     ->label('Nom du site')
                     ->required(),
