@@ -44,7 +44,7 @@ class VilleResource extends Resource
             ->schema([
                 //Select::make('region_id')->relationship('region', 'nom')->required(),
                 Select::make('region_id')
-                    ->label('Région')
+                    ->label('Région de la ville')
                     ->options(function () {
                         /** @var Utilisateur $user */
                         //$user = filament()->auth()->user();
@@ -95,7 +95,7 @@ class VilleResource extends Resource
                         return [];
                     })
                     ->required(),
-                TextInput::make('nom')->label('Nom')->required(),
+                TextInput::make('nom')->label('Nom de la ville')->required(),
                 Toggle::make('statut')->label('Actif')->default(true),
         ]);
     }
@@ -104,8 +104,8 @@ class VilleResource extends Resource
     {
         //return VillesTable::configure($table);
         return $table->columns([
-                TextColumn::make('region.nom')->label('Région')->sortable(),
-                TextColumn::make('nom')->searchable()->label('Nom')->sortable(),
+                TextColumn::make('region.nom')->label('Région'),
+                TextColumn::make('nom')->searchable()->label('Nom'),
                 IconColumn::make('statut')->label('Statut')->boolean(),
             ])->filters([
                 //

@@ -77,8 +77,9 @@ class SiteResource extends Resource
 
                         return [];
                     })
+                    ->label('Nom de la ville')
                     ->required(),
-                TextInput::make('nom')->label('Nom')->required(),
+                TextInput::make('nom')->label('Nom du site')->required(),
                 Toggle::make('statut')->label('Actif')->default(true),
             ]);
     }
@@ -87,8 +88,8 @@ class SiteResource extends Resource
     {
         //return SitesTable::configure($table);
         return $table->columns([
-                TextColumn::make('ville.nom')->label('Ville')->sortable(),
-                TextColumn::make('nom')->searchable()->label('Nom')->sortable(),
+                TextColumn::make('ville.nom')->label('Ville'),
+                TextColumn::make('nom')->searchable()->label('Nom'),
                 IconColumn::make('statut')->label('Statut')->boolean(),
             ])->filters([
                 //

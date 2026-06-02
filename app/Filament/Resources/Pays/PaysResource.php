@@ -45,8 +45,8 @@ class PaysResource extends Resource
     {
         return $schema
             ->schema([
-                TextInput::make('nom')->label('Nom')->required(),
-                TextInput::make('code')->label('Code')->required(),
+                TextInput::make('nom')->label('Nom du pays')->required(),
+                TextInput::make('code')->label('Code du pays')->required(),
                 Toggle::make('statut')->label('Actif')->default(true),
         ]);
     }
@@ -55,7 +55,7 @@ class PaysResource extends Resource
     {
         //return PaysTable::configure($table);
         return $table->columns([
-                TextColumn::make('nom')->searchable()->label('Nom')->sortable(),
+                TextColumn::make('nom')->searchable()->label('Nom'),
                 TextColumn::make('code')->searchable()->label('Code'),
                 IconColumn::make('statut')->label('Statut')->boolean(),
             ])->filters([

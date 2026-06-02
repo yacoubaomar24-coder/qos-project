@@ -45,7 +45,7 @@ class RegionResource extends Resource
             ->schema([
                 //Select::make('pays_id')->relationship('pays', 'nom')->required(),
                 Select::make('pays_id')
-                    ->label('Pays')
+                    ->label('Pays de la région')
                     ->options(function () {
                         /** @var Utilisateur $user */
                         //$user = filament()->auth()->user();
@@ -80,7 +80,7 @@ class RegionResource extends Resource
                     })
                     ->searchable()
                     ->required(),
-                TextInput::make('nom')->required(),
+                TextInput::make('nom')->label('Nom de la région')->required(),
                 Toggle::make('statut')->default(true),
                 //TextInput::make('pays_id'),
         ]);
@@ -90,8 +90,8 @@ class RegionResource extends Resource
     {
         //return RegionsTable::configure($table);
         return $table->columns([
-                TextColumn::make('pays.nom')->label('Pays')->sortable(),
-                TextColumn::make('nom')->searchable()->label('Région')->sortable(),
+                TextColumn::make('pays.nom')->label('Pays'),
+                TextColumn::make('nom')->searchable()->label('Région'),
                 IconColumn::make('statut')->label('Statut')->boolean(),
             ])->filters([
                 //

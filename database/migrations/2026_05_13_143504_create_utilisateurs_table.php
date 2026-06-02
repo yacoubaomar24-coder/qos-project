@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('utilisateurs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('region_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('site_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('nom');
-            $table->string('prenom');
-            $table->integer('numero')->unique();
-            $table->string('email')->unique();
-            $table->string('role');
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+        Schema::table('utilisateurs', function (Blueprint $table) {
+            //$table->id();
+            //$table->foreignId('region_id')->nullable()->constrained()->nullOnDelete();
+            //$table->foreignId('site_id')->nullable()->constrained()->nullOnDelete();
+            //$table->string('nom');
+            //$table->string('prenom');
+            //$table->integer('numero')->unique();
+            //$table->string('email')->unique();
+            //$table->string('role');
+            //$table->string('password');
+            //$table->rememberToken();
+            //$table->timestamps();
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('utilisateurs');
+        Schema::table('utilisateurs');
     }
 };

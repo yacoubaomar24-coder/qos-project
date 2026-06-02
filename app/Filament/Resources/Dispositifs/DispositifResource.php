@@ -123,8 +123,8 @@ class DispositifResource extends Resource
     {
         //return DispositifsTable::configure($table);
         return $table->columns([
-                TextColumn::make('site.nom')->label('Nom du site')->sortable(),
-                TextColumn::make('nom')->searchable()->label('Nom')->sortable(),
+                TextColumn::make('site.nom')->label('Site'),
+                TextColumn::make('nom')->searchable()->label('Nom'),
                 TextColumn::make('adresse_mac')->searchable()->label('Adresse MAC'),
                 IconColumn::make('statut')->label('Statut')->boolean(),
             ])->filters([

@@ -139,7 +139,7 @@ class UtilisateurResource extends Resource
             // Région — filtrée selon le pays et le rôle
             Select::make('region_id')
                 ->label('Région')
-                ->options(function () {
+                ->options(function (callable $get) {
                     /** @var Utilisateur $user */
                     //$user = filament()->auth()->user();
                     $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
@@ -170,32 +170,37 @@ class UtilisateurResource extends Resource
                         // donc lui et ses Admin nationaux
                         $creatorIds = $adminNationalIds->push($user->id);
 
-                        // Régions déjà attribuées à un admin régional
-                        $usedRegionIds = Utilisateur::role('Admin régional')
-                            ->whereNotNull('region_id')
-                            ->pluck('region_id');
+                        $query->whereIn('created_by', $creatorIds); 
 
-                        // Régions créées par le Super admin OU ses Admin nationaux
-                        // moins celles déjà attribuées à un admin régional
-                        return $query
-                            ->whereIn('created_by', $creatorIds)
-                            ->whereNotIn('id', $usedRegionIds)
-                            ->pluck('nom', 'id');
+                        // Seulement pour création Admin régional
+                        if ($user->hasRole('Admin régional')) {
+
+                            $usedRegionIds = Utilisateur::role('Admin régional')
+                                ->whereNotNull('region_id')
+                                ->pluck('region_id');
+
+                            $query->whereNotIn('id', $usedRegionIds);
+                        }
+
+                        return $query->pluck('nom', 'id');
                     }
 
                     if ($user->hasRole('Admin national')) {
-                        // Admin national voit toutes les régions de son pays
 
-                        // ça filtre uniquement les régions qui n'ont pas des admins
-                        // quand admin national se connecte
-                        $usedRegionIds = Utilisateur::role('Admin régional')
-                            ->whereNotNull('region_id')
-                            ->pluck('region_id');
+                        // Régions du pays de l'admin national
+                        $query->where('pays_id', $user->pays_id);
 
-                        return $query
-                            ->where('pays_id', $user->pays_id)
-                            ->whereNotIn('id', $usedRegionIds)  // Pour les régions sans admins
-                            ->pluck('nom', 'id');
+                        // Seulement si on crée un Admin régional
+                        if ($get('role') === 'Admin régional') {
+
+                            $usedRegionIds = Utilisateur::role('Admin régional')
+                                ->whereNotNull('region_id')
+                                ->pluck('region_id');
+
+                            $query->whereNotIn('id', $usedRegionIds);
+                        }
+
+                        return $query->pluck('nom', 'id');
                     }
 
                     if ($user->hasRole('Admin régional')) {
