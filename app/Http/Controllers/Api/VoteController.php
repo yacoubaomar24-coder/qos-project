@@ -11,15 +11,30 @@ use Illuminate\Http\JsonResponse;
 
 class VoteController extends Controller
 {
+
+    // GET /api/v1/votes — Liste tous les votes
+    public function index(): JsonResponse
+    {
+        $votes = Vote::with(['dispositif', 'site'])
+            ->latest()
+            ->paginate(20);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $votes,
+        ]);
+    }
+
+    // POST /api/v1/votes — Créer un vote
     public function store(Request $request): JsonResponse {
 
-        // 1. Valider la requête
+        // Valider la requête
         $validated = $request->validate([
             'adresse_mac' => 'required|string',
-            'niveau'      => 'required|in:satisfait,neutre,insatisfait',
+            'niveau'      => 'required|in:satisfait,moyen,insatisfait',
         ]);
 
-        // 2. Identifier le dispositif via son adresse MAC
+        // Identifier le dispositif via son adresse MAC
         $dispositif = Dispositif::where('adresse_mac', $validated['adresse_mac'])
             ->where('statut', true)
             ->first();
@@ -31,7 +46,7 @@ class VoteController extends Controller
             ], 404);
         }
 
-        // 3. Enregistrer le vote
+        // Enregistrer le vote
         $vote = Vote::create([
             'dispositif_id' => $dispositif->id,
             'site_id'       => $dispositif->site_id,
@@ -39,7 +54,7 @@ class VoteController extends Controller
             'created_by'    => $dispositif->created_by,
         ]);
 
-        // 4. Mettre à jour le statut du dispositif
+        // Mettre à jour le statut du dispositif
         $dispositif->update([
             'derniere_connexion' => now(),
             'en_ligne'           => true,
@@ -57,34 +72,93 @@ class VoteController extends Controller
         ], 201);
     }
 
-    // Endpoint pour vérifier si le dispositif est enregistré
-    public function check(Request $request): JsonResponse {
+    // GET /api/v1/votes/{id} — Détail d'un vote
+    public function show(int $id): JsonResponse
+    {
+        $vote = Vote::with(['dispositif', 'site'])->find($id);
 
-        $request->validate([
-            'adresse_mac' => 'required|string',
-        ]);
-
-        $dispositif = Dispositif::where('adresse_mac', $request->adresse_mac)->first();
-
-        if (!$dispositif) {
+        if (!$vote) {
             return response()->json([
-                'success'  => false,
-                'message'  => 'Dispositif non enregistré.',
+                'success' => false,
+                'message' => 'Vote introuvable.',
             ], 404);
         }
 
-        $dispositif->update([
-            'derniere_connexion' => now(),
-            'en_ligne'           => true,
+        return response()->json([
+            'success' => true,
+            'data'    => $vote,
         ]);
+    }
+
+    // GET /api/v1/votes/stats — Statistiques globales
+    // -----------------------------------------------
+    public function stats(Request $request): JsonResponse
+    {
+        $periode = $request->get('periode', 'today');
+
+        $query = Vote::query();
+
+        // Filtre par période
+        match ($periode) {
+            'today' => $query->whereDate('created_at', today()),
+            'week'  => $query->whereBetween('created_at', [
+                            now()->startOfWeek(),
+                            now()->endOfWeek(),
+                        ]),
+            'month' => $query->whereMonth('created_at', now()->month)
+                             ->whereYear('created_at', now()->year),
+            default => $query->whereDate('created_at', today()),
+        };
+
+        $total       = (clone $query)->count();
+        $satisfaits  = (clone $query)->where('niveau', 'satisfait')->count();
+        $neutres     = (clone $query)->where('niveau', 'moyen')->count();
+        $insatisfaits = (clone $query)->where('niveau', 'insatisfait')->count();
 
         return response()->json([
             'success' => true,
             'data'    => [
-                'dispositif_id' => $dispositif->id,
-                'site'          => $dispositif->site->nom,
-                'statut'        => $dispositif->statut,
+                'periode'      => $periode,
+                'total'        => $total,
+                'satisfaits'   => $satisfaits,
+                'neutres'      => $neutres,
+                'insatisfaits' => $insatisfaits,
+                'taux_satisfaction' => $total > 0
+                    ? round(($satisfaits / $total) * 100, 1)
+                    : 0,
             ],
+        ]);
+    }
+
+    // GET /api/v1/votes/par-site — Votes groupés par site
+    public function parSite(): JsonResponse
+    {
+        $votes = Vote::with('site')
+            ->selectRaw('site_id, niveau, COUNT(*) as total')
+            ->groupBy('site_id', 'niveau')
+            ->get()
+            ->groupBy('site_id')
+            ->map(function ($items) {
+                $site        = $items->first()->site;
+                $total       = $items->sum('total');
+                $satisfaits  = $items->where('niveau', 'satisfait')->sum('total');
+
+                return [
+                    'site'              => $site?->nom,
+                    'total'             => $total,
+                    'satisfaits'        => $satisfaits,
+                    'neutres'           => $items->where('niveau', 'moyen')->sum('total'),
+                    'insatisfaits'      => $items->where('niveau', 'insatisfait')->sum('total'),
+                    'taux_satisfaction' => $total > 0
+                        ? round(($satisfaits / $total) * 100, 1)
+                        : 0,
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $votes,
         ]);
     }
 }

@@ -28,7 +28,7 @@ use App\Filament\Resources\Traits\HasResourcePermissions;
 
 class VoteResource extends Resource
 {
-    use HasResourcePermissions;
+    //use HasResourcePermissions;
 
     protected static ?string $model = Vote::class;
 
@@ -106,12 +106,12 @@ class VoteResource extends Resource
             ])->filters([
                 //
             ])->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                //EditAction::make(),
+                //DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    //DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -202,5 +202,20 @@ class VoteResource extends Resource
         //$user = filament()->auth()->user();
         $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
         return $user->can('view_any_VoteResource');
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
     }
 }

@@ -48,7 +48,17 @@ class RoleAndPermissionSeeder extends Seeder
             'name' => 'Admin',
             'guard_name' => 'web'
         ]);
-        $admin->syncPermissions(Permission::all());
+        //$admin->syncPermissions(Permission::all());
+        // Toutes les permissions sauf les 3 liées à la gestion des votes 
+        // (car les admins ne doivent pas pouvoir gérer les votes)
+        $permissions = Permission::where(function ($q) {
+            $q->whereNotIn('name', [
+                'create_VoteResource',
+                'update_VoteResource',
+                'delete_VoteResource',
+            ]);
+        })->get();
+        $admin->syncPermissions($permissions);
 
         // Rôle Super admin (accès total sauf gestion des utilisateurs)
         $superAdmin = Role::firstOrCreate([
@@ -83,7 +93,6 @@ class RoleAndPermissionSeeder extends Seeder
             
             // Votes
             'view_VoteResource', 'view_any_VoteResource',
-            'create_VoteResource', 'update_VoteResource',
         ]);
 
         // Rôle Admin national (accès total pour un pays donné)
@@ -118,7 +127,6 @@ class RoleAndPermissionSeeder extends Seeder
             
             // Votes
             'view_VoteResource', 'view_any_VoteResource',
-            'create_VoteResource', 'update_VoteResource', 'delete_VoteResource',
         ]);
 
         // Rôle Admin régional (accès à tous les sites d'une région)
