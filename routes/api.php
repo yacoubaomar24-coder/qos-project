@@ -21,10 +21,11 @@ Route::prefix('v1')->group(function () {
     Route::post('/dispositifs/verify', [VoteController::class, 'verify']);
 });*/
 
-// Route pour créer un vote, protégée (seul l'objet IoT avec un token valide peut envoyer des données)
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/votes', [VoteController::class, 'store']);
-});
-    
+// Route pour lister les votes
+Route::get('/votes', [VoteController::class, 'index']);
+
+// Route pour créer un vote 
+Route::post('/votes', [VoteController::class, 'store']);
+
 // Route pour vérifier un dispositif
 Route::post('/dispositifs/verify', [VoteController::class, 'verify']);

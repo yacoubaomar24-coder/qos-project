@@ -2,6 +2,11 @@
 
 namespace App\Filament\Resources\Sites;
 
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Select;
+
 use App\Filament\Resources\Sites\Pages\CreateSite;
 use App\Filament\Resources\Sites\Pages\EditSite;
 use App\Filament\Resources\Sites\Pages\ListSites;
@@ -15,9 +20,6 @@ use Filament\Tables\Table;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Select;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\IconColumn;
@@ -88,6 +90,21 @@ class SiteResource extends Resource
                         'unique' => 'Ce nom de site est déjà utilisé par un autre site.',
                     ])
                     ->required(),
+                Section::make('Coordonnées GPS')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('latitude')
+                            ->label('Latitude')
+                            ->numeric()
+                            ->placeholder('ex: 13.5137')
+                            ->helperText('Latitude GPS du site'),
+
+                        TextInput::make('longitude')
+                            ->label('Longitude')
+                            ->numeric()
+                            ->placeholder('ex: 2.1098')
+                            ->helperText('Longitude GPS du site'),
+                ]),
                 Toggle::make('statut')->label('Actif')->default(true),
             ]);
     }
@@ -98,7 +115,9 @@ class SiteResource extends Resource
         return $table->columns([
                 TextColumn::make('ville.nom')->label('Ville'),
                 TextColumn::make('nom')->searchable()->label('Nom'),
-                //IconColumn::make('statut')->label('Statut')->boolean(),
+                // SiteResource.php → table()
+                TextColumn::make('latitude')->label('Latitude')->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('longitude')->label('Longitude')->toggleable(isToggledHiddenByDefault: true),
                 ToggleColumn::make('statut')->label('Statut'),
             ])->filters([
                 //

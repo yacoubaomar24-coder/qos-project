@@ -15,7 +15,11 @@ class MapWidget extends Widget
     protected string $view = 'filament.widgets.map-widget';
 
     
+    // ✅ Propriétés publiques — accessibles dans Blade
     public array $sitesData = [];
+    public string $period    = 'today';
+    public string $filterPays   = '';
+    public string $filterRegion = '';
 
     public function mount(): void
     {
@@ -24,9 +28,10 @@ class MapWidget extends Widget
 
     
     public function getSitesData(): array {
-        /** @var Utilisateur $user */
-        //$user  = filament()->auth()->user();
-        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
+        /** @var Utilisateur|null $user */
+        $user  = filament()->auth()->user();
+        //$user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
         $sites = Site::with(['ville.region.pays'])
             ->where('statut', true)
             ->when($user->hasRole('Super admin'), fn($q) =>
@@ -56,9 +61,27 @@ class MapWidget extends Widget
                 'statut'  => $site->statut,
                 'taux'    => $taux,
                 'total'   => $totalVotes,
+                'latitude' => $site->latitude,
+                'longitude' => $site->longitude,
                 'color'   => $taux >= 70 ? 'green' : ($taux >= 40 ? 'orange' : 'red'),
             ];
         })->toArray();
+    }
+
+    // Mise à jour quand les filtres changent
+    public function updatedPeriod(): void
+    {
+        $this->sitesData = $this->getSitesData();
+    }
+
+    public function updatedFilterPays(): void
+    {
+        $this->sitesData = $this->getSitesData();
+    }
+
+    public function updatedFilterRegion(): void
+    {
+        $this->sitesData = $this->getSitesData();
     }
     
 }

@@ -91,7 +91,6 @@ class VoteResource extends Resource
                         'moyen' => 'Moyen',
                         'insatisfait' => 'Insatisfait',
                     ])->native(false)->label('Niveau')->required(),
-                Toggle::make('statut')->default(true),
         ]);
     }
 
@@ -102,7 +101,6 @@ class VoteResource extends Resource
                 TextColumn::make('site.nom')->label('Site'),
                 TextColumn::make('dispositif.nom')->label('Dispositif'),
                 TextColumn::make('niveau')->label('Niveau'),
-                IconColumn::make('statut')->label('Statut')->boolean()->default(true),
             ])->filters([
                 //
             ])->recordActions([
