@@ -79,7 +79,15 @@ class SiteResource extends Resource
                     })
                     ->label('Nom de la ville')
                     ->required(),
-                TextInput::make('nom')->label('Nom du site')->required(),
+                TextInput::make('nom')
+                    ->label('Nom du site')
+                    ->unique(
+                        ignoreRecord: true // ← ignore l'enregistrement en cours lors de l'édition
+                    )
+                    ->validationMessages([
+                        'unique' => 'Ce nom de site est déjà utilisé par un autre site.',
+                    ])
+                    ->required(),
                 Toggle::make('statut')->label('Actif')->default(true),
             ]);
     }
@@ -90,7 +98,8 @@ class SiteResource extends Resource
         return $table->columns([
                 TextColumn::make('ville.nom')->label('Ville'),
                 TextColumn::make('nom')->searchable()->label('Nom'),
-                IconColumn::make('statut')->label('Statut')->boolean(),
+                //IconColumn::make('statut')->label('Statut')->boolean(),
+                ToggleColumn::make('statut')->label('Statut'),
             ])->filters([
                 //
             ])->recordActions([

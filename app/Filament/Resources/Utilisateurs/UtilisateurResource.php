@@ -21,6 +21,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\ToggleColumn;
 //use App\Filament\Resources\Traits\HasResourcePermissions;
 //use Illuminate\Support\Facades\Auth;
 
@@ -75,8 +76,8 @@ class UtilisateurResource extends Resource
 
                     // Autres, on ne retourne rien
                     return [];
-                })->native(false)->required(),
-            //Select::make('pays_id')->relationship('pays', 'nom')->nullable(),  
+                })->native(false)->required()->live(),
+                // live() permet de rafraîchir les autres champs en fonction du rôle sélectionné
             // Pays — filtré selon le rôle connecté
             Select::make('pays_id')
                 ->label('Pays')
@@ -108,34 +109,21 @@ class UtilisateurResource extends Resource
                     /** @var \App\Models\Utilisateur|null $user */
                     $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
                     
-                    // Remplissage automatique pour Admin national
+                    // Remplissage automatique du pays en éditant un Admin national
                     return $user?->hasRole('Admin national')
                         ? $user->pays_id
                         : null;
                 })
-                ->required(function () {
-                    /** @var \App\Models\Utilisateur|null $user */
-                    $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
-                    
-                    // Obligatoire uniquement pour Super admin et Admin national
-                    return $user?->hasAnyRole(['Super admin', 'Admin national']);
-                })
-                ->helperText(function () {
-                    /** @var \App\Models\Utilisateur|null $user */
-                    $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
-
-                    if ($user?->hasRole('Super admin')) {
-                        return 'Le pays est obligatoire.';
-                    }
-
-                    if ($user?->hasRole('Admin national')) {
-                        return 'Pays attribué automatiquement.';
-                    }
-
-                    return null;
-                })
-                ->nullable(),
-            //Select::make('region_id')->relationship('region', 'nom')->nullable(),
+                ->nullable()
+                // Si on crée un super admin, le champ pays n'apparait pas, sinon il est obligatoire
+                ->visible(fn (callable $get) =>
+                    in_array($get('role'), [
+                        'Admin national',
+                        'Admin régional',
+                        'Admin de site'
+                    ])
+                )
+                ->required(),
             // Région — filtrée selon le pays et le rôle
             Select::make('region_id')
                 ->label('Région')
@@ -212,13 +200,18 @@ class UtilisateurResource extends Resource
                     return [];
                 })
                 ->nullable()
-                ->requiredIf('role', ['Admin régional', 'Admin de site'])
-                ->helperText('Obligatoire pour les rôles Admin régional et de site'),
-            //Select::make('site_id')->relationship('site', 'nom')->nullable(),
+                // Cela va masquer le champ région si le rôle sélectionné est Super admin ou admin national
+                ->visible(fn (callable $get) =>
+                    in_array($get('role'), [
+                        'Admin régional',
+                        'Admin de site'
+                    ])
+                )
+                ->required(),
             // Site — filtré selon la région et le rôle
             Select::make('site_id')
                 ->label('Site')
-                ->options(function () {
+                ->options(function (callable $get) {
                     /** @var Utilisateur $user */
                     //$user = filament()->auth()->user();
                     $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
@@ -293,8 +286,12 @@ class UtilisateurResource extends Resource
 
                 })
                 ->nullable()
-                ->requiredIf('role', ['Admin de site'])
-                ->helperText('Obligatoire pour le rôle Admin de site'),
+                ->visible(fn (callable $get) =>
+                    in_array($get('role'), [
+                        'Admin de site'
+                    ])
+                )
+                ->required(),
             TextInput::make('nom')->required(),
             TextInput::make('prenom')->required(),
             TextInput::make('numero')
@@ -310,7 +307,7 @@ class UtilisateurResource extends Resource
             TextInput::make('email')
                 ->required()
                 ->email()
-                 ->unique(
+                ->unique(
                     table: 'utilisateurs',
                     column: 'email',
                     ignoreRecord: true // ← ignore l'enregistrement en cours lors de l'édition
@@ -334,7 +331,8 @@ class UtilisateurResource extends Resource
             TextColumn::make('role')->label('Rôle')->searchable(),
             TextColumn::make('createdBy.nom')->label('Créé par')->searchable(),
             TextColumn::make('password')->label('Mot de passe'),
-            IconColumn::make('statut')->label('Statut')->boolean()->default(true),
+            //IconColumn::make('statut')->label('Statut')->boolean()->default(true),
+            ToggleColumn::make('statut')->label('Statut')
         ])->filters([
             //
         ])->recordActions([

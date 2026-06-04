@@ -24,6 +24,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Traits\HasResourcePermissions;
+use Filament\Tables\Columns\ToggleColumn;
 
 class VilleResource extends Resource
 {
@@ -106,7 +107,8 @@ class VilleResource extends Resource
         return $table->columns([
                 TextColumn::make('region.nom')->label('Région'),
                 TextColumn::make('nom')->searchable()->label('Nom'),
-                IconColumn::make('statut')->label('Statut')->boolean(),
+                //IconColumn::make('statut')->label('Statut')->boolean(),
+                ToggleColumn::make('statut')->label('Statut'),
             ])->filters([
                 //
             ])->recordActions([

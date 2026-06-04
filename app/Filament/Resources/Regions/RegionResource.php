@@ -25,6 +25,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\IconColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\Traits\HasResourcePermissions;
+use Filament\Tables\Columns\ToggleColumn;
 
 class RegionResource extends Resource
 {
@@ -92,7 +93,8 @@ class RegionResource extends Resource
         return $table->columns([
                 TextColumn::make('pays.nom')->label('Pays'),
                 TextColumn::make('nom')->searchable()->label('Région'),
-                IconColumn::make('statut')->label('Statut')->boolean(),
+                //IconColumn::make('statut')->label('Statut')->boolean(),
+                ToggleColumn::make('statut')->label('Statut'),
             ])->filters([
                 //
             ])->recordActions([

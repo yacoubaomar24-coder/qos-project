@@ -113,7 +113,8 @@ class VoteResource extends Resource
                 BulkActionGroup::make([
                     //DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->headerActions([]);
     }
 
     public static function getRelations(): array

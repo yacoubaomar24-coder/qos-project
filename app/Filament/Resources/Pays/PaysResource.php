@@ -25,6 +25,7 @@ use Filament\Tables\Columns\IconColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Utilisateur;
 use App\Filament\Resources\Traits\HasResourcePermissions;
+use Filament\Tables\Columns\ToggleColumn;
 
 class PaysResource extends Resource
 {
@@ -57,7 +58,8 @@ class PaysResource extends Resource
         return $table->columns([
                 TextColumn::make('nom')->searchable()->label('Nom'),
                 TextColumn::make('code')->searchable()->label('Code'),
-                IconColumn::make('statut')->label('Statut')->boolean(),
+                //IconColumn::make('statut')->label('Statut')->boolean(),
+                ToggleColumn::make('statut')->label('Statut'),
             ])->filters([
                 //
             ])->recordActions([

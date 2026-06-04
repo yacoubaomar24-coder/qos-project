@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Models\Utilisateur;
 //use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Resources\Traits\HasResourcePermissions;
+use Filament\Tables\Columns\ToggleColumn;
 
 class DispositifResource extends Resource
 {
@@ -114,6 +115,7 @@ class DispositifResource extends Resource
                     ->rules(['regex:/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/'])
                     ->validationMessages([
                         'regex' => 'Format invalide. Exemple : AA:BB:CC:DD:EE:FF',
+                        'unique' => 'Cette adresse MAC est déjà utilisée.',
                     ]),
                 Toggle::make('statut')->label('Actif')->default(true),
         ]);
@@ -126,7 +128,8 @@ class DispositifResource extends Resource
                 TextColumn::make('site.nom')->label('Site'),
                 TextColumn::make('nom')->searchable()->label('Nom'),
                 TextColumn::make('adresse_mac')->searchable()->label('Adresse MAC'),
-                IconColumn::make('statut')->label('Statut')->boolean(),
+                //IconColumn::make('statut')->label('Statut')->boolean(),
+                ToggleColumn::make('statut')->label('Statut'),
             ])->filters([
                 //
             ])->recordActions([
