@@ -13,6 +13,8 @@ class Site extends Model
         'created_by',
         'ville_id',
         'nom',
+        'latitude',
+        'longitude',
         'statut',
     ];
 
