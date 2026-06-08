@@ -1,209 +1,228 @@
-﻿<x-filament-widgets::widget>
-    <x-filament::section heading="Carte des sites">
+﻿
+<div>
+    <div class="fi-wi p-6 bg-white rounded-xl shadow-sm dark:bg-gray-800">
+        {{-- En-tête --}}
+
+        {{-- une façon de contourner complètement Tailwind ;
+                donc Filament ne peut pas écraser les styles --}}
+        <div style="margin-bottom: 20px;">
+            <h1 style="
+                font-size: 30px;
+                font-weight: 700;
+                color: #111827;
+                margin-bottom: 14px;
+            ">
+                Carte interactive des sites
+            </h1>
+        </div>
 
         {{-- Filtres --}}
-        <div class="flex flex-wrap gap-3 mb-4">
+        <div class="mb-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
 
-            {{-- Pays — JS pur --}}
-            <select id="filter-pays"
-                class="rounded-lg border border-gray-300 text-sm px-3 py-2 bg-white">
-                <option value="">Tous les pays</option>
-                @foreach(\App\Models\Pays::all() as $pays)
-                    <option value="{{ $pays->id }}">{{ $pays->nom }}</option>
-                @endforeach
-            </select>
+            <div class="flex flex-wrap gap-3">
 
-            {{-- Région — JS pur --}}
-            <select id="filter-region"
-                class="rounded-lg border border-gray-300 text-sm px-3 py-2 bg-white">
-                <option value="">Toutes les régions</option>
-                @foreach(\App\Models\Region::all() as $region)
-                    <option value="{{ $region->id }}">{{ $region->nom }}</option>
-                @endforeach
-            </select>
+                {{-- Pays --}}
+                <select id="filter-pays"
+                    style="
+                        min-width: 150px;
+                        height: 42px;
+                        padding: 0 14px;
+                        border: 2px solid #d1d5db;
+                        border-radius: 12px;
+                        background: white;
+                        font-size: 14px;
+                        color: #111827;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                        outline: none;
+                        cursor: pointer;
+                    ">
 
-            {{-- Ville — JS pur --}}
-            <select id="filter-ville"
-                class="rounded-lg border border-gray-300 text-sm px-3 py-2 bg-white">
-                <option value="">Toutes les villes</option>
-                @foreach(\App\Models\Ville::all() as $ville)
-                    <option value="{{ $ville->id }}">{{ $ville->nom }}</option>
-                @endforeach
-            </select>
+                    <option value="">🌍 Les pays</option>
 
-            {{-- Site — JS pur --}}
-            <select id="filter-site"
-                class="rounded-lg border border-gray-300 text-sm px-3 py-2 bg-white">
-                <option value="">Tous les sites</option>
-                @foreach(\App\Models\Site::all() as $site)
-                    <option value="{{ $site->id }}">{{ $site->nom }}</option>
-                @endforeach
-            </select>
+                    @foreach(\App\Models\Pays::all() as $pays)
+                        <option value="{{ $pays->id }}">
+                            {{ $pays->nom }}
+                        </option>
+                    @endforeach
 
-            {{-- Période — Livewire --}}
-            <select wire:model="selectedPeriod"
-                class="rounded-lg border border-gray-300 text-sm px-3 py-2 bg-white">
-                <option value="all">Toutes les périodes</option>
-                <option value="today">Aujourd'hui</option>
-                <option value="week">Cette semaine</option>
-                <option value="month">Ce mois</option>
-            </select>
+                </select>
 
-            {{-- Bouton appliquer période --}}
-            <button wire:click="applyPeriod"
-                class="rounded-lg bg-amber-500 text-white text-sm px-4 py-2 hover:bg-amber-600">
-                Appliquer
-            </button>
+                {{-- Région --}}
+                <select id="filter-region"
+                    style="
+                        min-width: 150px;
+                        height: 42px;
+                        padding: 0 14px;
+                        border: 2px solid #d1d5db;
+                        border-radius: 12px;
+                        background: white;
+                        font-size: 14px;
+                        color: #111827;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                        outline: none;
+                        cursor: pointer;
+                    ">
+                    <option value="">📍Les régions</option>
 
-            {{-- Bouton reset --}}
-            <button id="btn-reset"
-                class="rounded-lg border border-gray-300 text-sm px-4 py-2 bg-white hover:bg-gray-50">
-                Réinitialiser
-            </button>
+                    @foreach(\App\Models\Region::all() as $region)
+                        <option value="{{ $region->id }}">
+                            {{ $region->nom }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Ville --}}
+                <select id="filter-ville"
+                    style="
+                        min-width: 150px;
+                        height: 42px;
+                        padding: 0 14px;
+                        border: 2px solid #d1d5db;
+                        border-radius: 12px;
+                        background: white;
+                        font-size: 14px;
+                        color: #111827;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                        outline: none;
+                        cursor: pointer;
+                    ">
+                    <option value="">🏙 Les villes</option>
+
+                    @foreach(\App\Models\Ville::all() as $ville)
+                        <option value="{{ $ville->id }}">
+                            {{ $ville->nom }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Site --}}
+                <select id="filter-site"
+                    style="
+                        min-width: 150px;
+                        height: 42px;
+                        padding: 0 14px;
+                        border: 2px solid #d1d5db;
+                        border-radius: 12px;
+                        background: white;
+                        font-size: 14px;
+                        color: #111827;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                        outline: none;
+                        cursor: pointer;
+                    ">
+                    <option value="">🏢 Les sites</option>
+                    @foreach(\App\Models\Site::all() as $site)
+                        <option value="{{ $site->id }}">
+                            {{ $site->nom }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Période --}}
+                <select wire:model="selectedPeriod"
+                    style="
+                        min-width: 150px;
+                        height: 42px;
+                        padding: 0 14px;
+                        border: 2px solid #d1d5db;
+                        border-radius: 12px;
+                        background: white;
+                        font-size: 14px;
+                        color: #111827;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                        outline: none;
+                        cursor: pointer;
+                    ">
+
+                    <option value="all">📅 Les périodes</option>
+                    <option value="today">Aujourd’hui</option>
+                    <option value="week">Cette semaine</option>
+                    <option value="month">Ce mois</option>
+
+                </select>
+
+                {{-- Bouton appliquer --}}
+                <button wire:click="applyPeriod"
+                    style="
+                        min-width: 130px;
+                        height: 42px;
+                        padding: 0 14px;
+                        border: 2px solid hsl(138, 52%, 28%);
+                        border-radius: 12px;
+                        background: hsl(139, 83%, 22%);
+                        font-size: 14px;
+                        color: white;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                        outline: none;
+                        cursor: pointer;
+                    ">
+                    Appliquer
+                </button>
+
+                {{-- Bouton reset --}}
+                <button id="btn-reset"
+                    style="
+                        min-width: 130px;
+                        height: 42px;
+                        padding: 0 14px;
+                        border: 2px solid #f59e0b;
+                        border-radius: 12px;
+                        background: #f59e0b;
+                        font-size: 14px;
+                        color: white;
+                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                        outline: none;
+                        cursor: pointer;
+                    ">
+                    Réinitialiser
+                </button>
+
+            </div>
 
         </div>
 
         {{-- Carte --}}
-        <div wire:ignore id="map-wrapper" style="height:500px; border-radius:12px;">
+        <div wire:ignore id="map-wrapper" style="height:400px; border-radius:12px;">
             <div id="leaflet-map" style="height:100%; width:100%; border-radius:12px;"></div>
         </div>
 
         {{-- Données JSON --}}
         <script id="map-data" type="application/json">{!! json_encode($sitesData) !!}</script>
 
-        {{-- Légende --}}
-        <div class="flex gap-4 mt-3 text-sm">
-            <span class="flex items-center gap-1">
-                <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
-                Satisfaisant (70%+)
+        <div class="mt-3 text-sm" style="display: flex; gap: 16px; flex-wrap: nowrap; white-space: nowrap;">
+            <span style="display:flex;align-items:center;gap:6px;">
+                <span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+                Satisfait (70%+)
             </span>
-            <span class="flex items-center gap-1">
-                <span class="w-3 h-3 rounded-full bg-orange-400 inline-block"></span>
-                Moyen (40-70%)
+            <span style="display:flex;align-items:center;gap:6px;">
+                <span style="width:12px;height:12px;border-radius:50%;background:#fb923c;display:inline-block;"></span>
+                Moyennement satisfait (40-70%)
             </span>
-            <span class="flex items-center gap-1">
-                <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
-                Insuffisant (-40%)
+            <span style="display:flex;align-items:center;gap:6px;">
+                <span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+                Insatisfait (-40%)
             </span>
         </div>
 
-    </x-filament::section>
+        {{-- Leaflet CSS + JS --}}
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-    var mapInstance = null;
-    var allMarkers  = [];
-
-    // Construire les marqueurs depuis les données
-    function buildMarkers(sites) {
-        allMarkers.forEach(function(m) { mapInstance.removeLayer(m); });
-        allMarkers = [];
-
-        sites.forEach(function(site) {
-            var lat = parseFloat(site.latitude);
-            var lng = parseFloat(site.longitude);
-            if (isNaN(lat) || isNaN(lng)) return;
-
-            var m = L.circleMarker([lat, lng], {
-                color: site.color, fillColor: site.color,
-                fillOpacity: 0.8, radius: 10
-            }).addTo(mapInstance);
-
-            m.bindPopup(
-                '<div style="min-width:160px">' +
-                '<strong>' + site.nom + '</strong><br>' +
-                'Ville : '  + site.ville  + '<br>' +
-                'Region : ' + site.region + '<br>' +
-                'Pays : '   + site.pays   + '<br>' +
-                'Satisfaction : <strong>' + site.taux + '%</strong><br>' +
-                'Total avis : ' + site.total +
-                '</div>'
-            );
-
-            // Stocker les IDs pour le filtrage
-            m.siteData = site;
-            allMarkers.push(m);
-        });
-
-        fitMap(allMarkers);
-    }
-
-    // Ajuster le zoom sur les marqueurs visibles
-    function fitMap(markers) {
-        if (markers.length > 0) {
-            mapInstance.fitBounds(
-                L.featureGroup(markers).getBounds().pad(0.2)
-            );
-        }
-    }
-
-    // Appliquer les filtres JS (pays, région, ville, site)
-    function applyJsFilters() {
-        var pays   = document.getElementById('filter-pays').value;
-        var region = document.getElementById('filter-region').value;
-        var ville  = document.getElementById('filter-ville').value;
-        var site   = document.getElementById('filter-site').value;
-        var visible = [];
-
-        allMarkers.forEach(function(m) {
-            var s    = m.siteData;
-            var show = true;
-
-            // Filtre indépendant par chaque critère
-            if (pays   && String(s.pays_id)   !== pays)   show = false;
-            if (region && String(s.region_id) !== region) show = false;
-            if (ville  && String(s.ville_id)  !== ville)  show = false;
-            if (site   && String(s.id)        !== site)   show = false;
-
-            if (show) { m.addTo(mapInstance); visible.push(m); }
-            else      { mapInstance.removeLayer(m); }
-        });
-
-        fitMap(visible);
-    }
-
-    function tryInitMap() {
-        if (typeof L === 'undefined') { setTimeout(tryInitMap, 500); return; }
-
-        var el = document.getElementById('leaflet-map');
-        if (!el) { setTimeout(tryInitMap, 500); return; }
-        if (el._leaflet_id) return;
-
-        mapInstance = L.map('leaflet-map').setView([17.6078, 8.0817], 6);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapInstance);
-
-        var sites = JSON.parse(document.getElementById('map-data').textContent || '[]');
-        buildMarkers(sites);
-
-        // Écouter les filtres JS
-        ['filter-pays', 'filter-region', 'filter-ville', 'filter-site']
-            .forEach(function(id) {
-                document.getElementById(id).addEventListener('change', applyJsFilters);
+        {{-- Charger map-widget.js après Leaflet --}}
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                let s = document.createElement("script");
+                s.src = "{{ asset('js/map-widget.js') }}";
+                s.onload = function() {
+                    console.log("map-widget.js chargé");
+                    setTimeout(window.initLeafletMap, 500);
+                };
+                document.head.appendChild(s);
             });
+        </script>
 
-        // Bouton reset
-        document.getElementById('btn-reset').addEventListener('click', function() {
-            ['filter-pays', 'filter-region', 'filter-ville', 'filter-site']
-                .forEach(function(id) {
-                    document.getElementById(id).value = '';
-                });
-            applyJsFilters();
-        });
-    }
 
-    // Écouter l'événement Livewire personnalisé
-    window.addEventListener('sitesDataUpdated', function(event) {
-        if (!mapInstance) return;
-
-        var sites = event.detail.sites;
-        console.log('Données mises à jour:', sites.length, 'sites');
-
-        buildMarkers(sites);
-        applyJsFilters();
-    });
-
-    setTimeout(tryInitMap, 1000);
-    </script>
-
-</x-filament-widgets::widget>
+        {{-- Script externe — évite l'interférence Livewire --}}
+        <script src="{{ asset('js/map-widget.js') }}"></script>
+    </div>
+</div>

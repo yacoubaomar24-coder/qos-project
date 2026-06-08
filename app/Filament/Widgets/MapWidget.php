@@ -34,13 +34,19 @@ class MapWidget extends Widget
         //$this->dispatch('sitesDataUpdated', sites: $this->sitesData);
 
         // Dispatcher les données vers JS directement
-        $this->js("
+        /*$this->js("
             var newSites = " . json_encode($this->sitesData) . ";
             if (typeof buildMarkers === 'function') {
                 buildMarkers(newSites);
                 applyJsFilters();
             }
-        ");
+        ");*/
+
+        // Debug
+        logger('applyPeriod appelé, period: ' . $this->period . ', sites: ' . count($this->sitesData));
+
+
+        $this->dispatch('sitesDataUpdated', sites: $this->sitesData);
     }
 
     public function getSitesData(): array
@@ -110,6 +116,7 @@ class MapWidget extends Widget
                 'total'     => $totalVotes,
                 'latitude'  => $site->latitude,
                 'longitude' => $site->longitude,
+                //'hasVotes'     => $totalVotes > 0,  // Masquer le site si aucun vote sur la période  
                 'color'     => $taux >= 70 ? 'green' : ($taux >= 40 ? 'orange' : 'red'),
             ];
         })->toArray();
