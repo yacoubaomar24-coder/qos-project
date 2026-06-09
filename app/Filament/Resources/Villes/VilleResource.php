@@ -36,7 +36,7 @@ class VilleResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Villes';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Gestion des ressources';
+    protected static string|\UnitEnum|null $navigationGroup = 'Gestion du contenu';
 
     public static function form(Schema $schema): Schema
     {

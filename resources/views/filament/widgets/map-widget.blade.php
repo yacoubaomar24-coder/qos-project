@@ -160,7 +160,7 @@
                 </button>
 
                 {{-- Bouton reset --}}
-                <button id="btn-reset"
+                <button id="btn-reset" wire:click="resetAll"
                     style="
                         min-width: 130px;
                         height: 42px;

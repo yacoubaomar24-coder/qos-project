@@ -101,10 +101,22 @@ window.initLeafletMap = function() {
     let resetBtn = document.getElementById("btn-reset");
     if (resetBtn) {
         resetBtn.addEventListener("click", function() {
+            // Réinitialiser les filtres JS
             ["filter-pays", "filter-region", "filter-ville", "filter-site"].forEach(function(id) {
                 document.getElementById(id).value = "";
             });
+
+            // ✅ Réinitialiser aussi le select période
+            let periodSelect = document.getElementById("filter-period");
+            if (periodSelect) {
+                periodSelect.value = "all";
+            }
+
+            // Appliquer les filtres JS
             window.applyJsFilters();
+
+            // ✅ Réinitialiser la période côté Livewire
+            Livewire.dispatchTo('map-widget', 'resetPeriod');
         });
     }
 };

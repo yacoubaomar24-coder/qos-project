@@ -37,7 +37,7 @@ class PaysResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Pays';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Gestion des ressources';
+    protected static string|\UnitEnum|null $navigationGroup = 'Gestion du contenu';
 
     protected static ?string $slug = 'pays';
 

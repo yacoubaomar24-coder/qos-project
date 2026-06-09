@@ -15,8 +15,8 @@ class MapWidget extends Widget
     protected string $view = 'filament.widgets.map-widget';
     protected static bool $isLazy = false;
 
-    public array $sitesData     = [];
-    public string $period       = 'all';
+    public array $sitesData = [];
+    public string $period = 'all';
     public string $selectedPeriod = 'all';
 
     public function mount(): void
@@ -24,38 +24,50 @@ class MapWidget extends Widget
         $this->sitesData = $this->getSitesData();
     }
 
+    public function resetAll(): void
+    {
+        // Réinitialiser la période
+        $this->selectedPeriod = 'all';
+        $this->period         = 'all';
+        $this->sitesData      = $this->getSitesData();
+
+        // Envoyer les nouvelles données au JS
+        $this->dispatch('sitesDataUpdated', sites: $this->sitesData);
+
+        // Réinitialiser les filtres JS via JS
+        $this->js("
+            ['filter-pays','filter-region','filter-ville','filter-site'].forEach(function(id) {
+                let el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            if (typeof window.applyJsFilters === 'function') window.applyJsFilters();
+        ");
+    }
+
     // ✅ Sans paramètre — lit $selectedPeriod directement
     public function applyPeriod(): void
     {
         $this->period    = $this->selectedPeriod;
         $this->sitesData = $this->getSitesData();
-
-        // Envoyer les nouvelles données au JS sans re-render complet
-        //$this->dispatch('sitesDataUpdated', sites: $this->sitesData);
-
-        // Dispatcher les données vers JS directement
-        /*$this->js("
-            var newSites = " . json_encode($this->sitesData) . ";
-            if (typeof buildMarkers === 'function') {
-                buildMarkers(newSites);
-                applyJsFilters();
-            }
-        ");*/
-
-        // Debug
+        
+        // Ceci est pour le debug, à retirer après vérification
         logger('applyPeriod appelé, period: ' . $this->period . ', sites: ' . count($this->sitesData));
 
-
+        // Émettre l'événement avec les nouvelles données
         $this->dispatch('sitesDataUpdated', sites: $this->sitesData);
     }
 
+    // Cette méthode permet de récupérer les données des sites en fonction du rôle de l'utilisateur 
+    // et de la période sélectionnée
     public function getSitesData(): array
     {
         /** @var Utilisateur|null $user */
         $user = filament()->auth()->user();
 
+        // Si user n'est pas authentifié ou n'est pas une instance de Utilisateur, retourner un tableau vide
         if (!$user instanceof Utilisateur) return [];
 
+        // Récupérer les sites en fonction du rôle de l'utilisateur
         $sites = Site::with(['ville.region.pays'])
             ->where('statut', true)
             ->when($user->hasRole('Super admin'), fn($q) =>
@@ -82,6 +94,7 @@ class MapWidget extends Widget
             )
             ->get();
 
+        // Pour chaque site, calculer le taux de satisfaction en fonction des votes sur la période sélectionnée
         return $sites->map(function (Site $site) {
             // Filtre par période
             $votesQuery = Vote::where('site_id', $site->id);
@@ -103,6 +116,7 @@ class MapWidget extends Widget
                 ? round(($satisfaits / $totalVotes) * 100, 1)
                 : 0;
 
+            // returner les données du site avec le taux de satisfaction et les coordonnées pour la carte
             return [
                 'id'        => $site->id,
                 'nom'       => $site->nom,
