@@ -3,7 +3,7 @@
 
     {{-- Sélecteur --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; 
-                padding:20px; display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; 
+                padding:12px; display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; 
                 box-shadow:0 1px 3px rgba(0,0,0,0.1);">
         <div style="display:flex; flex-direction:column; gap:4px;">
             <label style="font-size:11px; font-weight:600; text-transform:uppercase; 
@@ -48,7 +48,8 @@
         <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:16px; padding:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:13px; font-weight:600; color:#15803d;">Satisfait</span>
-                <span @style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;">{{ $siteStats['satisfaits'] }} votes</span>
+                <span @style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700; 
+                            padding:2px 8px; border-radius:999px;">{{ $siteStats['satisfaits'] }} votes</span>
             </div>
             <p @style="font-size:36px; font-weight:700; color:#16a34a; margin:12px 0 8px;">{{ $tauxSatisfaction }}%</p>
             <div @style="height:8px; border-radius:999px; background:#dcfce7;">
@@ -56,7 +57,7 @@
             </div>
         </div>
 
-        {{-- Neutre --}}
+        {{-- Moyen --}}
         <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:16px; padding:20px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:13px; font-weight:600; color:#b45309;">Moyennement satisfait</span>
@@ -93,7 +94,7 @@
 
         {{-- Régionale --}}
         <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; 
-                        padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                        padding:15px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
             {{-- Ligne 1 : Titre + Badge région --}}
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:13px; font-weight:600; color:#6b7280; text-transform:uppercase; 
@@ -128,7 +129,7 @@
         </div>
 
         {{-- Nationale --}}
-        <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:15px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
             {{-- Ligne 1 : Titre + Badge pays --}}
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -166,8 +167,10 @@
     </div>
 
     {{-- Courbe --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-        <p @style="font-size:15px; font-weight:600; color:#374151; margin-bottom:16px;">Évolution du taux de satisfaction</p>
+    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:15px; 
+                    box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <p @style="font-size:15px; font-weight:600; color:#374151; margin-bottom:16px;">
+                    Évolution du taux de satisfaction</p>
         <div wire:ignore>
             <canvas id="evolution-chart" style="max-height:300px;"></canvas>
         </div>

@@ -94,7 +94,19 @@ class RegionResource extends Resource
                 TextColumn::make('pays.nom')->label('Pays'),
                 TextColumn::make('nom')->searchable()->label('Région'),
                 //IconColumn::make('statut')->label('Statut')->boolean(),
-                ToggleColumn::make('statut')->label('Statut'),
+                ToggleColumn::make('statut')->label('Statut')
+                    ->visible(function () {
+
+                            /** @var Utilisateur $user */
+                            $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                            // Seuls ces 3 peuvent voir le statut
+                            return $user->hasAnyRole([
+                                'Admin',
+                                'Super admin',
+                                'Admin national',
+                            ]);
+                        }),
             ])->filters([
                 //
             ])->recordActions([

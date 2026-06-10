@@ -118,7 +118,19 @@ class SiteResource extends Resource
                 // SiteResource.php → table()
                 TextColumn::make('latitude')->label('Latitude')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('longitude')->label('Longitude')->toggleable(isToggledHiddenByDefault: true),
-                ToggleColumn::make('statut')->label('Statut'),
+                ToggleColumn::make('statut')->label('Statut')
+                    ->visible(function () {
+
+                            /** @var Utilisateur $user */
+                            $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                            // Seuls ces 3 peuvent voir le statut
+                            return $user->hasAnyRole([
+                                'Admin',
+                                'Super admin',
+                                'Admin national',
+                            ]);
+                        }),
             ])->filters([
                 //
             ])->recordActions([

@@ -108,7 +108,19 @@ class VilleResource extends Resource
                 TextColumn::make('region.nom')->label('Région'),
                 TextColumn::make('nom')->searchable()->label('Nom'),
                 //IconColumn::make('statut')->label('Statut')->boolean(),
-                ToggleColumn::make('statut')->label('Statut'),
+                ToggleColumn::make('statut')->label('Statut')
+                    ->visible(function () {
+
+                            /** @var Utilisateur $user */
+                            $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                            // Seuls ces 3 peuvent voir le statut
+                            return $user->hasAnyRole([
+                                'Admin',
+                                'Super admin',
+                                'Admin national',
+                            ]);
+                        }),
             ])->filters([
                 //
             ])->recordActions([

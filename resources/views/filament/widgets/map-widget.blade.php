@@ -37,11 +37,35 @@
                         cursor: pointer;
                     ">
 
+                    @php
+                        /** @var \App\Models\Utilisateur $user */
+                        $user  = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                        $pays = \App\Models\Pays::query();
+
+                        // Admin voit tous les pays sans restriction
+                        if ($user->hasRole('Admin')) {
+                            //
+                        }
+
+                        // Super admin → uniquement ses pays
+                        if ($user->hasRole('Super admin')) {
+                            $pays->where('created_by', $user->id)->pluck('nom', 'id');
+                        }
+
+                        // Admin national → pays créé par son super admin
+                        if ($user->hasRole('Admin national')) {
+                            $pays->where('created_by', $user->created_by)->pluck('nom', 'id');
+                        }
+
+                        $pays = $pays->get();
+                    @endphp
+
                     <option value="">🌍 Les pays</option>
 
-                    @foreach(\App\Models\Pays::all() as $pays)
-                        <option value="{{ $pays->id }}">
-                            {{ $pays->nom }}
+                    @foreach($pays as $p)
+                        <option value="{{ $p->id }}">
+                            {{ $p->nom }}
                         </option>
                     @endforeach
 
@@ -62,9 +86,57 @@
                         outline: none;
                         cursor: pointer;
                     ">
+
+                    @php
+                        /** @var \App\Models\Utilisateur $user */
+                        $user = auth()->user();
+
+                        $regions = \App\Models\Region::query();
+
+                        // Admin → toutes les régions
+                        if ($user->hasRole('Admin')) {
+
+                            // aucun filtre
+                        }
+
+                        // Super admin
+                        elseif ($user->hasRole('Super admin')) {
+
+                            // IDs des Admins nationaux créés par ce Super admin
+                            $adminNationalIds = \App\Models\Utilisateur::query()
+                                ->where('created_by', $user->id)
+                                ->role('Admin national')
+                                ->pluck('id');
+
+                            // Lui-même + ses admins nationaux
+                            $creatorIds = $adminNationalIds->push($user->id);
+
+                            // Régions visibles
+                            $regions->whereIn('created_by', $creatorIds);
+                        }
+
+                        // Admin national
+                        elseif ($user->hasRole('Admin national')) {
+
+                            // Toutes les régions du même pays
+                            $regions->where('pays_id', $user->pays_id);
+                        }
+
+                        // Admin régional voit uniquement sa propre région
+                        elseif ($user->hasRole('Admin régional')) {
+                            $regions->where('id', $user->region_id);
+                        }
+
+                        elseif ($user->hasRole('Admin de site')) {
+                            $regions->where('id', $user->site_id);
+                        }
+
+                        $regions = $regions->get();
+                    @endphp
+
                     <option value="">📍Les régions</option>
 
-                    @foreach(\App\Models\Region::all() as $region)
+                    @foreach($regions as $region)
                         <option value="{{ $region->id }}">
                             {{ $region->nom }}
                         </option>
@@ -86,9 +158,54 @@
                         outline: none;
                         cursor: pointer;
                     ">
+                    @php
+                        /** @var \App\Models\Utilisateur $user */
+                        $user = auth()->user();
+
+                        $villes = \App\Models\Ville::query();
+
+                        // Admin → toutes les villes
+                        if ($user->hasRole('Admin')) {
+                            // aucun filtre
+                        }
+
+                        // Super admin
+                        elseif ($user->hasRole('Super admin')) {
+
+                            // IDs des Admins nationaux créés par ce Super admin
+                            $adminNationalIds = \App\Models\Utilisateur::query()
+                                ->where('created_by', $user->id)
+                                ->role('Admin national')
+                                ->pluck('id');
+
+                            // Lui-même + ses admins nationaux
+                            $creatorIds = $adminNationalIds->push($user->id);
+
+                            // villes visibles
+                            $villes->whereIn('created_by', $creatorIds);
+                        }
+
+                        // Admin national
+                        elseif ($user->hasRole('Admin national')) {
+                            // Toutes les villes du même pays
+                            $villes->where('pays_id', $user->pays_id);
+                        }
+
+                        // Admin régional voit les villes de sa propre région
+                        elseif ($user->hasRole('Admin régional')) {
+                            $villes->where('region_id', $user->region_id);
+                        }
+
+                        elseif ($user->hasRole('Admin de site')) {
+                            $villes->where('id', $user->site_id);
+                        }
+
+                        $villes = $villes->get();
+                    @endphp
+
                     <option value="">🏙 Les villes</option>
 
-                    @foreach(\App\Models\Ville::all() as $ville)
+                    @foreach($villes as $ville)
                         <option value="{{ $ville->id }}">
                             {{ $ville->nom }}
                         </option>
@@ -110,8 +227,54 @@
                         outline: none;
                         cursor: pointer;
                     ">
+
+                    @php
+                        /** @var \App\Models\Utilisateur $user */
+                        $user = auth()->user();
+
+                        $sites = \App\Models\Site::query();
+
+                        // Admin → toutes les villes
+                        if ($user->hasRole('Admin')) {
+                            // aucun filtre
+                        }
+
+                        // Super admin
+                        elseif ($user->hasRole('Super admin')) {
+
+                            // IDs des Admins nationaux créés par ce Super admin
+                            $adminNationalIds = \App\Models\Utilisateur::query()
+                                ->where('created_by', $user->id)
+                                ->role('Admin national')
+                                ->pluck('id');
+
+                            // Lui-même + ses admins nationaux
+                            $creatorIds = $adminNationalIds->push($user->id);
+
+                            // sites visibles
+                            $sites->whereIn('created_by', $creatorIds);
+                        }
+
+                        // Admin national
+                        elseif ($user->hasRole('Admin national')) {
+                            // Toutes les sites du même pays
+                            $sites->where('pays_id', $user->pays_id);
+                        }
+
+                        // Admin régional voit les sites de sa propre région
+                        elseif ($user->hasRole('Admin régional')) {
+                            $sites->where('region_id', $user->region_id);
+                        }
+
+                        elseif ($user->hasRole('Admin de site')) {
+                            $sites->where('id', $user->site_id);
+                        }
+
+                        $sites = $sites->get();
+                    @endphp
+
                     <option value="">🏢 Les sites</option>
-                    @foreach(\App\Models\Site::all() as $site)
+                    @foreach($sites as $site)
                         <option value="{{ $site->id }}">
                             {{ $site->nom }}
                         </option>

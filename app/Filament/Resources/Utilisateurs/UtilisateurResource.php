@@ -335,6 +335,18 @@ class UtilisateurResource extends Resource
             TextColumn::make('password')->label('Mot de passe'),
             //IconColumn::make('statut')->label('Statut')->boolean()->default(true),
             ToggleColumn::make('statut')->label('Statut')
+                ->visible(function () {
+
+                            /** @var Utilisateur $user */
+                            $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                            // Seuls ces 3 peuvent voir le statut
+                            return $user->hasAnyRole([
+                                'Admin',
+                                'Super admin',
+                                'Admin national',
+                            ]);
+                        })
         ])->filters([
             //
         ])->recordActions([

@@ -83,6 +83,7 @@ class StatsOverview extends BaseWidget
         $moinsPerformant = $this->getMoinsBonSite($user);
 
         return [
+            
             Stat::make('Total Avis', number_format($totalAvis))
                 ->description('Avis collectés sur la période')
                 ->icon('heroicon-o-chat-bubble-left-ellipsis')

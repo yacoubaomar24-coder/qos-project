@@ -129,7 +129,19 @@ class DispositifResource extends Resource
                 TextColumn::make('nom')->searchable()->label('Nom'),
                 TextColumn::make('adresse_mac')->searchable()->label('Adresse MAC'),
                 //IconColumn::make('statut')->label('Statut')->boolean(),
-                ToggleColumn::make('statut')->label('Statut'),
+                ToggleColumn::make('statut')->label('Statut')
+                    ->visible(function () {
+
+                            /** @var Utilisateur $user */
+                            $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                            // Seuls ces 3 peuvent voir le statut
+                            return $user->hasAnyRole([
+                                'Admin',
+                                'Super admin',
+                                'Admin national',
+                            ]);
+                        }),
             ])->filters([
                 //
             ])->recordActions([
