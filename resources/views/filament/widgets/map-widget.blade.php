@@ -187,8 +187,13 @@
 
                         // Admin national
                         elseif ($user->hasRole('Admin national')) {
-                            // Toutes les villes du même pays
-                            $villes->where('pays_id', $user->pays_id);
+                            // Régions du pays
+                            $regionIds = \App\Models\Region::query()
+                                ->where('pays_id', $user->pays_id)
+                                ->pluck('id');
+
+                            // Villes de ces régions
+                            $villes->whereIn('region_id', $regionIds);
                         }
 
                         // Admin régional voit les villes de sa propre région
@@ -197,7 +202,10 @@
                         }
 
                         elseif ($user->hasRole('Admin de site')) {
-                            $villes->where('id', $user->site_id);
+                            $site = \App\Models\Site::find($user->site_id);
+                            if ($site) {
+                                $villes->where('id', $site->ville_id);
+                            }
                         }
 
                         $villes = $villes->get();
@@ -257,13 +265,28 @@
 
                         // Admin national
                         elseif ($user->hasRole('Admin national')) {
-                            // Toutes les sites du même pays
-                            $sites->where('pays_id', $user->pays_id);
+                            // Régions du pays
+                            $regionIds = \App\Models\Region::query()
+                                ->where('pays_id', $user->pays_id)
+                                ->pluck('id');
+
+                            // Villes de ces régions
+                            $villeIds = \App\Models\Ville::query()
+                                ->whereIn('region_id', $regionIds)
+                                ->pluck('id');
+
+                            // Sites de ces villes
+                            $sites->whereIn('ville_id', $villeIds);
                         }
 
                         // Admin régional voit les sites de sa propre région
                         elseif ($user->hasRole('Admin régional')) {
-                            $sites->where('region_id', $user->region_id);
+
+                            $villeIds = \App\Models\Ville::query()
+                                ->where('region_id', $user->region_id)
+                                ->pluck('id');
+
+                            $sites->whereIn('ville_id', $villeIds);
                         }
 
                         elseif ($user->hasRole('Admin de site')) {
@@ -345,7 +368,7 @@
         </div>
 
         {{-- Carte --}}
-        <div wire:ignore id="map-wrapper" style="height:400px; border-radius:12px;">
+        <div wire:ignore id="map-wrapper" style="height:350px; border-radius:12px;">
             <div id="leaflet-map" style="height:100%; width:100%; border-radius:12px;"></div>
         </div>
 

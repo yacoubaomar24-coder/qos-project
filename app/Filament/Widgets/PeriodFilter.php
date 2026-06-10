@@ -15,6 +15,6 @@ class PeriodFilter extends Widget
     public function updatedPeriod(): void
     {
         // Filament v5 — dispatch vers tous les composants Livewire
-        $this->dispatch('periodChanged', period: $this->period)->to(StatsOverview::class);
+        $this->dispatch('periodChanged', period: $this->period)->to(MetricsWidget::class);
     }
 }

@@ -18,7 +18,8 @@ class Dashboard extends BaseDashboard
         
         return [
             \App\Filament\Widgets\PeriodFilter::class,
-            \App\Filament\Widgets\StatsOverview::class,
+            //\App\Filament\Widgets\StatsOverview::class,
+            \App\Filament\Widgets\MetricsWidget::class,
             \App\Filament\Widgets\MapWidget::class,
         ];
     }
