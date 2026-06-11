@@ -111,19 +111,19 @@ class RoleAndPermissionSeeder extends Seeder
 
             // Régions
             'view_RegionResource', 'view_any_RegionResource',
-            'create_RegionResource', 'update_RegionResource', 'delete_RegionResource',
+            'create_RegionResource', 'update_RegionResource',
 
             // Villes
             'view_VilleResource', 'view_any_VilleResource',
-            'create_VilleResource', 'update_VilleResource', 'delete_VilleResource',
+            'create_VilleResource', 'update_VilleResource',
 
             // Sites
             'view_SiteResource', 'view_any_SiteResource',
-            'create_SiteResource', 'update_SiteResource', 'delete_SiteResource',
+            'create_SiteResource', 'update_SiteResource',
 
             // Dispositifs
             'view_DispositifResource', 'view_any_DispositifResource',
-            'create_DispositifResource', 'update_DispositifResource', 'delete_DispositifResource',
+            'create_DispositifResource', 'update_DispositifResource',
             
             // Votes
             'view_VoteResource', 'view_any_VoteResource',

@@ -5,7 +5,7 @@
 
         {{-- une façon de contourner complètement Tailwind ;
                 donc Filament ne peut pas écraser les styles --}}
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 14px;">
             <h1 style="
                 font-size: 30px;
                 font-weight: 700;
@@ -330,7 +330,7 @@
                 {{-- Bouton appliquer --}}
                 <button wire:click="applyPeriod"
                     style="
-                        min-width: 130px;
+                        min-width: 100px;
                         height: 42px;
                         padding: 0 14px;
                         border: 2px solid hsl(138, 52%, 28%);
@@ -348,7 +348,7 @@
                 {{-- Bouton reset --}}
                 <button id="btn-reset" wire:click="resetAll"
                     style="
-                        min-width: 130px;
+                        min-width: 100px;
                         height: 42px;
                         padding: 0 14px;
                         border: 2px solid #f59e0b;
