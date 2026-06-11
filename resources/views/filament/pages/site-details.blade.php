@@ -1,19 +1,30 @@
 <x-filament-panels::page>
 <div style="display:flex; flex-direction:column; gap:24px;">
 
-    {{-- Sélecteur --}}
+    {{-- Sélecteur  select wire:model.live="selectedSiteId" --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; 
                 padding:12px; display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; 
                 box-shadow:0 1px 3px rgba(0,0,0,0.1);">
         <div style="display:flex; flex-direction:column; gap:4px;">
             <label style="font-size:11px; font-weight:600; text-transform:uppercase; 
                             letter-spacing:0.05em; color:#9ca3af;">Site</label>
-            <select wire:model.live="selectedSiteId"
+            <select wire:change="changeSite($event.target.value)"
                 style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px; font-size:14px; 
                         background:#f9fafb; color:#374151; min-width:200px;">
                 @foreach($sitesOptions as $id => $nom)
                     <option value="{{ $id }}">{{ $nom }}</option>
                 @endforeach
+            </select>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:11px; font-weight:600; text-transform:uppercase; 
+                            letter-spacing:0.05em; color:#9ca3af;">Période</label>
+            <select wire:change="changePeriod($event.target.value)"
+                style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px; font-size:14px; background:#f9fafb; color:#374151;">
+                <option value="day" {{ $period == 'day' ? 'selected' : '' }}>Aujourd'hui</option>
+                <option value="week" {{ $period == 'week' ? 'selected' : '' }}>Cette semaine</option>
+                <option value="month" {{ $period == 'month' ? 'selected' : '' }}>Ce mois</option>
             </select>
         </div>
 
@@ -169,14 +180,13 @@
     {{-- Courbe --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:15px; 
                     box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-        <p @style="font-size:15px; font-weight:600; color:#374151; margin-bottom:16px;">
+        <p style="font-size:15px; font-weight:600; color:#374151; margin-bottom:16px;">
                     Évolution du taux de satisfaction</p>
-        <div wire:ignore>
-            <canvas id="evolution-chart" style="max-height:300px;"></canvas>
-        </div>
+        <canvas id="evolution-chart" style="max-height:300px;"></canvas>
+        
+        {{-- données hors wire:ignore pour être mises à jour --}}
         <script id="evolution-data" type="application/json">{!! json_encode($siteStats['evolution']) !!}</script>
     </div>
-
     @endif
 
 </div>
@@ -184,50 +194,46 @@
 {{-- Chart.js --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function() { drawChart(); });
-document.addEventListener("livewire:updated", function() { drawChart(); });
 
-function drawChart() {
-    let dataEl = document.getElementById("evolution-data");
+// ✅ Écouter l'événement personnalisé
+window.addEventListener("siteChanged", function(event) {
+    console.log("siteChanged recu, points:", event.detail.evolution.length);
+    
     let canvas = document.getElementById("evolution-chart");
-    if (!dataEl || !canvas) return;
+    if (!canvas) return;
 
-    let evolution = JSON.parse(dataEl.textContent || "[]");
-    let labels = evolution.map(function(d) { return d.label; });
-    let taux   = evolution.map(function(d) { return d.taux; });
-    let totaux = evolution.map(function(d) { return d.total; });
+    let evolution = event.detail.evolution;
 
     if (window.evolutionChart instanceof Chart) {
         window.evolutionChart.destroy();
+        window.evolutionChart = null;
     }
 
-    window.evolutionChart = new Chart(canvas, {
+    window.evolutionChart = new Chart(canvas.getContext("2d"), {
         type: "line",
         data: {
-            labels: labels,
+            labels: evolution.map(function(d) { return d.label; }),
             datasets: [
                 {
                     label: "Taux de satisfaction (%)",
-                    data: taux,
+                    data: evolution.map(function(d) { return d.taux; }),
                     borderColor: "#22c55e",
                     backgroundColor: "rgba(34,197,94,0.1)",
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
                     pointRadius: 4,
-                    pointBackgroundColor: "#22c55e",
                     yAxisID: "y"
                 },
                 {
                     label: "Nombre de votes",
-                    data: totaux,
+                    data: evolution.map(function(d) { return d.total; }),
                     borderColor: "#f59e0b",
                     backgroundColor: "rgba(245,158,11,0.1)",
                     borderWidth: 2,
                     fill: false,
                     tension: 0.4,
                     pointRadius: 4,
-                    pointBackgroundColor: "#f59e0b",
                     yAxisID: "y1"
                 }
             ]
@@ -242,7 +248,7 @@ function drawChart() {
             }
         }
     });
-}
+});
 </script>
 
 </x-filament-panels::page>

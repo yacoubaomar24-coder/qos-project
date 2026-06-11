@@ -35,6 +35,9 @@ class SiteDetails extends Page
         if (!empty($this->sitesOptions)) {
             $this->selectedSiteId = array_key_first($this->sitesOptions);
             $this->loadSiteStats();
+
+            // Dispatcher pour initialiser le chart au chargement (courbes)
+            $this->dispatch('siteChanged', evolution: $this->siteStats['evolution'] ?? []);
         }
     }
 
@@ -230,14 +233,31 @@ class SiteDetails extends Page
     }
 
     // Changer de site
+    /*
     public function updatedSelectedSiteId(): void
     {
-        $this->loadSiteStats(); // Recharger les stats du site sélectionné
+        logger('Site changé: ' . $this->selectedSiteId);
+        $this->loadSiteStats();
+        
+        // Debug visible dans la page
+        $this->dispatch('debug', message: 'Site changé: ' . $this->selectedSiteId);
+    }*/
+
+    public function changeSite(int $value = null): void
+    {
+        if ($value) $this->selectedSiteId = $value;
+        $this->loadSiteStats();
+
+        // ✅ Envoyer les nouvelles données au JS
+        $this->dispatch('siteChanged', evolution: $this->siteStats['evolution'] ?? []);
     }
 
     // Changer la période
-    public function updatedPeriod(): void
+    public function changePeriod(string $period): void
     {
-        $this->loadSiteStats(); // Recharger les stats pour la période sélectionnée
+        $this->period = $period;
+        $this->loadSiteStats();
+
+        $this->dispatch('siteChanged', evolution: $this->siteStats['evolution'] ?? []);
     }
 }
