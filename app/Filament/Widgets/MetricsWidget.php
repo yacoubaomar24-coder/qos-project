@@ -16,6 +16,8 @@ class MetricsWidget extends Widget
     protected string $view = 'filament.widgets.metrics-widget';
     protected static bool $isLazy = false;
 
+    protected static ?string $pollingInterval = '5s';
+
     public string $period  = 'today';
     public array $metrics  = [];
 

@@ -162,23 +162,31 @@ class SiteDetails extends Page
                 }
             })(),
 
-            // 24 dernières heures
-            default => (function() use (&$data) {
-                for ($i = 23; $i >= 0; $i--) {
-                    $heure = now()->subHours($i);
+            // day
+            default => (function () use (&$data) {
+
+                for ($i = 0; $i <= 23; $i++) {
+                    $heureDebut = now()->startOfDay()->addHours($i);
+                    $heureFin   = (clone $heureDebut)->addHour();
+
                     $total = Vote::where('site_id', $this->selectedSiteId)
-                        ->whereDate('created_at', $heure->toDateString())
-                        ->whereHour('created_at', $heure->hour)->count();
+                        ->whereBetween('created_at', [$heureDebut, $heureFin])
+                        ->count();
+
                     $satisfaits = Vote::where('site_id', $this->selectedSiteId)
-                        ->whereDate('created_at', $heure->toDateString())
-                        ->whereHour('created_at', $heure->hour)
-                        ->where('niveau', 'satisfait')->count();
+                        ->whereBetween('created_at', [$heureDebut, $heureFin])
+                        ->where('niveau', 'satisfait')
+                        ->count();
+
                     $data[] = [
-                        'label' => $heure->format('H:i'),
+                        'label' => $heureDebut->format('H:i'),
                         'total' => $total,
-                        'taux'  => $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0,
+                        'taux'  => $total > 0
+                            ? round(($satisfaits / $total) * 100, 1)
+                            : 0,
                     ];
                 }
+
             })(),
         };
 
@@ -231,17 +239,6 @@ class SiteDetails extends Page
 
         return $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0;
     }
-
-    // Changer de site
-    /*
-    public function updatedSelectedSiteId(): void
-    {
-        logger('Site changé: ' . $this->selectedSiteId);
-        $this->loadSiteStats();
-        
-        // Debug visible dans la page
-        $this->dispatch('debug', message: 'Site changé: ' . $this->selectedSiteId);
-    }*/
 
     public function changeSite(int $value = null): void
     {

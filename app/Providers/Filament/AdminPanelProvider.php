@@ -46,6 +46,7 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 //\Filament\Pages\Dashboard::class,
                 \App\Filament\Pages\SiteDetails::class,
+                \App\Filament\Pages\Statistics::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([

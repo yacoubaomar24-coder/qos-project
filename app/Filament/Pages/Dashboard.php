@@ -21,6 +21,7 @@ class Dashboard extends BaseDashboard
             //\App\Filament\Widgets\StatsOverview::class,
             \App\Filament\Widgets\MetricsWidget::class,
             \App\Filament\Widgets\MapWidget::class,
+            //\App\Filament\Pages\Statistics::class,
         ];
     }
 }
