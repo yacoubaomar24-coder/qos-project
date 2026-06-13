@@ -58,7 +58,7 @@
         </div>
 
         {{-- Moyen --}}
-        <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:16px; padding:10px;">
+        <div style="background:#fffbeb; border:1px solid #dcbc3e; border-radius:16px; padding:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:13px; font-weight:600; color:#b45309;">Moyennement satisfait</span>
                 <span @style="background:#fef3c7; color:#b45309; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;">{{ $siteStats['moyens'] }} votes</span>
@@ -84,7 +84,7 @@
     </div>
 
     {{-- Comparaison --}}
-    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
         @php
             $diffRegion   = round($tauxSatisfaction - $siteStats['moyenne_regionale'], 1);
             $diffNational = round($tauxSatisfaction - $siteStats['moyenne_nationale'], 1);
@@ -93,12 +93,15 @@
         @endphp
 
             {{-- Régionale  --}}
-            <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; 
-                            padding:10px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+            <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:25px;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                <div>
+
+                </div>
                 {{-- Ligne 1 : Titre + Badge région --}}
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="font-size:13px; font-weight:600; color:#6b7280; text-transform:uppercase; 
-                                letter-spacing:0.05em;"> Moyenne régionale
+                    <span style="font-size:13px; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em;">
+                        Moyenne régionale
                     </span>
                     <span style="background:#f3f4f6; color:#374151; font-size:11px; 
                             font-weight:600; padding:2px 10px; border-radius:999px;">{{ $siteStats['region'] }}
@@ -128,17 +131,16 @@
                 </div>
             </div>
             
-            {{-- Courbe style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:12px; 
-                            ">--}}
-            <div style=" grid-row: span 2;background:white;border:1px solid #e5e7eb;border-radius:16px;
-                        padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+            {{-- Courbe --}}
+            <div style=" grid-column: 2 / span 2; grid-row: span 2;background:white;border:1px solid #e5e7eb;border-radius:16px;
+                        margin-right:20; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
     
                 <p style="font-size:15px; font-weight:600; color:#374151; margin-bottom:16px;">
-                            Évolution du taux de satisfaction</p>
+                            Évolution du taux de satisfaction        
 
                 {{-- Sélecteur période --}}
-                <div style="display:flex; align-items:center; gap:3px; margin-top:3px">
-                    <label style="font-size:12px; font-weight:600; gap:8px; color:#9ca3af; text-transform:uppercase;">
+                
+                    <label style="font-size:12px; font-weight:600; gap:8px; color:#9ca3af; text-transform:uppercase;margin-left:60px;">
                         Période
                     </label>
                     <select wire:change="changePeriod($event.target.value)"
@@ -148,7 +150,8 @@
                         <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
                         <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
                     </select>
-                </div>
+                
+                </p>
 
                 <canvas id="evolution-chart" style="max-height:200px;"></canvas>
                 
@@ -157,7 +160,7 @@
             </div>
 
             {{-- Nationale --}}
-            <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:10px;
+            <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:25px;
                         box-shadow:0 1px 3px rgba(0,0,0,0.06);">
                 {{-- Ligne 1 : Titre + Badge pays --}}
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -189,10 +192,7 @@
                 <div style="height:6px; border-radius:999px; background:#f3f4f6; margin-top:12px;">
                     <div style="height:6px; border-radius:999px; background: {{ $colorNational }}; width: {{ $siteStats['moyenne_nationale'] }}%;"></div>
                 </div>
-
-            
-
-        </div>
+            </div>
     </div>
     @endif
 

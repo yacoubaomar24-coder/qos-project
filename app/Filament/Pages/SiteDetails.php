@@ -12,7 +12,7 @@ class SiteDetails extends Page
 {
 
     protected static ?string $navigationLabel = 'Vue par site';
-    protected static ?string $title = 'Vue par site';
+    protected static ?string $title = '';
     protected static ?int $navigationSort = 2;
     protected string $view = 'filament.pages.site-details';
 
