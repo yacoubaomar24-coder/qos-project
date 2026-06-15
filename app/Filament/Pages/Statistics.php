@@ -10,7 +10,7 @@ use Filament\Pages\Page;
 class Statistics extends Page
 {
     protected static ?string $navigationLabel = 'Statistiques & Analyses';
-    protected static ?string $title = 'Statistiques & Analyses';
+    protected static ?string $title = '';
     protected static ?int $navigationSort  = 3;  // 3 après dashbord 1, Vue par site : 2
 
     // Laravel cherche resources/views/filament/pages/statistics.blade.php
@@ -235,13 +235,13 @@ class Statistics extends Page
             $site = Site::find($siteId);
             if (!$site) continue;
 
-            // Taux aujourd'hui
+            // Taux d'aujourd'hui = votes satisfaits aujourd'hui / total aujourd'hui
             $totalToday = Vote::where('site_id', $siteId)->whereDate('created_at', today())->count();
             $satisfaitsToday = Vote::where('site_id', $siteId)->whereDate('created_at', today())
                 ->where('niveau', 'satisfait')->count();
             $tauxToday = $totalToday > 0 ? round(($satisfaitsToday / $totalToday) * 100, 1) : null;
 
-            // Taux moyen des 7 derniers jours (hors aujourd'hui)
+            // Taux semaine = votes satisfaits 7 derniers jours / total 7 jours
             $totalWeek = Vote::where('site_id', $siteId)
                 ->whereBetween('created_at', [now()->subDays(7)->startOfDay(), now()->subDay()->endOfDay()])
                 ->count();
@@ -280,24 +280,24 @@ class Statistics extends Page
         if (!$this->selectedSiteId) return [];
 
         $heatmap = [];
-        $jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+        $jours   = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 
-        // Pour chaque jour de la semaine (0=lundi, 6=dimanche)
+        // SQLite : strftime('%w') → 0=dim, 1=lun, 2=mar, 3=mer, 4=jeu, 5=ven, 6=sam
         for ($jour = 0; $jour <= 6; $jour++) {
             $ligneJour = ['jour' => $jours[$jour], 'heures' => []];
 
-            // Pour chaque heure de la journée
             for ($heure = 0; $heure <= 23; $heure++) {
+
+                // ✅ Sans whereBetween — tous les votes historiques
+                // Filtre uniquement par jour de semaine et heure
                 $total = Vote::where('site_id', $this->selectedSiteId)
-                    //->whereRaw('DAYOFWEEK(created_at) = ?', [$jour + 2]) // MySQL: 1=dim, 2=lun
-                    ->whereRaw("strftime('%w', created_at) = ?", [$jour + 2]) // SQLite: 0=dim, 1=lun
-                    ->whereHour('created_at', $heure)
+                    ->whereRaw("CAST(strftime('%w', created_at) AS INTEGER) = ?", [$jour])
+                    ->whereRaw("CAST(strftime('%H', created_at) AS INTEGER) = ?", [$heure])
                     ->count();
 
                 $insatisfaits = Vote::where('site_id', $this->selectedSiteId)
-                    //->whereRaw('DAYOFWEEK(created_at) = ?', [$jour + 2])
-                    ->whereRaw("strftime('%w', created_at) = ?", [$jour + 2])
-                    ->whereHour('created_at', $heure)
+                    ->whereRaw("CAST(strftime('%w', created_at) AS INTEGER) = ?", [$jour])
+                    ->whereRaw("CAST(strftime('%H', created_at) AS INTEGER) = ?", [$heure])
                     ->where('niveau', 'insatisfait')
                     ->count();
 
@@ -306,13 +306,12 @@ class Statistics extends Page
                 $ligneJour['heures'][] = [
                     'heure' => $heure,
                     'total' => $total,
-                    'taux'  => $taux, // taux d'insatisfaction
-                    // Couleur selon le taux d'insatisfaction
-                    'color' => $taux === 0
-                        ? '#f9fafb'                          // gris clair — aucun vote
-                        : ($taux >= 60 ? '#ef4444'           // rouge — fort taux insatisfaction
-                        : ($taux >= 30 ? '#f59e0b'           // orange — taux moyen
-                        : '#22c55e')),                       // vert — faible insatisfaction
+                    'taux'  => $taux,
+                    'color' => $total === 0
+                        ? '#f9fafb'              // gris — aucun vote
+                        : ($taux >= 60 ? '#ef4444'  // rouge — forte insatisfaction
+                        : ($taux >= 30 ? '#f59e0b'  // orange — insatisfaction modérée
+                        : '#22c55e')),              // vert — faible insatisfaction
                 ];
             }
 

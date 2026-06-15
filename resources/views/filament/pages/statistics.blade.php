@@ -8,38 +8,235 @@
                 padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
         <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 16px;">
-            Répartition globale par niveau de satisfaction
+            Répartition globale par niveau de votes
         </h3>
 
         @if(!empty($chartData['parNiveau']))
         @php $pn = $chartData['parNiveau']; @endphp
 
-        {{-- Résumé chiffré --}}
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;">
-            <div style="text-align:center; padding:12px; background:#f9fafb; border-radius:10px;">
-                <p style="font-size:11px; color:#9ca3af; margin:0;">Total</p>
-                <p style="font-size:22px; font-weight:700; color:#111827; margin:4px 0 0;">{{ $pn['total'] }}</p>
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:10px;">
+
+            {{-- Total des votes --}}
+            <div style="
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                padding:18px;
+                background:linear-gradient(135deg,#ffffff,#f9fafb);
+                border:1px solid #e5e7eb;
+                border-radius:16px;
+                box-shadow:0 2px 8px rgba(0,0,0,0.05);
+                min-height:120px;
+            ">
+
+                {{-- Titre --}}
+                <p style="
+                    font-size:12px;
+                    font-weight:600;
+                    letter-spacing:0.04em;
+                    color:#9ca3af;
+                    text-transform:uppercase;
+                    margin:0;
+                ">
+                    Total
+                </p>
+
+                {{-- Valeur --}}
+                <p style="
+                    font-size:32px;
+                    font-weight:800;
+                    color:#111827;
+                    margin:8px 0 2px;
+                    line-height:1;
+                ">
+                    {{ $pn['total'] }}
+                </p>
+
+                {{-- Sous texte --}}
+                <span style="
+                    font-size:13px;
+                    color:#6b7280;
+                    font-weight:500;
+                ">
+                    Votes
+                </span>
+
             </div>
-            <div style="text-align:center; padding:12px; background:#f0fdf4; border-radius:10px;">
-                <p style="font-size:11px; color:#15803d; margin:0;">Satisfaits</p>
-                <p style="font-size:22px; font-weight:700; color:#16a34a; margin:4px 0 0;">{{ $pn['satisfaits'] }}</p>
-                <p style="font-size:12px; color:#6b7280; margin:2px 0 0;">{{ $pn['taux_satisfait'] }}%</p>
+            
+            {{-- Total des satifactions --}}
+            <div style="
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                padding:18px;
+                background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+                border:1px solid #bbf7d0;
+                border-radius:16px;
+                box-shadow:0 2px 8px rgba(22,163,74,0.08);
+                min-height:120px;
+            ">
+
+                {{-- Titre --}}
+                <p style="
+                    font-size:12px;
+                    font-weight:700;
+                    letter-spacing:0.05em;
+                    color:#15803d;
+                    text-transform:uppercase;
+                    margin:0;
+                ">
+                    Satisfaits
+                </p>
+
+                {{-- Valeur --}}
+                <p style="
+                    font-size:32px;
+                    font-weight:800;
+                    color:#16a34a;
+                    margin:8px 0 4px;
+                    line-height:1;
+                ">
+                    {{ $pn['satisfaits'] }}
+                </p>
+
+                {{-- Taux --}}
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:6px;
+                    margin-top:4px;
+                ">
+
+                    <span style="
+                        font-size:13px;
+                        font-weight:600;
+                        color:#166534;
+                    ">
+                        {{ $pn['taux_satisfait'] }}%
+                    </span>
+
+                </div>
+
             </div>
-            <div style="text-align:center; padding:12px; background:#fffbeb; border-radius:10px;">
-                <p style="font-size:11px; color:#b45309; margin:0;">Moyens</p>
-                <p style="font-size:22px; font-weight:700; color:#d97706; margin:4px 0 0;">{{ $pn['moyens'] }}</p>
-                <p style="font-size:12px; color:#6b7280; margin:2px 0 0;">{{ $pn['taux_moyen'] }}%</p>
+
+            {{-- Total des satifactions moyennes --}}
+            <div style="
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                padding:18px;
+                background:linear-gradient(135deg,#fffbeb,#fef3c7);
+                border:1px solid #fde68a;
+                border-radius:16px;
+                box-shadow:0 2px 8px rgba(217,119,6,0.08);
+                min-height:120px;
+            ">
+
+                {{-- Titre --}}
+                <p style="
+                    font-size:12px;
+                    font-weight:700;
+                    letter-spacing:0.05em;
+                    color:#b45309;
+                    text-transform:uppercase;
+                    margin:0;
+                ">
+                    Moyens
+                </p>
+
+                {{-- Valeur --}}
+                <p style="
+                    font-size:32px;
+                    font-weight:800;
+                    color:#d97706;
+                    margin:8px 0 4px;
+                    line-height:1;
+                ">
+                    {{ $pn['moyens'] }}
+                </p>
+
+                {{-- Taux --}}
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:6px;
+                    margin-top:4px;
+                ">
+
+                    <span style="
+                        font-size:13px;
+                        font-weight:600;
+                        color:#92400e;
+                    ">
+                        {{ $pn['taux_moyen'] }}%
+                    </span>
+                </div>
             </div>
-            <div style="text-align:center; padding:12px; background:#fef2f2; border-radius:10px;">
-                <p style="font-size:11px; color:#b91c1c; margin:0;">Insatisfaits</p>
-                <p style="font-size:22px; font-weight:700; color:#ef4444; margin:4px 0 0;">{{ $pn['insatisfaits'] }}</p>
-                <p style="font-size:12px; color:#6b7280; margin:2px 0 0;">{{ $pn['taux_insatisfait'] }}%</p>
+
+            {{-- Total des insatifactions --}}
+            <div style="
+                display:flex;
+                flex-direction:column;
+                justify-content:center;
+                align-items:center;
+                padding:18px;
+                background:linear-gradient(135deg,#fef2f2,#fee2e2);
+                border:1px solid #fecaca;
+                border-radius:16px;
+                box-shadow:0 2px 8px rgba(239,68,68,0.08);
+                min-height:120px;
+            ">
+
+                {{-- Titre --}}
+                <p style="
+                    font-size:12px;
+                    font-weight:700;
+                    letter-spacing:0.05em;
+                    color:#b91c1c;
+                    text-transform:uppercase;
+                    margin:0;
+                ">
+                    Insatisfaits
+                </p>
+
+                {{-- Valeur --}}
+                <p style="
+                    font-size:32px;
+                    font-weight:800;
+                    color:#ef4444;
+                    margin:8px 0 4px;
+                    line-height:1;
+                ">
+                    {{ $pn['insatisfaits'] }}
+                </p>
+
+                {{-- Taux --}}
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:6px;
+                    margin-top:4px;
+                ">
+
+                    <span style="
+                        font-size:13px;
+                        font-weight:600;
+                        color:#991b1b;
+                    ">
+                        {{ $pn['taux_insatisfait'] }}%
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                {{-- Histogramme --}}
+                <canvas id="chart-niveau" style="max-height:250px;"></canvas>
+                <script id="data-niveau" type="application/json">{!! json_encode($chartData['parNiveau']) !!}</script>
             </div>
         </div>
-
-        {{-- Histogramme --}}
-        <canvas id="chart-niveau" style="max-height:250px;"></canvas>
-        <script id="data-niveau" type="application/json">{!! json_encode($chartData['parNiveau']) !!}</script>
         @endif
 
     </div>
@@ -50,13 +247,13 @@
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
                 padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         
-        <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 16px;">
+        <p style="font-size:15px; font-weight:600; color:#374151; margin-bottom:16px;">
             Évolution du taux de satisfaction dans le temps
-        </h3>
+        
 
-        {{-- Sélecteur période --}}
-        <div style="display:flex; align-items:center; gap:3px; margin-top:3px">
-            <label style="font-size:12px; font-weight:600; gap:8px; color:#9ca3af; text-transform:uppercase;">
+             {{-- Sélecteur période --}}
+            <label style="font-size:12px; font-weight:600; gap:8px; color:#9ca3af; 
+                            text-transform:uppercase; margin-left:60px">
                 Période
             </label>
             <select wire:change="changePeriod($event.target.value)"
@@ -67,7 +264,7 @@
                 <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
                 <option value="year"  {{ $period === 'year'  ? 'selected' : '' }}>Cette année</option>
             </select>
-        </div>
+        </p>
 
         <canvas id="chart-evolution" style="max-height:300px;"></canvas>
         <script id="data-evolution" type="application/json">{!! json_encode($chartData['evolution'] ?? []) !!}</script>
@@ -156,19 +353,25 @@
             @foreach($chartData['anomalies'] as $anomalie)
             <div style="display:flex; align-items:center; gap:12px; padding:12px; margin-bottom:8px;
                         background: {{ $anomalie['niveau'] === 'critique' ? '#fef2f2' : '#fffbeb' }};
-                        border:1px solid {{ $anomalie['niveau'] === 'critique' ? '#fecaca' : '#fde68a' }};
+                        border: 1px solid {{ $anomalie['niveau'] === 'critique' ? '#fecaca' : '#fde68a' }};
                         border-radius:10px;">
 
+                {{--    critique → 🚨  (sirène rouge — situation grave)
+                        warning  → ⚠️  (triangle orange — attention requise)    --}}
                 <span style="font-size:20px;">
                     {{ $anomalie['niveau'] === 'critique' ? '🚨' : '⚠️' }}
                 </span>
 
                 <div style="flex:1;">
+
+                    {{-- Nom du site --}}
                     <p style="font-size:13px; font-weight:600;
                               color: {{ $anomalie['niveau'] === 'critique' ? '#b91c1c' : '#b45309' }};
                               margin:0;">
                         {{ $anomalie['site'] }}
                     </p>
+
+                    {{-- Comparaison chiffrée --}}
                     <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">
                         Aujourd'hui : {{ $anomalie['taux_today'] }}%
                         — Moyenne 7j : {{ $anomalie['taux_week'] }}%
@@ -230,15 +433,15 @@
             </span>
             <span style="display:flex; align-items:center; gap:4px;">
                 <span style="width:12px; height:12px; background:#22c55e; border-radius:2px; display:inline-block;"></span>
-                Faible insatisfaction
+                Faible insatisfaction (-30%)
             </span>
             <span style="display:flex; align-items:center; gap:4px;">
                 <span style="width:12px; height:12px; background:#f59e0b; border-radius:2px; display:inline-block;"></span>
-                Insatisfaction modérée
+                Insatisfaction modérée (30-60%)
             </span>
             <span style="display:flex; align-items:center; gap:4px;">
                 <span style="width:12px; height:12px; background:#ef4444; border-radius:2px; display:inline-block;"></span>
-                Fort taux d'insatisfaction
+                Fort taux d'insatisfaction (+60%)
             </span>
         </div>
 
