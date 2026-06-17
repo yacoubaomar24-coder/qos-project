@@ -217,6 +217,20 @@ class Statistics extends Page
     // -----------------------------------------------
     private function getParNiveau(array $siteIds): array
     {
+        /*
+        $query = Vote::whereIn('site_id', $siteIds);
+        
+        match ($this->period) {
+            'day' => $query->whereDate('created_at', today()),
+            'week' => $query->whereBetween('created_at', [
+                        now()->startOfWeek(), now()->endOfWeek()
+                    ]),
+            'month' => $query->whereMonth('created_at', now()->month)
+                            ->whereYear('created_at', now()->year),
+            'year' => $query->whereYear('created_at', now()->year),
+            default => $query->whereDate('created_at', today()),
+        };*/
+
         $total = Vote::whereIn('site_id', $siteIds)->count();
         $satisfaits = Vote::whereIn('site_id', $siteIds)->where('niveau', 'satisfait')->count();
         $moyens = Vote::whereIn('site_id', $siteIds)->where('niveau', 'moyen')->count();

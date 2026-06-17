@@ -505,7 +505,9 @@
 <script>
 // Dessiner tous les graphiques au chargement
 document.addEventListener("DOMContentLoaded", function() {
-    drawAllCharts();
+    //awAllCharts();
+    drawNiveauChart();
+    drawEvolutionChart();
 });
 
 // Redessiner après mise à jour Livewire

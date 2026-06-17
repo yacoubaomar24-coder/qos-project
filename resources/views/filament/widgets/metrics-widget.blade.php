@@ -8,7 +8,7 @@
 @endphp
 
 {{-- Ligne 1 : 3 métriques --}}
-<div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:12px;">
+<div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:16px;">
 
     {{-- Total avis --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:12px; 

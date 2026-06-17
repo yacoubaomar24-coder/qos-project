@@ -1,41 +1,25 @@
 ﻿
-<div>
-    <div class="fi-wi p-6 bg-white rounded-xl shadow-sm dark:bg-gray-800">
-        {{-- En-tête --}}
+<div style="gap:6px; margin-top:0px;">
+    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
+                margin-top:0px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
         {{-- une façon de contourner complètement Tailwind ;
                 donc Filament ne peut pas écraser les styles --}}
-        <div style="margin-bottom: 14px;">
-            <h1 style="
-                font-size: 30px;
-                font-weight: 700;
-                color: #111827;
-                margin-bottom: 14px;
-            ">
+        <div style="margin-bottom: 10;">
+            <h1 style="font-size: 20px;font-weight: 700;color: #111827;margin-bottom:16px;">
                 Carte interactive des sites
             </h1>
         </div>
 
         {{-- Filtres --}}
-        <div class="mb-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+        <div style="display:grid; gap:16px; padding:0px;margin:0px;width:100%">
 
-            <div class="flex flex-wrap gap-3">
-
+            <div>
+                <p style="font-size:15px; font-weight:600; color:#374151;margin-bottom:6px">
                 {{-- Pays --}}
                 <select id="filter-pays"
-                    style="
-                        min-width: 150px;
-                        height: 42px;
-                        padding: 0 14px;
-                        border: 2px solid #d1d5db;
-                        border-radius: 12px;
-                        background: white;
-                        font-size: 14px;
-                        color: #111827;
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                        outline: none;
-                        cursor: pointer;
-                    ">
+                    style="border:2px solid #e5e7eb; border-radius:8px; padding:6px 12px;
+                        font-size:13px; background:#f9fafb; color:#374151;">
 
                     @php
                         /** @var \App\Models\Utilisateur $user */
@@ -73,19 +57,8 @@
 
                 {{-- Région --}}
                 <select id="filter-region"
-                    style="
-                        min-width: 150px;
-                        height: 42px;
-                        padding: 0 14px;
-                        border: 2px solid #d1d5db;
-                        border-radius: 12px;
-                        background: white;
-                        font-size: 14px;
-                        color: #111827;
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                        outline: none;
-                        cursor: pointer;
-                    ">
+                    style="border:2px solid #e5e7eb; border-radius:8px; padding:6px 12px;
+                        font-size:13px; background:#f9fafb; color:#374151;">
 
                     @php
                         /** @var \App\Models\Utilisateur $user */
@@ -145,19 +118,8 @@
 
                 {{-- Ville --}}
                 <select id="filter-ville"
-                    style="
-                        min-width: 150px;
-                        height: 42px;
-                        padding: 0 14px;
-                        border: 2px solid #d1d5db;
-                        border-radius: 12px;
-                        background: white;
-                        font-size: 14px;
-                        color: #111827;
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                        outline: none;
-                        cursor: pointer;
-                    ">
+                    style="border:2px solid #e5e7eb; border-radius:8px; padding:6px 12px;
+                        font-size:13px; background:#f9fafb; color:#374151;">
                     @php
                         /** @var \App\Models\Utilisateur $user */
                         $user = auth()->user();
@@ -222,19 +184,8 @@
 
                 {{-- Site --}}
                 <select id="filter-site"
-                    style="
-                        min-width: 150px;
-                        height: 42px;
-                        padding: 0 14px;
-                        border: 2px solid #d1d5db;
-                        border-radius: 12px;
-                        background: white;
-                        font-size: 14px;
-                        color: #111827;
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                        outline: none;
-                        cursor: pointer;
-                    ">
+                    style="border:2px solid #e5e7eb; border-radius:8px; padding:6px 12px;
+                        font-size:13px; background:#f9fafb; color:#374151;">
 
                     @php
                         /** @var \App\Models\Utilisateur $user */
@@ -306,19 +257,8 @@
 
                 {{-- Période --}}
                 <select wire:model="selectedPeriod"
-                    style="
-                        min-width: 150px;
-                        height: 42px;
-                        padding: 0 14px;
-                        border: 2px solid #d1d5db;
-                        border-radius: 12px;
-                        background: white;
-                        font-size: 14px;
-                        color: #111827;
-                        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-                        outline: none;
-                        cursor: pointer;
-                    ">
+                    style="border:2px solid #e5e7eb; border-radius:8px; padding:6px 12px;
+                        font-size:13px; background:#f9fafb; color:#374151;">
 
                     <option value="all">📅 Les périodes</option>
                     <option value="today">Aujourd’hui</option>
@@ -331,12 +271,12 @@
                 <button wire:click="applyPeriod"
                     style="
                         min-width: 100px;
-                        height: 42px;
-                        padding: 0 14px;
+                        height: 35px;
+                        padding: 6 12px;
                         border: 2px solid hsl(138, 52%, 28%);
                         border-radius: 12px;
                         background: hsl(139, 83%, 22%);
-                        font-size: 14px;
+                        font-size: 13px;
                         color: white;
                         box-shadow: 0 1px 2px rgba(0,0,0,0.05);
                         outline: none;
@@ -349,12 +289,12 @@
                 <button id="btn-reset" wire:click="resetAll"
                     style="
                         min-width: 100px;
-                        height: 42px;
-                        padding: 0 14px;
+                        height: 35px;
+                        padding: 6 12px;
                         border: 2px solid #f59e0b;
                         border-radius: 12px;
                         background: #f59e0b;
-                        font-size: 14px;
+                        font-size: 13px;
                         color: white;
                         box-shadow: 0 1px 2px rgba(0,0,0,0.05);
                         outline: none;
@@ -362,7 +302,7 @@
                     ">
                     Réinitialiser
                 </button>
-
+                </p>
             </div>
 
         </div>
