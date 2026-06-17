@@ -2,10 +2,10 @@
 <div style="display:flex; flex-direction:column; gap:24px;">
 
     {{-- ===================================================
-         SECTION 1 : Répartition par niveau (Histogramme)
+         SECTION 1 : Répartition par niveau
     =================================================== --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-                padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+                margin:0px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
         <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 16px;">
             Répartition globale par niveau de votes
@@ -14,7 +14,7 @@
         @if(!empty($chartData['parNiveau']))
         @php $pn = $chartData['parNiveau']; @endphp
 
-        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:10px;">
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:10px;">
 
             {{-- Total des votes --}}
             <div style="
@@ -22,12 +22,12 @@
                 flex-direction:column;
                 justify-content:center;
                 align-items:center;
-                padding:18px;
+                padding:10px;
                 background:linear-gradient(135deg,#ffffff,#f9fafb);
-                border:1px solid #e5e7eb;
+                border:2px solid #e5e7eb;
                 border-radius:16px;
                 box-shadow:0 2px 8px rgba(0,0,0,0.05);
-                min-height:120px;
+                height:95px;
             ">
 
                 {{-- Titre --}}
@@ -70,12 +70,12 @@
                 flex-direction:column;
                 justify-content:center;
                 align-items:center;
-                padding:18px;
+                padding:10px;
                 background:linear-gradient(135deg,#f0fdf4,#dcfce7);
                 border:1px solid #bbf7d0;
                 border-radius:16px;
                 box-shadow:0 2px 8px rgba(22,163,74,0.08);
-                min-height:120px;
+                height:95px;
             ">
 
                 {{-- Titre --}}
@@ -127,12 +127,12 @@
                 flex-direction:column;
                 justify-content:center;
                 align-items:center;
-                padding:18px;
+                padding:10px;
                 background:linear-gradient(135deg,#fffbeb,#fef3c7);
                 border:1px solid #fde68a;
                 border-radius:16px;
                 box-shadow:0 2px 8px rgba(217,119,6,0.08);
-                min-height:120px;
+                height:95px;
             ">
 
                 {{-- Titre --}}
@@ -182,12 +182,12 @@
                 flex-direction:column;
                 justify-content:center;
                 align-items:center;
-                padding:18px;
+                padding:10px;
                 background:linear-gradient(135deg,#fef2f2,#fee2e2);
                 border:1px solid #fecaca;
                 border-radius:16px;
                 box-shadow:0 2px 8px rgba(239,68,68,0.08);
-                min-height:120px;
+                height:95px;
             ">
 
                 {{-- Titre --}}
@@ -231,44 +231,51 @@
                 </div>
             </div>
 
-            <div>
-                {{-- Histogramme --}}
-                <canvas id="chart-niveau" style="max-height:250px;"></canvas>
-                <script id="data-niveau" type="application/json">{!! json_encode($chartData['parNiveau']) !!}</script>
-            </div>
         </div>
         @endif
 
     </div>
 
     {{-- ===================================================
-         SECTION 2 : Évolution temporelle (Courbe)
+         SECTION 2 : Évolution temporelle (Courbe et histogramme)
     =================================================== --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-                padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:0px;margin:0px;width:100%">
+        <div style="background:white; border:1px solid #e5e7eb; grid-column: span 3;
+                border-radius:16px;padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+            <p style="font-size:15px; font-weight:600; color:#374151;margin-bottom:6px">
+                Évolution des taux  dans le temps
+            
+                {{-- Sélecteur période --}}
+                <label style="font-size:12px; font-weight:600; gap:8px; color:#9ca3af; 
+                                text-transform:uppercase; margin-left:60px">
+                    Période
+                </label>
+                <select wire:change="changePeriod($event.target.value)"
+                    style="border:1px solid #e5e7eb; border-radius:8px; padding:6px 12px;
+                        font-size:13px; background:#f9fafb; color:#374151;">
+                    <option value="day"   {{ $period === 'day'   ? 'selected' : '' }}>Aujourd'hui</option>
+                    <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
+                    <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
+                    <option value="year"  {{ $period === 'year'  ? 'selected' : '' }}>Cette année</option>
+                </select>
+            </p>
         
-        <p style="font-size:15px; font-weight:600; color:#374151; margin-bottom:16px;">
-            Évolution du taux de satisfaction dans le temps
-        
+            <canvas id="chart-evolution" style="max-height:250px;"></canvas>
+            <script id="data-evolution" type="application/json">{!! json_encode($chartData['evolution'] ?? []) !!}</script>
+        </div>
+        {{-- Histogramme --}}
+        <div style="background:white; border:1px solid #e5e7eb;border-radius:16px;
+                padding:10px; box-shadow:0 1px 3px rgba(0,0,0,0.06); height:100%;">
+            <p style="font-size:15px; font-weight:600; color:#374151; margin-bottom:6px">
+                Histogrammes
+            </p>
 
-             {{-- Sélecteur période --}}
-            <label style="font-size:12px; font-weight:600; gap:8px; color:#9ca3af; 
-                            text-transform:uppercase; margin-left:60px">
-                Période
-            </label>
-            <select wire:change="changePeriod($event.target.value)"
-                style="border:1px solid #e5e7eb; border-radius:8px; padding:6px 12px;
-                       font-size:13px; background:#f9fafb; color:#374151;">
-                <option value="day"   {{ $period === 'day'   ? 'selected' : '' }}>Aujourd'hui</option>
-                <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
-                <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
-                <option value="year"  {{ $period === 'year'  ? 'selected' : '' }}>Cette année</option>
-            </select>
-        </p>
-
-        <canvas id="chart-evolution" style="max-height:300px;"></canvas>
-        <script id="data-evolution" type="application/json">{!! json_encode($chartData['evolution'] ?? []) !!}</script>
-
+            {{-- Conteneur graphique --}}
+            <div style="position:relative;height:250px;width:100%;">
+                <canvas id="chart-niveau"></canvas>
+            </div>
+            <script id="data-niveau" type="application/json">{!! json_encode($chartData['parNiveau']) !!}</script>
+        </div>
     </div>
 
     {{-- ===================================================
@@ -437,7 +444,7 @@
             </span>
             <span style="display:flex; align-items:center; gap:4px;">
                 <span style="width:12px; height:12px; background:#f59e0b; border-radius:2px; display:inline-block;"></span>
-                Insatisfaction modérée (30-60%)
+                Insatisfaction modérée (30-59%)
             </span>
             <span style="display:flex; align-items:center; gap:4px;">
                 <span style="width:12px; height:12px; background:#ef4444; border-radius:2px; display:inline-block;"></span>
@@ -541,6 +548,7 @@ function drawNiveauChart() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -581,10 +589,32 @@ function drawEvolutionChart() {
             labels: evolution.map(function(d) { return d.label; }),
             datasets: [
                 {
-                    label: "Taux de satisfaction (%)",
-                    data: evolution.map(function(d) { return d.taux; }),
+                    label: "Satisfaction (%)",
+                    data: evolution.map(function(d) { return d.taux_satisfait; }),
                     borderColor: "#22c55e",
                     backgroundColor: "rgba(34,197,94,0.1)",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    yAxisID: "y"
+                },
+                {
+                    label: "Moyen (%)",
+                    data: evolution.map(function(d) { return d.taux_moyen; }),
+                    borderColor: "#f59e0b",
+                    backgroundColor: "rgba(245,158,11,0.1)",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    yAxisID: "y"
+                },
+                {
+                    label: "Insatisfaction (%)",
+                    data: evolution.map(function(d) { return d.taux_insatisfait; }),
+                    borderColor: "#ef4444",
+                    backgroundColor: "rgba(239,68,68,0.1)",
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,

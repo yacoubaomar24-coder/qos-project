@@ -45,7 +45,7 @@
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
 
         {{-- Satisfait --}}
-        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:16px; padding:10px;">
+        <div style="background:#f0fdf4; border:2px solid #bbf7d0; border-radius:16px; padding:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:13px; font-weight:600; color:#15803d;">Satisfait</span>
                 <span @style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700; 
@@ -58,7 +58,7 @@
         </div>
 
         {{-- Moyen --}}
-        <div style="background:#fffbeb; border:1px solid #dcbc3e; border-radius:16px; padding:10px;">
+        <div style="background:#fffbeb; border:2px solid #dcbc3e; border-radius:16px; padding:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:13px; font-weight:600; color:#b45309;">Moyennement satisfait</span>
                 <span @style="background:#fef3c7; color:#b45309; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;">{{ $siteStats['moyens'] }} votes</span>
@@ -70,7 +70,7 @@
         </div>
 
         {{-- Insatisfait --}}
-        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:16px; padding:10px;">
+        <div style="background:#fef2f2; border:2px solid #fecaca; border-radius:16px; padding:10px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:13px; font-weight:600; color:#b91c1c;">Insatisfait</span>
                 <span @style="background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;">{{ $siteStats['insatisfaits'] }} votes</span>
@@ -136,7 +136,7 @@
                         margin-right:20; padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
     
                 <p style="font-size:15px; font-weight:600; color:#374151; margin-bottom:16px;">
-                            Évolution du taux de satisfaction        
+                            Courbes d'évolution dans le temps
 
                 {{-- Sélecteur période --}}
                 
@@ -222,20 +222,45 @@ window.addEventListener("siteChanged", function(event) {
             labels: evolution.map(function(d) { return d.label; }),
             datasets: [
                 {
-                    label: "Taux de satisfaction (%)",
-                    data: evolution.map(function(d) { return d.taux; }),
+                    label: "Satisfaction (%)",
+                    data: evolution.map(function(d) { return d.taux_satisfait; }),
                     borderColor: "#22c55e",
                     backgroundColor: "rgba(34,197,94,0.1)",
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
                     pointRadius: 4,
+                    //cubicInterpolationMode: 'monotone',
+                    yAxisID: "y"
+                },
+                {
+                    label: "Moyen (%)",
+                    data: evolution.map(function(d) { return d.taux_moyen; }),
+                    borderColor: "#f59e0b",
+                    backgroundColor: "rgba(245,158,11,0.1)",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    //cubicInterpolationMode: 'monotone',
+                    yAxisID: "y"
+                },
+                {
+                    label: "Insatisfaction (%)",
+                    data: evolution.map(function(d) { return d.taux_insatisfait; }),
+                    borderColor: "#ef4444",
+                    backgroundColor: "rgba(239,68,68,0.1)",
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    //cubicInterpolationMode: 'monotone',
                     yAxisID: "y"
                 },
                 {
                     label: "Nombre de votes",
                     data: evolution.map(function(d) { return d.total; }),
-                    borderColor: "#f59e0b",
+                    borderColor: "#3b82f6",
                     backgroundColor: "rgba(245,158,11,0.1)",
                     borderWidth: 2,
                     fill: false,

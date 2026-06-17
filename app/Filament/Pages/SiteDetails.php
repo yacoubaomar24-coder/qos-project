@@ -137,10 +137,18 @@ class SiteDetails extends Page
                     $satisfaits = Vote::where('site_id', $this->selectedSiteId)
                         ->whereDate('created_at', $date)
                         ->where('niveau', 'satisfait')->count();
+                    $moyens = Vote::where('site_id', $this->selectedSiteId)
+                        ->whereDate('created_at', $date)
+                        ->where('niveau', 'moyen')->count();
+                    $insatisfaits = Vote::where('site_id', $this->selectedSiteId)
+                        ->whereDate('created_at', $date)
+                        ->where('niveau', 'insatisfait')->count();
                     $data[] = [
                         'label' => $date->format('d/m'),
                         'total' => $total,
-                        'taux'  => $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0,
+                        'taux_satisfait'  => $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0,
+                        'taux_moyen'  => $total > 0 ? round(($moyens / $total) * 100, 1) : 0,
+                        'taux_insatisfait'  => $total > 0 ? round(($insatisfaits / $total) * 100, 1) : 0,
                     ];
                 }
             })(),
@@ -154,10 +162,18 @@ class SiteDetails extends Page
                     $satisfaits = Vote::where('site_id', $this->selectedSiteId)
                         ->whereDate('created_at', $date)
                         ->where('niveau', 'satisfait')->count();
+                    $moyens = Vote::where('site_id', $this->selectedSiteId)
+                        ->whereDate('created_at', $date)
+                        ->where('niveau', 'moyen')->count();
+                    $insatisfaits = Vote::where('site_id', $this->selectedSiteId)
+                        ->whereDate('created_at', $date)
+                        ->where('niveau', 'insatisfait')->count();
                     $data[] = [
                         'label' => $date->format('d/m'),
                         'total' => $total,
-                        'taux'  => $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0,
+                        'taux_satisfait' => $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0,
+                        'taux_moyen' => $total > 0 ? round(($moyens / $total) * 100, 1) : 0,
+                        'taux_insatisfait' => $total > 0 ? round(($insatisfaits / $total) * 100, 1) : 0,
                     ];
                 }
             })(),
@@ -177,13 +193,19 @@ class SiteDetails extends Page
                         ->whereBetween('created_at', [$heureDebut, $heureFin])
                         ->where('niveau', 'satisfait')
                         ->count();
+                    $moyens = Vote::where('site_id', $this->selectedSiteId)
+                        ->whereBetween('created_at', [$heureDebut, $heureFin])
+                        ->where('niveau', 'moyen')->count();
+                    $insatisfaits = Vote::where('site_id', $this->selectedSiteId)
+                        ->whereBetween('created_at', [$heureDebut, $heureFin])
+                        ->where('niveau', 'insatisfait')->count();
 
                     $data[] = [
                         'label' => $heureDebut->format('H:i'),
                         'total' => $total,
-                        'taux'  => $total > 0
-                            ? round(($satisfaits / $total) * 100, 1)
-                            : 0,
+                        'taux_satisfait'  => $total > 0 ? round(($satisfaits / $total) * 100, 1): 0,
+                        'taux_moyen' => $total > 0 ? round(($moyens / $total) * 100, 1) : 0,
+                        'taux_insatisfait' => $total > 0 ? round(($insatisfaits / $total) * 100, 1) : 0,
                     ];
                 }
 

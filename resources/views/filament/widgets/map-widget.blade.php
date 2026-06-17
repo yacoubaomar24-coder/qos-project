@@ -378,11 +378,11 @@
         <div class="mt-3 text-sm" style="display: flex; gap: 16px; flex-wrap: nowrap; white-space: nowrap;">
             <span style="display:flex;align-items:center;gap:6px;">
                 <span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
-                Satisfait (70%+)
+                Satisfait (+70%)
             </span>
             <span style="display:flex;align-items:center;gap:6px;">
                 <span style="width:12px;height:12px;border-radius:50%;background:#fb923c;display:inline-block;"></span>
-                Moyennement satisfait (40-70%)
+                Moyennement satisfait (40-69%)
             </span>
             <span style="display:flex;align-items:center;gap:6px;">
                 <span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
