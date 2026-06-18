@@ -147,6 +147,18 @@ class PaysResource extends Resource
         if (!$user instanceof \App\Models\Utilisateur) return false;
 
         // Seuls les 3 Admin voient les pays
-        return $user->hasAnyRole(['Admin', 'Super admin', 'Admin national']);
+        return $user->hasAnyRole([ 'Super admin', 'Admin national']);
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        /** @var \App\Models\Utilisateur|null $user */
+        $user = filament()->auth()->user();
+        if (!$user instanceof \App\Models\Utilisateur) return false;
+
+        // Super admin ne peut pas supprimer
+        if ($user->hasRole('Super admin')) return false;
+
+        return $user->can('delete_PaysResource');
     }
 }

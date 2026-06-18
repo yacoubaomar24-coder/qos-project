@@ -19,6 +19,7 @@ use App\Policies\VotePolicy;
 use App\Policies\UtilisateurPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use BezhanSalleh\FilamentShield\Resources\RoleResource;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,7 +50,18 @@ class AppServiceProvider extends ServiceProvider
 
         // Admin passe tous les gates sans vérification
         Gate::before(function (Utilisateur $user, string $ability) {
-            return $user->hasRole('Admin') ? true : null;
+            // Super admin bypass total
+            if ($user->hasRole('Super admin')) {
+                // ✅ Bloquer explicitement la suppression
+                if (str_starts_with($ability, 'delete') || str_starts_with($ability, 'force_delete')) {
+                    return false;
+                }
+                return true;
+            }
+
+            // Admin — PAS de bypass total
+            // Il passe par les permissions normales
+            return null;
         });
 
     }

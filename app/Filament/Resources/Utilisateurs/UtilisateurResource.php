@@ -51,11 +51,7 @@ class UtilisateurResource extends Resource
                     // Admin voit tous les rôles
                     if ($user->hasRole('Admin')) {
                         return [
-                            'Admin' => 'Admin',
                             'Super admin' => 'Super admin',
-                            'Admin national' => 'Admin national',
-                            'Admin régional' => 'Admin régional',
-                            'Admin de site' => 'Admin de site',
                         ];
                     }
 
@@ -413,7 +409,8 @@ class UtilisateurResource extends Resource
 
         // Admin voit tout
         if ($user->hasRole('Admin')) {
-            return $query;
+            // Admin voit uniquement les Super admins
+            return $query->where('role', 'Super admin');
         }
 
         // Super admin voit uniquement les utilisateurs qu'il a créés

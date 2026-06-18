@@ -49,16 +49,13 @@ class RoleAndPermissionSeeder extends Seeder
             'guard_name' => 'web'
         ]);
         //$admin->syncPermissions(Permission::all());
-        // Toutes les permissions sauf les 3 liées à la gestion des votes 
-        // (car les admins ne doivent pas pouvoir gérer les votes)
-        $permissions = Permission::where(function ($q) {
-            $q->whereNotIn('name', [
-                'create_VoteResource',
-                'update_VoteResource',
-                'delete_VoteResource',
-            ]);
-        })->get();
-        $admin->syncPermissions($permissions);
+        $admin->syncPermissions([
+            // ✅ Uniquement voir et créer des utilisateurs
+            'view_UtilisateurResource',
+            'view_any_UtilisateurResource',
+            'create_UtilisateurResource',
+            'update_UtilisateurResource',
+        ]);
 
         // Rôle Super admin (accès total sauf gestion des utilisateurs)
         $superAdmin = Role::firstOrCreate([

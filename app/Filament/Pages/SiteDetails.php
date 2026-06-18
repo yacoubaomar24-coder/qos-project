@@ -21,6 +21,17 @@ class SiteDetails extends Page
         return 'heroicon-o-presentation-chart-line';
     }
 
+    // ça empêche admin de voir cette page
+    public static function shouldRegisterNavigation(): bool
+    {
+        /** @var \App\Models\Utilisateur|null $user */
+        $user = filament()->auth()->user();
+        if (!$user instanceof \App\Models\Utilisateur) return false;
+
+        // ✅ Admin ne voit pas cette page
+        return !$user->hasRole('Admin');
+    }
+
     // Site sélectionné
     public ?int $selectedSiteId = null;
     public array $siteStats     = [];
