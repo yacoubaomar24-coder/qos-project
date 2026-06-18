@@ -7,10 +7,31 @@
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
                 margin:0px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
-        <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 16px;">
-            Répartition globale par niveau de votes
-        </h3>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div>
+                <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 4px;">
+                    Répartition globale par niveau de votes
+                </h3>
+            </div>
 
+            {{-- Sélecteur période --}}
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <p>
+                    <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
+                        Période</label>
+                    <select wire:change="changePeriod($event.target.value)"
+                        style="border:1px solid #e5e7eb; border-radius:8px; padding:6px 12px;
+                            font-size:13px; background:#f9fafb; color:#374151;">
+                        <option value="day"   {{ $period === 'day'   ? 'selected' : '' }}>Aujourd'hui</option>
+                        <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
+                        <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
+                        <option value="year"  {{ $period === 'year'  ? 'selected' : '' }}>Cette année</option>
+                    </select>
+                </p>
+            </div>
+        </div>
+                
         @if(!empty($chartData['parNiveau']))
         @php $pn = $chartData['parNiveau']; @endphp
 
@@ -244,20 +265,6 @@
                 border-radius:16px;padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
             <p style="font-size:15px; font-weight:600; color:#374151;margin-bottom:6px">
                 Évolution des taux  dans le temps
-            
-                {{-- Sélecteur période --}}
-                <label style="font-size:12px; font-weight:600; gap:8px; color:#9ca3af; 
-                                text-transform:uppercase; margin-left:60px">
-                    Période
-                </label>
-                <select wire:change="changePeriod($event.target.value)"
-                    style="border:1px solid #e5e7eb; border-radius:8px; padding:6px 12px;
-                        font-size:13px; background:#f9fafb; color:#374151;">
-                    <option value="day"   {{ $period === 'day'   ? 'selected' : '' }}>Aujourd'hui</option>
-                    <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
-                    <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
-                    <option value="year"  {{ $period === 'year'  ? 'selected' : '' }}>Cette année</option>
-                </select>
             </p>
         
             <canvas id="chart-evolution" style="max-height:250px;"></canvas>

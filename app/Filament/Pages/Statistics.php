@@ -217,7 +217,7 @@ class Statistics extends Page
     // -----------------------------------------------
     private function getParNiveau(array $siteIds): array
     {
-        /*
+        
         $query = Vote::whereIn('site_id', $siteIds);
         
         match ($this->period) {
@@ -229,13 +229,19 @@ class Statistics extends Page
                             ->whereYear('created_at', now()->year),
             'year' => $query->whereYear('created_at', now()->year),
             default => $query->whereDate('created_at', today()),
-        };*/
+        };
 
+        $total        = (clone $query)->count();
+        $satisfaits   = (clone $query)->where('niveau', 'satisfait')->count();
+        $moyens      = (clone $query)->where('niveau', 'moyen')->count();
+        $insatisfaits = (clone $query)->where('niveau', 'insatisfait')->count();
+
+        /*
         $total = Vote::whereIn('site_id', $siteIds)->count();
         $satisfaits = Vote::whereIn('site_id', $siteIds)->where('niveau', 'satisfait')->count();
         $moyens = Vote::whereIn('site_id', $siteIds)->where('niveau', 'moyen')->count();
         $insatisfaits = Vote::whereIn('site_id', $siteIds)->where('niveau', 'insatisfait')->count();
-
+        */
         return [
             'total' => $total,
             'satisfaits' => $satisfaits,

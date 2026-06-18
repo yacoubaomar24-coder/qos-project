@@ -85,7 +85,7 @@ class AdminPanelProvider extends PanelProvider
                         : ''
                 )
             )
-            ->brandName('Satisfaction Client')
+            ->brandName('Collecte de Satisfaction Client')
             //->brandLogo(asset('images/FAST.jpg'))  // public/images/logo.png
             ->globalSearch(false)                   // Désactiver la recherche globale
             ->sidebarCollapsibleOnDesktop()
