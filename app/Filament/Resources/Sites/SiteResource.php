@@ -115,7 +115,6 @@ class SiteResource extends Resource
         return $table->columns([
                 TextColumn::make('ville.nom')->label('Ville'),
                 TextColumn::make('nom')->searchable()->label('Nom'),
-                // SiteResource.php → table()
                 TextColumn::make('latitude')->label('Latitude')->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('longitude')->label('Longitude')->toggleable(isToggledHiddenByDefault: true),
                 ToggleColumn::make('statut')->label('Statut')

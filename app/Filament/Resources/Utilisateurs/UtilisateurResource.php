@@ -423,12 +423,6 @@ class UtilisateurResource extends Resource
         }
 
         // Super admin voit uniquement les utilisateurs qu'il a créés
-        /*if ($user->hasRole('Super admin')) {
-            return $query
-                ->where('created_by', $user->id)
-                ->whereIn('role', ['Admin national', 'Admin régional', 'Admin de site']);
-        }*/
-
         if ($user->hasRole('Super admin')) {
             $creatorIds = static::getVisibleCreatorIds($user);
             return $query->whereIn('created_by', $creatorIds);
@@ -451,11 +445,6 @@ class UtilisateurResource extends Resource
             return $query
                 ->where('region_id', $user->region_id)
                 ->whereIn('role', ['Admin de site']); 
-        }
-
-        // Admin de site voit les utilisateurs de son site
-        if ($user->hasRole('Admin de site')) {
-            return $query->where('site_id', $user->site_id);
         }
 
         return $query->whereRaw('1 = 0');

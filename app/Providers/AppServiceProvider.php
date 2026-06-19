@@ -19,7 +19,7 @@ use App\Policies\VotePolicy;
 use App\Policies\UtilisateurPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
+use App\Observers\UtilisateurObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,8 +36,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // ✅ Cacher Shield de la navigation
-        // RoleResource::navigationSort(-999);
+        // ✅ Observer pour la désactivation en cascade
+        Utilisateur::observe(UtilisateurObserver::class);
+
         // ✅ Empêcher l'accès à Shield pour tout le monde
         \Illuminate\Support\Facades\Gate::policy(
             \Spatie\Permission\Models\Role::class,

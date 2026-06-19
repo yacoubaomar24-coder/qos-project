@@ -29,13 +29,10 @@ class CheckUserStatut
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            // Rediriger vers login avec message
-            //session()->flash('error', 'Votre compte est inactif. Contactez un administrateur.');
-
             // Message flash via l'objet Request
             $request->session()->flash(
                 'error',
-                'Votre compte est inactif. Contactez un administrateur.'
+                'Votre compte est inactif. Veuillez contacter un administrateur !'
             );
 
             //return redirect()->to(filament()->getLoginUrl());
