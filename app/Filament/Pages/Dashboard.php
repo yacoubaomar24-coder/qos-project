@@ -14,25 +14,31 @@ class Dashboard extends BaseDashboard
     }
 
     // ça empêche admin de voir cette page
+    /*
     public static function shouldRegisterNavigation(): bool
     {
         /** @var \App\Models\Utilisateur|null $user */
-        $user = filament()->auth()->user();
+        /*$user = filament()->auth()->user();
         if (!$user instanceof \App\Models\Utilisateur) return false;
 
         // ✅ Admin ne voit pas cette page
         return !$user->hasRole('Admin');
-    }
+    }*/
 
     public function getWidgets(): array
     {
+        /** @var \App\Models\Utilisateur|null $user */
+        $user = filament()->auth()->user();
+        if (!$user instanceof \App\Models\Utilisateur) return [];
+
+        if ($user->hasRole('Admin')) return [
+            //
+        ];
         
         return [
             \App\Filament\Widgets\PeriodFilter::class,
-            //\App\Filament\Widgets\StatsOverview::class,
             \App\Filament\Widgets\MetricsWidget::class,
             \App\Filament\Widgets\MapWidget::class,
-            //\App\Filament\Pages\Statistics::class,
         ];
     }
 }

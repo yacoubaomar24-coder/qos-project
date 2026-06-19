@@ -22,11 +22,13 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\HtmlString;
+use BezhanSalleh\FilamentShield\Resources\RoleResource;
 
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+
         return $panel
             ->authGuard('web')
             ->default()
@@ -67,18 +69,7 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                FilamentShieldPlugin::make()
-                    ->gridColumns([
-                        'default' => 1,
-                        'sm'      => 2,
-                        'lg'      => 3,
-                    ])
-                    ->sectionColumnSpan(1)
-                    ->checkboxListColumns([
-                        'default' => 1,
-                        'sm'      => 2,
-                        'lg'      => 4,
-                    ]),
+                FilamentShieldPlugin::make(),
             ])
             ->authMiddleware([
                 Authenticate::class,
@@ -96,6 +87,7 @@ class AdminPanelProvider extends PanelProvider
                         : ''
                 )
             )
+            //->brandLogo(fn () => view('filament.titre'))
             ->brandName('Collecte de Satisfaction Client')
             //->brandLogo(asset('images/FAST.jpg'))  // public/images/logo.png
             ->globalSearch(false)                   // Désactiver la recherche globale

@@ -8,11 +8,6 @@ use Filament\Widgets\FilamentInfoWidget;
 
 return [
 
-    
-    'navigation' => [
-        'enabled' => false,
-    ],
-
     /*
     |--------------------------------------------------------------------------
     | Shield Resource
@@ -267,6 +262,6 @@ return [
     |
     */
 
-    'register_role_policy' => true,
+    'register_role_policy' => false,
 
 ];

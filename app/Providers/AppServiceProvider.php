@@ -19,7 +19,7 @@ use App\Policies\VotePolicy;
 use App\Policies\UtilisateurPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use BezhanSalleh\FilamentShield\Resources\RoleResource;
+use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,6 +36,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ✅ Cacher Shield de la navigation
+        // RoleResource::navigationSort(-999);
+        // ✅ Empêcher l'accès à Shield pour tout le monde
+        \Illuminate\Support\Facades\Gate::policy(
+            \Spatie\Permission\Models\Role::class,
+            \App\Policies\RolePolicy::class
+        );
+
         // ça force la langue fr
         \Illuminate\Support\Facades\App::setLocale('fr');
 
@@ -49,7 +57,20 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Vote::class,       VotePolicy::class);
 
         // Admin passe tous les gates sans vérification
-        Gate::before(function (Utilisateur $user, string $ability) {
+        Gate::before(function (Utilisateur $user, string $ability, $arguments = null) {
+            
+            // ✅ Bloquer Shield pour TOUT le monde y compris Super admin
+            // Vérifier si l'ability concerne le modèle Role de Spatie
+            $model = is_array($arguments) ? ($arguments[0] ?? null) : $arguments;
+            
+            if (
+                $model === \Spatie\Permission\Models\Role::class ||
+                $model instanceof \Spatie\Permission\Models\Role ||
+                str_contains($ability, 'RoleResource')
+            ) {
+                return false; // ← bloquer avant tout autre check
+            }
+            
             // Super admin bypass total
             if ($user->hasRole('Super admin')) {
                 // ✅ Bloquer explicitement la suppression

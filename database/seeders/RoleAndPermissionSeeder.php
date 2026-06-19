@@ -87,9 +87,7 @@ class RoleAndPermissionSeeder extends Seeder
             // Dispositifs
             'view_DispositifResource', 'view_any_DispositifResource',
             'create_DispositifResource', 'update_DispositifResource',
-            
-            // Votes
-            'view_VoteResource', 'view_any_VoteResource',
+        
         ]);
 
         // Rôle Admin national (accès total pour un pays donné)
@@ -122,8 +120,6 @@ class RoleAndPermissionSeeder extends Seeder
             'view_DispositifResource', 'view_any_DispositifResource',
             'create_DispositifResource', 'update_DispositifResource',
             
-            // Votes
-            'view_VoteResource', 'view_any_VoteResource',
         ]);
 
         // Rôle Admin régional (accès à tous les sites d'une région)
@@ -148,8 +144,6 @@ class RoleAndPermissionSeeder extends Seeder
             // Dispositifs (accès complet)
             'view_DispositifResource', 'view_any_DispositifResource',
 
-            // Votes (accès complet)
-            'view_VoteResource', 'view_any_VoteResource',
         ]);
 
         // Rôle Admin de site (accès à un site spécifique)
@@ -164,8 +158,6 @@ class RoleAndPermissionSeeder extends Seeder
             // Dispositifs (accès complet)
             'view_DispositifResource', 'view_any_DispositifResource',
 
-            // Votes (accès complet)
-            'view_VoteResource', 'view_any_VoteResource',
         ]);
         $this->command->info('✅ Rôles et permissions synchronisés avec succès.');
     }

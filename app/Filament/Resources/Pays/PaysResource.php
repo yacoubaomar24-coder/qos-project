@@ -146,7 +146,7 @@ class PaysResource extends Resource
         $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
         if (!$user instanceof \App\Models\Utilisateur) return false;
 
-        // Seuls les 3 Admin voient les pays
+        // Seuls les 2 Admin voient les pays
         return $user->hasAnyRole([ 'Super admin', 'Admin national']);
     }
 

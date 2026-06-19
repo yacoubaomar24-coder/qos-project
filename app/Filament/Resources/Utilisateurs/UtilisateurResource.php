@@ -48,7 +48,7 @@ class UtilisateurResource extends Resource
                     //$user = filament()->auth()->user();
                     $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
 
-                    // Admin voit tous les rôles
+                    // Admin voit uniquement le rôle super admin
                     if ($user->hasRole('Admin')) {
                         return [
                             'Super admin' => 'Super admin',
@@ -74,7 +74,16 @@ class UtilisateurResource extends Resource
 
                     // Autres, on ne retourne rien
                     return [];
-                })->native(false)->required()->live(),
+                })
+                // Remplissage automatique quand Admin se connecte
+                ->default(function () {
+                    /** @var Utilisateur $user */
+                    $user = \Illuminate\Support\Facades\Auth::guard('web')->user();
+
+                    if ($user->hasRole('Admin')) return 'Super admin';
+                    return null;
+                })
+                ->native(false)->required()->live(),
                 // live() permet de rafraîchir les autres champs en fonction du rôle sélectionné
             // Pays — filtré selon le rôle connecté
             Select::make('pays_id')
