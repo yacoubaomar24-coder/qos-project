@@ -13,6 +13,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+
 
 class VerifierSeuilsJob implements ShouldQueue
 {
@@ -120,14 +122,20 @@ class VerifierSeuilsJob implements ShouldQueue
         // Notification email
         if ($seuil->notif_email && $seuil->email_destination) {
             try {
+                Log::info("Tentative envoi email à : " . $seuil->email_destination);
                 \Illuminate\Support\Facades\Mail::to($seuil->email_destination)
                     ->send(new \App\Mail\AlerteInsatisfactionMail($alerte, $site));
 
                 $alerte->update(['email_envoye' => true]);
                 Log::info("Email envoyé à {$seuil->email_destination}");
             } catch (\Exception $e) {
-                Log::error("Erreur email : " . $e->getMessage());
+                // ✅ Logger l'erreur complète
+                Log::error("Erreur d'envoi d'email : " . $e->getMessage());
+                Log::error($e->getTraceAsString());
             }
+        } else {
+            Log::warning("Email non envoyé — notif_email: " . ($seuil->notif_email ? 'true' : 'false') .
+                     " — email_destination: " . ($seuil->email_destination ?? 'null'));
         }
         // Notification SMS (via API externe — ex: Twilio, Orange SMS)
         if ($seuil->notif_sms && $seuil->telephone_destination) {

@@ -30,7 +30,7 @@ class AlerteInsatisfactionMail extends Mailable
             ->subject("🚨 Alerte insatisfaction — {$this->site->nom}")
             ->view('emails.alerte-insatisfaction');
     }
-    
+
     /**
      * Get the message envelope.
      */
@@ -47,7 +47,8 @@ class AlerteInsatisfactionMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            //view: 'view.name',
+            view: 'emails.alerte-insatisfaction',
         );
     }
 

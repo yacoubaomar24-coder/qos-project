@@ -230,6 +230,11 @@
                                padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
                         Résoudre
                     </button>
+                    <button wire:click="renvoyerNotification({{ $alerte['id'] }})"
+                        style="background:#3b82f6; color:white; border:none; border-radius:6px;
+                            padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
+                        Renvoyer mail
+                    </button>
                     @endif
                 </div>
 

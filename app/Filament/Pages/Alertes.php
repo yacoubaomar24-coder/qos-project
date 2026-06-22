@@ -11,9 +11,15 @@ use Filament\Pages\Page;
 class Alertes extends Page
 {
     protected static ?string $navigationLabel = 'Alertes & Notifications';
-    protected static ?string $title           = 'Alertes & Notifications';
-    protected static ?int    $navigationSort  = 4;
+    protected static ?string $title = '';
+    protected static ?int    $navigationSort = 4;
     protected string $view = 'filament.pages.alertes';
+
+    // Toutes les propriétés doivent être déclarées
+    public array  $alertes      = [];
+    public array  $seuils       = [];
+    public array  $sitesOptions = [];
+    public string $filtreStatut = 'toutes';
 
     // Propriétés pour le formulaire de seuil
     public ?int    $seuilSiteId      = null;
@@ -29,7 +35,7 @@ class Alertes extends Page
         return 'heroicon-o-bell-alert';
     }
 
-    // Masquer aux Admins
+    // Masquer à Admin principal
     public static function shouldRegisterNavigation(): bool
     {
         /** @var Utilisateur|null $user */
@@ -37,11 +43,6 @@ class Alertes extends Page
         if (!$user instanceof Utilisateur) return false;
         return !$user->hasRole('Admin');
     }
-
-    public array  $alertes      = [];
-    public array  $seuils       = [];
-    public array  $sitesOptions = [];
-    public string $filtreStatut = 'toutes';
 
     public function mount(): void
     {
@@ -186,7 +187,41 @@ class Alertes extends Page
     // -----------------------------------------------
     public function testerSeuils(): void
     {
-        \App\Jobs\VerifierSeuilsJob::dispatch();
+        //\App\Jobs\VerifierSeuilsJob::dispatch();
+        \App\Jobs\VerifierSeuilsJob::dispatchSync();
+        $this->loadAlertes();
+    }
+
+    // Renvoie du mail manuellement
+    public function renvoyerNotification(int $alerteId): void
+    {
+        logger('renvoyerNotification appelé pour alerte: ' . $alerteId);
+
+        $alerte = \App\Models\Alerte::with('site', 'seuil')->find($alerteId);
+        
+        if (!$alerte) {
+            logger('Alerte introuvable: ' . $alerteId);
+            return;
+        }
+
+        logger('Alerte trouvée: ' . $alerte->site?->nom);
+        logger('Seuil email: ' . ($alerte->seuil?->notif_email ? 'true' : 'false'));
+        logger('Email dest: ' . ($alerte->seuil?->email_destination ?? 'null'));
+
+        // Renvoyer l'email
+        if ($alerte->seuil?->notif_email && $alerte->seuil?->email_destination) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($alerte->seuil->email_destination)
+                    ->send(new \App\Mail\AlerteInsatisfactionMail($alerte, $alerte->site));
+
+                $alerte->update(['email_envoye' => true]);
+
+                logger('Email renvoyé avec succès !');
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Erreur mail : ' . $e->getMessage());
+            }
+        }
+
         $this->loadAlertes();
     }
 }

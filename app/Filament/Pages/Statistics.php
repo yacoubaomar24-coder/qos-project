@@ -232,14 +232,42 @@ class Statistics extends Page
         $query = Vote::whereIn('site_id', $siteIds);
         
         match ($this->period) {
-            'day' => $query->whereDate('created_at', today()),
+            //'day' => $query->whereDate('created_at', today()),
+
+            // 24 dernières heures
+            'day' => $query->whereBetween('created_at', [
+                now()->subHours(24),
+                now(),
+            ]),
+
+            //'week' => $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]),
+            
+            // 7 derniers jours
             'week' => $query->whereBetween('created_at', [
-                        now()->startOfWeek(), now()->endOfWeek()
-                    ]),
-            'month' => $query->whereMonth('created_at', now()->month)
-                            ->whereYear('created_at', now()->year),
-            'year' => $query->whereYear('created_at', now()->year),
-            default => $query->whereDate('created_at', today()),
+                now()->subDays(7),
+                now(),
+            ]),
+
+            //'month' => $query->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year),
+            
+            // 30 derniers jours
+            'month' => $query->whereBetween('created_at', [
+                now()->subDays(30),
+                now(),
+            ]),
+            
+            //'year' => $query->whereYear('created_at', now()->year),
+            // 12 derniers mois
+            'year' => $query->whereBetween('created_at', [
+                now()->subYear(),
+                now(),
+            ]),
+
+            //default => $query->whereDate('created_at', today()),
+            default => $query->whereBetween('created_at', [
+                now()->subDays(7),
+                now(),
+            ]),
         };
 
         $total        = (clone $query)->count();

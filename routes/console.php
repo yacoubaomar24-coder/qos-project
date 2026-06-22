@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::job(new VerifierSeuilsJob())->hourly();
 
 // Ou toutes les 15 minutes pour plus de réactivité
-Schedule::job(new VerifierSeuilsJob())->everyFifteenMinutes();
+//Schedule::job(new VerifierSeuilsJob())->everyFifteenMinutes();
+
+// Chaque minute
+//Schedule::job(new VerifierSeuilsJob())->everyMinute()->name('verifier-seuils');
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
