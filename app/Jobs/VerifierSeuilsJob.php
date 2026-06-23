@@ -137,30 +137,5 @@ class VerifierSeuilsJob implements ShouldQueue
             Log::warning("Email non envoyé — notif_email: " . ($seuil->notif_email ? 'true' : 'false') .
                      " — email_destination: " . ($seuil->email_destination ?? 'null'));
         }
-        // Notification SMS (via API externe — ex: Twilio, Orange SMS)
-        if ($seuil->notif_sms && $seuil->telephone_destination) {
-            try {
-                // À adapter selon ton provider SMS
-                $this->envoyerSms($seuil->telephone_destination, $alerte->message);
-                $alerte->update(['sms_envoye' => true]);
-                Log::info("SMS envoyé à {$seuil->telephone_destination}");
-            } catch (\Exception $e) {
-                Log::error("Erreur SMS : " . $e->getMessage());
-            }
-        }
-    }
-
-    // -----------------------------------------------
-    // Envoyer un SMS — à adapter selon le provider
-    // -----------------------------------------------
-    private function envoyerSms(string $telephone, string $message): void
-    {
-        // Exemple avec une API HTTP générique
-        // Remplace par Twilio, Orange SMS, etc.
-        \Illuminate\Support\Facades\Http::post('https://api.sms-provider.com/send', [
-            'to'      => $telephone,
-            'message' => $message,
-            'api_key' => config('services.sms.key'),
-        ]);
     }
 }

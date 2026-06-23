@@ -12,23 +12,21 @@ class Alertes extends Page
 {
     protected static ?string $navigationLabel = 'Alertes & Notifications';
     protected static ?string $title = '';
-    protected static ?int    $navigationSort = 4;
+    protected static ?int $navigationSort = 4;
     protected string $view = 'filament.pages.alertes';
 
     // Toutes les propriétés doivent être déclarées
-    public array  $alertes      = [];
-    public array  $seuils       = [];
-    public array  $sitesOptions = [];
+    public array $alertes = [];
+    public array $seuils = [];
+    public array $sitesOptions = [];
     public string $filtreStatut = 'toutes';
 
     // Propriétés pour le formulaire de seuil
-    public ?int    $seuilSiteId      = null;
-    public int     $seuilPourcentage = 40;
-    public int     $seuilPeriode     = 24;
-    public bool    $seuilEmail       = true;
-    public bool    $seuilSms         = false;
-    public ?string $seuilEmailDest   = null;
-    public ?string $seuilSmsDest     = null;
+    public ?int $seuilSiteId = null;
+    public int $seuilPourcentage = 40;
+    public int $seuilPeriode = 24;
+    public bool $seuilEmail = true;
+    public ?string $seuilEmailDest = null;
 
     public static function getNavigationIcon(): ?string
     {
@@ -152,13 +150,11 @@ class Alertes extends Page
     // Créer ou modifier un seuil
     // -----------------------------------------------
     public function sauvegarderSeuil(
-        ?int    $siteId,
-        int     $seuilInsatisfaction,
-        int     $periodeHeures,
-        bool    $notifEmail,
-        bool    $notifSms,
+        ?int $siteId,
+        int $seuilInsatisfaction,
+        int $periodeHeures,
+        bool $notifEmail,
         ?string $emailDestination,
-        ?string $telephoneDestination
     ): void {
         /** @var Utilisateur|null $user */
         $user = filament()->auth()->user();
@@ -172,9 +168,7 @@ class Alertes extends Page
                 'seuil_insatisfaction'  => $seuilInsatisfaction,
                 'periode_heures'        => $periodeHeures,
                 'notif_email'           => $notifEmail,
-                'notif_sms'             => $notifSms,
                 'email_destination'     => $emailDestination,
-                'telephone_destination' => $telephoneDestination,
                 'actif'                 => true,
             ]
         );

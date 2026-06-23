@@ -40,12 +40,10 @@
             $wire.seuilPourcentage,
             $wire.seuilPeriode,
             $wire.seuilEmail,
-            $wire.seuilSms,
             $wire.seuilEmailDest,
-            $wire.seuilSmsDest
         )">
 
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px;">
 
             {{-- Site --}}
             <div style="display:flex; flex-direction:column; gap:4px;">
@@ -80,11 +78,6 @@
                     min="1" max="168" value="24"
                     style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px; font-size:13px; background:#f9fafb;">
             </div>
-
-        </div>
-
-        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px;">
-
             {{-- Email destination --}}
             <div style="display:flex; flex-direction:column; gap:4px;">
                 <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
@@ -98,23 +91,8 @@
                                padding:8px 12px; font-size:13px; background:#f9fafb;">
                 </div>
             </div>
-
-            {{-- SMS destination --}}
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
-                    SMS de notification
-                </label>
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <input type="checkbox" wire:model="seuilSms" id="notif-sms">
-                    <input type="tel" wire:model="seuilSmsDest"
-                        placeholder="+22790000000"
-                        style="flex:1; border:1px solid #e5e7eb; border-radius:8px;
-                               padding:8px 12px; font-size:13px; background:#f9fafb;">
-                </div>
-            </div>
-
         </div>
-
+        
         <button type="submit"
             style="background:#22c55e; color:white; border:none; border-radius:8px;
                    padding:8px 20px; font-size:13px; font-weight:600; cursor:pointer;">
@@ -140,8 +118,7 @@
                     <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">
                         Seuil : {{ $seuil['seuil_insatisfaction'] }}% —
                         Période : {{ $seuil['periode_heures'] }}h —
-                        Email : {{ $seuil['notif_email'] ? '✅' : '❌' }} —
-                        SMS : {{ $seuil['notif_sms'] ? '✅' : '❌' }}
+                        Email : {{ $seuil['notif_email'] ? '✅' : '❌' }}
                     </p>
                 </div>
                 <span style="
@@ -211,7 +188,6 @@
                     <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
                         {{ \Carbon\Carbon::parse($alerte['created_at'])->format('d/m/Y H:i') }}
                         — Email : {{ $alerte['email_envoye'] ? '✅ envoyé' : '❌ non envoyé' }}
-                        — SMS : {{ $alerte['sms_envoye'] ? '✅ envoyé' : '❌ non envoyé' }}
                     </p>
                 </div>
 
