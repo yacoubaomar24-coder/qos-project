@@ -20,7 +20,7 @@
         <button wire:click="testerSeuils"
             style="background:#f59e0b; color:white; border:none; border-radius:8px;
                    padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer;">
-            Vérifier maintenant
+            Vérifier les alertes
         </button>
     </div>
 
@@ -39,11 +39,9 @@
             $wire.seuilSiteId,
             $wire.seuilPourcentage,
             $wire.seuilPeriode,
-            $wire.seuilEmail,
-            $wire.seuilEmailDest,
         )">
 
-        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:12px; margin-bottom:16px;">
 
             {{-- Site --}}
             <div style="display:flex; flex-direction:column; gap:4px;">
@@ -78,22 +76,10 @@
                     min="1" max="168" value="24"
                     style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px; font-size:13px; background:#f9fafb;">
             </div>
-            {{-- Email destination --}}
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
-                    Email de notification
-                </label>
-                <div style="display:flex; gap:8px; align-items:center;">
-                    <input type="checkbox" wire:model="seuilEmail" id="notif-email">
-                    <input type="email" wire:model="seuilEmailDest"
-                        placeholder="admin@example.com"
-                        style="flex:1; border:1px solid #e5e7eb; border-radius:8px;
-                               padding:8px 12px; font-size:13px; background:#f9fafb;">
-                </div>
-            </div>
         </div>
-        
-        <button type="submit"
+
+        {{-- Bouton sauvegarder --}}
+        <button wire:click="sauvegarderSeuil"
             style="background:#22c55e; color:white; border:none; border-radius:8px;
                    padding:8px 20px; font-size:13px; font-weight:600; cursor:pointer;">
             Sauvegarder le seuil
@@ -117,10 +103,25 @@
                     </p>
                     <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">
                         Seuil : {{ $seuil['seuil_insatisfaction'] }}% —
-                        Période : {{ $seuil['periode_heures'] }}h —
-                        Email : {{ $seuil['notif_email'] ? '✅' : '❌' }}
+                        Période : {{ $seuil['periode_heures'] }}h
                     </p>
                 </div>
+
+                {{-- Bouton modifier — charge les valeurs dans le formulaire --}}
+                <button wire:click="modifierSeuil({{ $seuil['id'] }})"
+                    style="background:#3b82f6; color:white; border:none; border-radius:6px;
+                        padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
+                    Modifier
+                </button>
+
+                {{-- Bouton activer/désactiver --}}
+                <button wire:click="toggleSeuil({{ $seuil['id'] }})"
+                    style="background:{{ $seuil['actif'] ? '#ef4444' : '#22c55e' }}; color:white;
+                        border:none; border-radius:6px; padding:4px 10px;
+                        font-size:11px; font-weight:600; cursor:pointer;">
+                    {{ $seuil['actif'] ? 'Désactiver' : 'Activer' }}
+                </button>
+
                 <span style="
                     background:{{ $seuil['actif'] ? '#dcfce7' : '#fee2e2' }};
                     color:{{ $seuil['actif'] ? '#15803d' : '#b91c1c' }};
@@ -186,7 +187,7 @@
                         — {{ $alerte['total_votes'] }} votes
                     </p>
                     <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
-                        {{ \Carbon\Carbon::parse($alerte['created_at'])->format('d/m/Y H:i') }}
+                        {{ \Carbon\Carbon::parse($alerte['created_at'])->timezone('Africa/Niamey')->format('d/m/Y H:i') }}
                         — Email : {{ $alerte['email_envoye'] ? '✅ envoyé' : '❌ non envoyé' }}
                     </p>
                 </div>

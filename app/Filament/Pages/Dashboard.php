@@ -7,10 +7,24 @@ use Filament\Pages\Dashboard as BaseDashboard;
 class Dashboard extends BaseDashboard
 {
 
+    protected string $view = 'filament.pages.dashboard';
+
     // Forcer 1 colonne — tous les widgets en pleine largeur
     public function getColumns(): int|array
     {
         return 1;
+    }
+
+    // Titre
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    // Sous titre
+    public function getSubheading(): ?string
+    {
+        return null;
     }
 
     // ça empêche admin de voir cette page

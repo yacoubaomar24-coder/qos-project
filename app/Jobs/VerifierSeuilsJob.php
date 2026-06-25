@@ -57,7 +57,9 @@ class VerifierSeuilsJob implements ShouldQueue
     // -----------------------------------------------
     private function verifierSite(int $siteId, Seuil $seuil): void
     {
-        $site = Site::find($siteId);
+        $site = Site::with(['ville.region.pays'])->find($siteId);
+        //$site = Site::find($siteId);
+        
         if (!$site) return;
 
         // Calculer le taux d'insatisfaction sur la période configurée
@@ -119,6 +121,45 @@ class VerifierSeuilsJob implements ShouldQueue
     // -----------------------------------------------
     private function envoyerNotifications(Alerte $alerte, Seuil $seuil, Site $site): void
     {
+        // Collecter tous les destinataires selon la hiérarchie
+        // -----------------------------------------------
+        $destinataires = $this->getDestinataires($site);
+
+        // Ajouter l'email du seuil si différent
+        if ($seuil->notif_email && $seuil->email_destination) {
+            $destinataires[] = $seuil->email_destination;
+        }
+
+        // Supprimer les doublons
+        $destinataires = array_unique(array_filter($destinataires));
+        
+        if (empty($destinataires)) {
+            \Illuminate\Support\Facades\Log::warning(
+                "Aucun destinataire trouvé pour l'alerte du site : " . $site->nom
+            );
+            return;
+        }
+
+        // Envoyer à chaque destinataire
+        foreach ($destinataires as $email) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($email)
+                    ->send(new \App\Mail\AlerteInsatisfactionMail($alerte, $site));
+
+                \Illuminate\Support\Facades\Log::info(
+                    "Email envoyé à : {$email} pour le site : {$site->nom}"
+                );
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error(
+                    "Erreur envoi email à {$email} : " . $e->getMessage()
+                );
+            }
+        }
+
+        // Marquer l'email comme envoyé si au moins un envoi réussi
+        $alerte->update(['email_envoye' => true]);
+
+        /*
         // Notification email
         if ($seuil->notif_email && $seuil->email_destination) {
             try {
@@ -136,6 +177,79 @@ class VerifierSeuilsJob implements ShouldQueue
         } else {
             Log::warning("Email non envoyé — notif_email: " . ($seuil->notif_email ? 'true' : 'false') .
                      " — email_destination: " . ($seuil->email_destination ?? 'null'));
+        }*/
+    }
+
+    // Récupérer tous les admins concernés par ce site
+    // -----------------------------------------------
+    private function getDestinataires(Site $site): array
+    {
+        $emails = [];
+
+        // -----------------------------------------------
+        // 1. Admin de site — directement lié au site
+        // -----------------------------------------------
+        $adminsSite = \App\Models\Utilisateur::where('role', 'Admin de site')
+            ->where('site_id', $site->id)
+            ->where('statut', true) // uniquement les comptes actifs
+            ->pluck('email')
+            ->toArray();
+        $emails = array_merge($emails, $adminsSite);
+
+        // 2. Admin régional — région du site
+        // -----------------------------------------------
+        $regionId = $site->ville?->region?->id;
+        if ($regionId) {
+            $adminsRegion = \App\Models\Utilisateur::where('role', 'Admin régional')
+                ->where('region_id', $regionId)
+                ->where('statut', true)
+                ->pluck('email')
+                ->toArray();
+            $emails = array_merge($emails, $adminsRegion);
         }
+
+        // 3. Admin national — pays du site
+        // -----------------------------------------------
+        $paysId = $site->ville?->region?->pays?->id;
+        if ($paysId) {
+            // Trouver les régions du pays
+            $regionIds = \App\Models\Region::where('pays_id', $paysId)->pluck('id');
+            $villeIds  = \App\Models\Ville::whereIn('region_id', $regionIds)->pluck('id');
+
+            $adminsNational = \App\Models\Utilisateur::where('role', 'Admin national')
+                ->where('statut', true)
+                ->where(function ($q) use ($paysId) {
+                    // Admin national lié à ce pays
+                    $q->where('pays_id', $paysId);
+                })
+                ->pluck('email')
+                ->toArray();
+            $emails = array_merge($emails, $adminsNational);
+        }
+
+        // 4. Super admin — créateur du site
+        // -----------------------------------------------
+        if ($site->created_by) {
+            $superAdmin = \App\Models\Utilisateur::where('id', $site->created_by)
+                ->where('role', 'Super admin')
+                ->where('statut', true)
+                ->value('email');
+
+            if ($superAdmin) {
+                $emails[] = $superAdmin;
+            }
+            // Aussi le Super admin créateur des admins nationaux
+            $superAdminViaAdmin = \App\Models\Utilisateur::where('role', 'Super admin')
+                ->where('statut', true)
+                ->whereHas('utilisateursCreés', function ($q) use ($site) {
+                    $q->where('role', 'Admin national')
+                    ->where('pays_id', $site->ville?->region?->pays?->id);
+                })
+                ->pluck('email')
+                ->toArray();
+            $emails = array_merge($emails, $superAdminViaAdmin);
+        }
+
+        return $emails;
     }
 }

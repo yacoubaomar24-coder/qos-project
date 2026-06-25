@@ -25,8 +25,6 @@ class Alertes extends Page
     public ?int $seuilSiteId = null;
     public int $seuilPourcentage = 40;
     public int $seuilPeriode = 24;
-    public bool $seuilEmail = true;
-    public ?string $seuilEmailDest = null;
 
     public static function getNavigationIcon(): ?string
     {
@@ -149,27 +147,22 @@ class Alertes extends Page
     // -----------------------------------------------
     // Créer ou modifier un seuil
     // -----------------------------------------------
-    public function sauvegarderSeuil(
-        ?int $siteId,
-        int $seuilInsatisfaction,
-        int $periodeHeures,
-        bool $notifEmail,
-        ?string $emailDestination,
-    ): void {
+    public function sauvegarderSeuil(): void {
+
         /** @var Utilisateur|null $user */
         $user = filament()->auth()->user();
 
         Seuil::updateOrCreate(
             [
-                'site_id'    => $siteId,
+                // Clé unique — site + créateur
+                'site_id'    => $this->seuilSiteId ?: null,
                 'created_by' => $user?->id,
             ],
             [
-                'seuil_insatisfaction'  => $seuilInsatisfaction,
-                'periode_heures'        => $periodeHeures,
-                'notif_email'           => $notifEmail,
-                'email_destination'     => $emailDestination,
-                'actif'                 => true,
+                'seuil_insatisfaction' => $this->seuilPourcentage,
+                'periode_heures'       => $this->seuilPeriode,
+                'notif_email'          => true, // ← toujours true
+                'actif'                => true,
             ]
         );
 
@@ -191,7 +184,8 @@ class Alertes extends Page
     {
         logger('renvoyerNotification appelé pour alerte: ' . $alerteId);
 
-        $alerte = \App\Models\Alerte::with('site', 'seuil')->find($alerteId);
+        //$alerte = \App\Models\Alerte::with('site', 'seuil')->find($alerteId);
+        $alerte = \App\Models\Alerte::with(['site.ville.region.pays', 'seuil'])->find($alerteId);
         
         if (!$alerte) {
             logger('Alerte introuvable: ' . $alerteId);
@@ -199,23 +193,103 @@ class Alertes extends Page
         }
 
         logger('Alerte trouvée: ' . $alerte->site?->nom);
-        logger('Seuil email: ' . ($alerte->seuil?->notif_email ? 'true' : 'false'));
-        logger('Email dest: ' . ($alerte->seuil?->email_destination ?? 'null'));
 
-        // Renvoyer l'email
+        // Récupérer tous les destinataires
+        $destinataires = $this->getDestinataires($alerte->site);
+
+        // Ajouter l'email du seuil
         if ($alerte->seuil?->notif_email && $alerte->seuil?->email_destination) {
+            $destinataires[] = $alerte->seuil->email_destination;
+        }
+
+        $destinataires = array_unique(array_filter($destinataires));
+        
+        foreach ($destinataires as $email) {
             try {
-                \Illuminate\Support\Facades\Mail::to($alerte->seuil->email_destination)
+                \Illuminate\Support\Facades\Mail::to($email)
                     ->send(new \App\Mail\AlerteInsatisfactionMail($alerte, $alerte->site));
-
-                $alerte->update(['email_envoye' => true]);
-
-                logger('Email renvoyé avec succès !');
+                logger("Email renvoyé à : {$email}");
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Erreur mail : ' . $e->getMessage());
+                logger("Erreur : " . $e->getMessage());
             }
         }
 
+        $alerte->update(['email_envoye' => true]);
         $this->loadAlertes();
+    }
+
+    // Méthode commune pour récupérer les destinataires
+    // -----------------------------------------------
+    private function getDestinataires(Site $site): array
+    {
+        $emails = [];
+
+        // Admin de site
+        $emails = array_merge($emails,
+            \App\Models\Utilisateur::where('role', 'Admin de site')
+                ->where('site_id', $site->id)
+                ->where('statut', true)
+                ->pluck('email')->toArray()
+        );
+
+        // Admin régional
+        $regionId = $site->ville?->region?->id;
+        if ($regionId) {
+            $emails = array_merge($emails,
+                \App\Models\Utilisateur::where('role', 'Admin régional')
+                    ->where('region_id', $regionId)
+                    ->where('statut', true)
+                    ->pluck('email')->toArray()
+            );
+        }
+
+        // Admin national
+        $paysId = $site->ville?->region?->pays?->id;
+        if ($paysId) {
+            $emails = array_merge($emails,
+                \App\Models\Utilisateur::where('role', 'Admin national')
+                    ->where('pays_id', $paysId)
+                    ->where('statut', true)
+                    ->pluck('email')->toArray()
+            );
+        }
+
+        // Super admin créateur
+        if ($site->created_by) {
+            $superAdmin = \App\Models\Utilisateur::where('id', $site->created_by)
+                ->where('role', 'Super admin')
+                ->where('statut', true)
+                ->value('email');
+
+            if ($superAdmin) $emails[] = $superAdmin;
+        }
+
+        return array_unique(array_filter($emails));
+    }
+
+    // -----------------------------------------------
+    // Charger un seuil dans le formulaire pour modification
+    // -----------------------------------------------
+    public function modifierSeuil(int $seuilId): void
+    {
+        $seuil = \App\Models\Seuil::find($seuilId);
+        if (!$seuil) return;
+
+        // Pré-remplir le formulaire avec les valeurs du seuil
+        $this->seuilSiteId      = $seuil->site_id;
+        $this->seuilPourcentage = $seuil->seuil_insatisfaction;
+        $this->seuilPeriode     = $seuil->periode_heures;
+    }
+
+    // -----------------------------------------------
+    // Activer ou désactiver un seuil
+    // -----------------------------------------------
+    public function toggleSeuil(int $seuilId): void
+    {
+        $seuil = \App\Models\Seuil::find($seuilId);
+        if (!$seuil) return;
+
+        $seuil->update(['actif' => !$seuil->actif]);
+        $this->loadSeuils();
     }
 }

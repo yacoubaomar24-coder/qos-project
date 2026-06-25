@@ -8,6 +8,11 @@
             <h2 style="color:#b91c1c; margin:0;">🚨 Alerte Insatisfaction</h2>
         </div>
 
+        <p style="color:#374151; font-size:13px;">
+            Vous recevez cet email car vous êtes administrateur
+            du site ou de la zone géographique concernée.
+        </p>
+
         <p style="color:#374151;">
             Le site <strong>{{ $site->nom }}</strong> a dépassé le seuil d'insatisfaction configuré.
         </p>

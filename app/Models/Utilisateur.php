@@ -67,4 +67,10 @@ class Utilisateur extends Authenticatable
     {
         return $this->belongsTo(Utilisateur::class, 'created_by');
     }
+
+    // Utilisateurs créés par cet utilisateur, pour envoi des mail liés aux alertes
+    public function utilisateursCreés()
+    {
+        return $this->hasMany(Utilisateur::class, 'created_by');
+    }
 }
