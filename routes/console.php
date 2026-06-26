@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\Schedule;
 use App\Jobs\EnvoyerRapportsAutoJob;
 
 // Vérifier les seuils toutes les heures
-Schedule::job(new VerifierSeuilsJob())->hourly();
+//Schedule::job(new VerifierSeuilsJob())->hourly();
 
 // Ou toutes les 15 minutes pour plus de réactivité
 //Schedule::job(new VerifierSeuilsJob())->everyFifteenMinutes();
 
 // Chaque minute
-//Schedule::job(new VerifierSeuilsJob())->everyMinute()->name('verifier-seuils');
+Schedule::job(new VerifierSeuilsJob())->everyMinute()->name('verifier-seuils');
 
 // Rapport quotidien — chaque jour à 8h00
 Schedule::job(new EnvoyerRapportsAutoJob('quotidien'))
