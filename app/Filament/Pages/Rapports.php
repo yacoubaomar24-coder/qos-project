@@ -32,29 +32,44 @@ class Rapports extends Page
     // -----------------------------------------------
     // Propriétés du formulaire d'export
     // -----------------------------------------------
-    public string  $exportFormat = 'pdf';    // pdf, excel, csv
-    public string  $exportPeriode = 'week';   // day, week, month, year, custom
-    public string  $exportDateDebut = '';
-    public string  $exportDateFin = '';
-    public array $exportSiteIds = [];       // sites sélectionnés
-    public array $sitesOptions = [];       // liste des sites disponibles
+    public string $exportFormat = 'pdf';    // pdf, excel, csv
+    public string $exportPeriode = 'week';   // day, week, month, year, custom
+    public string $exportDateDebut = '';
+    public string $exportDateFin = '';
+    public array $rapportSiteIds = [];
+
+    // -----------------------------------------------
+    // Filtres hiérarchiques — partagés entre manuel et auto
+    // -----------------------------------------------
+    public string $filtreNiveau  = 'tous';    // tous, pays, region, ville, site
+    public ?int   $filtrePaysId  = null;
+    public ?int   $filtreRegionId = null;
+    public ?int   $filtreVilleId  = null;
+    public ?int   $filtreSiteId   = null;
+
+    // Listes pour les selects
+    // -----------------------------------------------
+    public array $sitesOptions   = [];
+    public array $paysOptions    = [];
+    public array $regionsOptions = [];
+    public array $villesOptions  = [];
 
     // -----------------------------------------------
     // Propriétés pour les rapports automatiques
     // -----------------------------------------------
     public string $rapportFrequence = 'hebdomadaire'; // quotidien, hebdomadaire, mensuel
     public string $rapportEmail = '';
-    public array $rapportSiteIds = [];
-    public bool $rapportActif = false;
+    public string $rapportFiltreNiveau = 'tous';
+    public ?int   $rapportFiltrePaysId  = null;
+    public ?int   $rapportFiltreRegionId = null;
+    public ?int   $rapportFiltreVilleId  = null;
+    public ?int   $rapportFiltreSiteId   = null;
     public array $rapportsAuto = [];  // liste des rapports configurés
 
     public function mount(): void
     {
-        // Charger les sites accessibles selon le rôle
-        $this->sitesOptions = $this->getSitesOptions();
-
-        // Sélectionner tous les sites par défaut
-        $this->exportSiteIds = array_keys($this->sitesOptions);
+        // Charger toutes les options selon le rôle
+        $this->chargerOptions();
 
         // Date par défaut — dernière semaine
         $this->exportDateDebut = now()->subWeek()->format('Y-m-d');
@@ -72,18 +87,71 @@ class Rapports extends Page
     // -----------------------------------------------
     // Sites accessibles selon le rôle connecté
     // -----------------------------------------------
-    private function getSitesOptions(): array
+    private function chargerOptions(): void
     {
+        /** @var Utilisateur|null $user */
+        $user = filament()->auth()->user();
+        if (!$user instanceof Utilisateur) return;
+
+        if ($user->hasRole('Super admin')) {
+            // Super admin — ses pays via ses régions
+            $adminIds  = Utilisateur::where('created_by', $user->id)
+                ->where('role', 'Admin national')->pluck('id')->toArray();
+            $creatorIds = array_merge([$user->id], $adminIds);
+
+            $regionIds = \App\Models\Region::whereIn('created_by', $creatorIds)->pluck('id');
+            $paysIds = \App\Models\Region::whereIn('id', $regionIds)->pluck('pays_id')->unique();
+
+            $this->paysOptions = \App\Models\Pays::whereIn('id', $paysIds)->pluck('nom', 'id')->toArray();
+            $this->regionsOptions = \App\Models\Region::whereIn('created_by', $creatorIds)->pluck('nom', 'id')->toArray();
+            $this->villesOptions  = \App\Models\Ville::whereIn('region_id', $regionIds)->pluck('nom', 'id')->toArray();
+            $this->sitesOptions   = Site::whereIn('created_by', $creatorIds)->pluck('nom', 'id')->toArray();
+
+        } elseif ($user->hasRole('Admin national')) {
+            // Admin national — son pays uniquement
+            $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)->pluck('id');
+            $villeIds  = \App\Models\Ville::whereIn('region_id', $regionIds)->pluck('id');
+
+            $this->paysOptions    = \App\Models\Pays::where('id', $user->pays_id)->pluck('nom', 'id')->toArray();
+            $this->regionsOptions = \App\Models\Region::where('pays_id', $user->pays_id)->pluck('nom', 'id')->toArray();
+            $this->villesOptions  = \App\Models\Ville::whereIn('region_id', $regionIds)->pluck('nom', 'id')->toArray();
+            $this->sitesOptions   = Site::whereIn('ville_id', $villeIds)->pluck('nom', 'id')->toArray();
+
+        } elseif ($user->hasRole('Admin régional')) {
+            // Admin régional — sa région uniquement
+            $villeIds = \App\Models\Ville::where('region_id', $user->region_id)->pluck('id');
+
+            $this->regionsOptions = \App\Models\Region::where('id', $user->region_id)->pluck('nom', 'id')->toArray();
+            $this->villesOptions  = \App\Models\Ville::where('region_id', $user->region_id)->pluck('nom', 'id')->toArray();
+            $this->sitesOptions   = Site::whereIn('ville_id', $villeIds)->pluck('nom', 'id')->toArray();
+
+        } elseif ($user->hasRole('Admin de site')) {
+            // Admin de site — son seul site
+            $this->sitesOptions = Site::where('id', $user->site_id)->pluck('nom', 'id')->toArray();
+        }
+    }
+
+    // Récupérer les IDs des sites selon les filtres
+    // -----------------------------------------------
+    private function getSiteIdsFiltres(
+        string $niveau,
+        ?int   $paysId,
+        ?int   $regionId,
+        ?int   $villeId,
+        ?int   $siteId
+    ): array {
         /** @var Utilisateur|null $user */
         $user = filament()->auth()->user();
         if (!$user instanceof Utilisateur) return [];
 
-        $query = Site::query()->where('statut', true);
+        // Base — tous les sites accessibles
+        $query = Site::query();
 
         if ($user->hasRole('Super admin')) {
-            $adminIds = Utilisateur::where('created_by', $user->id)
+            $adminIds   = Utilisateur::where('created_by', $user->id)
                 ->where('role', 'Admin national')->pluck('id')->toArray();
-            $query->whereIn('created_by', array_merge([$user->id], $adminIds));
+            $creatorIds = array_merge([$user->id], $adminIds);
+            $query->whereIn('created_by', $creatorIds);
         } elseif ($user->hasRole('Admin national')) {
             $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)->pluck('id');
             $villeIds  = \App\Models\Ville::whereIn('region_id', $regionIds)->pluck('id');
@@ -92,10 +160,37 @@ class Rapports extends Page
             $villeIds = \App\Models\Ville::where('region_id', $user->region_id)->pluck('id');
             $query->whereIn('ville_id', $villeIds);
         } elseif ($user->hasRole('Admin de site')) {
-            $query->where('id', $user->site_id);
+            return [$user->site_id];
         }
 
-        return $query->pluck('nom', 'id')->toArray();
+        // Appliquer le filtre hiérarchique sélectionné
+        match ($niveau) {
+            // Filtrer par pays → régions → villes → sites
+            'pays' => $query->when($paysId, fn($q) =>
+                $q->whereHas('ville.region', fn($q2) =>
+                    $q2->where('pays_id', $paysId)
+                )
+            ),
+
+            // Filtrer par région → villes → sites
+            'region' => $query->when($regionId, fn($q) =>
+                $q->whereHas('ville', fn($q2) =>
+                    $q2->where('region_id', $regionId)
+                )
+            ),
+            // Filtrer par ville → sites
+            'ville' => $query->when($villeId, fn($q) =>
+                $q->where('ville_id', $villeId)
+            ),
+            // Filtrer par site spécifique
+            'site' => $query->when($siteId, fn($q) =>
+                $q->where('id', $siteId)
+            ),
+            // Tous les sites accessibles — pas de filtre supplémentaire
+            default => null,
+        };
+
+        return $query->pluck('id')->toArray();
     }
 
     // -----------------------------------------------
@@ -122,9 +217,15 @@ class Rapports extends Page
     private function collecterDonnees(): array
     {
         [$debut, $fin] = $this->getDates();
-        $siteIds = !empty($this->exportSiteIds)
-            ? $this->exportSiteIds
-            : array_keys($this->sitesOptions);
+        
+        // Si siteIds non fournis — utiliser les filtres courants
+        $siteIds = $siteIds ?? $this->getSiteIdsFiltres(
+            $this->filtreNiveau,
+            $this->filtrePaysId,
+            $this->filtreRegionId,
+            $this->filtreVilleId,
+            $this->filtreSiteId,
+        );
 
         $donnees = [];
 
@@ -158,6 +259,27 @@ class Rapports extends Page
         usort($donnees, fn($a, $b) => $b['taux_satisfaction'] <=> $a['taux_satisfaction']);
 
         return $donnees;
+    }
+
+    // -----------------------------------------------
+    // Changer le niveau de filtre
+    // -----------------------------------------------
+    public function changerFiltreNiveau(string $niveau): void
+    {
+        $this->filtreNiveau = $niveau;
+        $this->filtrePaysId = null;
+        $this->filtreRegionId = null;
+        $this->filtreVilleId = null;
+        $this->filtreSiteId = null;
+    }
+
+    public function changerRapportFiltreNiveau(string $niveau): void
+    {
+        $this->rapportFiltreNiveau   = $niveau;
+        $this->rapportFiltrePaysId   = null;
+        $this->rapportFiltreRegionId = null;
+        $this->rapportFiltreVilleId  = null;
+        $this->rapportFiltreSiteId   = null;
     }
 
     // -----------------------------------------------
@@ -280,9 +402,17 @@ class Rapports extends Page
         /** @var Utilisateur|null $user */
         $user = filament()->auth()->user();
 
+        $siteIds = $this->getSiteIdsFiltres(
+            $this->rapportFiltreNiveau,
+            $this->rapportFiltrePaysId,
+            $this->rapportFiltreRegionId,
+            $this->rapportFiltreVilleId,
+            $this->rapportFiltreSiteId,
+        );
+
         \App\Models\RapportAuto::create([
             'frequence'         => $this->rapportFrequence,
-            'site_ids'          => !empty($this->rapportSiteIds) ? $this->rapportSiteIds : null,
+            'site_ids'          => !empty($siteIds) ? $siteIds : null,
             'email_destination' => $this->rapportEmail,
             'created_by'        => $user?->id,
             'actif'             => true,
@@ -310,5 +440,5 @@ class Rapports extends Page
 
         \App\Jobs\EnvoyerRapportsAutoJob::dispatchSync($rapport->frequence);
     }
-    
+
 }

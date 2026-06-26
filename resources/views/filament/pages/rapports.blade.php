@@ -77,18 +77,114 @@
                           text-transform:uppercase; display:block; margin-bottom:8px;">
                 Sites à inclure
             </label>
+
             <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                @foreach($sitesOptions as $id => $nom)
-                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;
-                              padding:6px 12px; border:1px solid #e5e7eb; border-radius:8px;
-                              background:{{ in_array($id, $exportSiteIds) ? '#f0fdf4' : 'white' }};
-                              border-color:{{ in_array($id, $exportSiteIds) ? '#bbf7d0' : '#e5e7eb' }};">
-                    <input type="checkbox" wire:model="exportSiteIds" value="{{ $id }}">
-                    <span style="font-size:13px; color:#374151;">{{ $nom }}</span>
-                </label>
-                @endforeach
+                <button wire:click="changerFiltreNiveau('tous')"
+                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                        cursor:pointer; border:1px solid #e5e7eb;
+                        background:{{ $filtreNiveau === 'tous' ? '#111827' : 'white' }};
+                        color:{{ $filtreNiveau === 'tous' ? 'white' : '#374151' }};">
+                    Tous les sites
+                </button>
+                @if(!empty($paysOptions))
+                <button wire:click="changerFiltreNiveau('pays')"
+                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                        cursor:pointer; border:1px solid #e5e7eb;
+                        background:{{ $filtreNiveau === 'pays' ? '#111827' : 'white' }};
+                        color:{{ $filtreNiveau === 'pays' ? 'white' : '#374151' }};">
+                    Par pays
+                </button>
+                @endif
+                @if(!empty($regionsOptions))
+                <button wire:click="changerFiltreNiveau('region')"
+                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                        cursor:pointer; border:1px solid #e5e7eb;
+                        background:{{ $filtreNiveau === 'region' ? '#111827' : 'white' }};
+                        color:{{ $filtreNiveau === 'region' ? 'white' : '#374151' }};">
+                    Par région
+                </button>
+                @endif
+                @if(!empty($villesOptions))
+                <button wire:click="changerFiltreNiveau('ville')"
+                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                        cursor:pointer; border:1px solid #e5e7eb;
+                        background:{{ $filtreNiveau === 'ville' ? '#111827' : 'white' }};
+                        color:{{ $filtreNiveau === 'ville' ? 'white' : '#374151' }};">
+                    Par ville
+                </button>
+                @endif
+                @if(count($sitesOptions) > 1)
+                <button wire:click="changerFiltreNiveau('site')"
+                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                        cursor:pointer; border:1px solid #e5e7eb;
+                        background:{{ $filtreNiveau === 'site' ? '#111827' : 'white' }};
+                        color:{{ $filtreNiveau === 'site' ? 'white' : '#374151' }};">
+                    Site spécifique
+                </button>
+                @endif
             </div>
         </div>
+
+        {{-- Select selon le niveau --}}
+        @if($filtreNiveau === 'pays' && !empty($paysOptions))
+        <select wire:model="filtrePaysId"
+            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
+                font-size:13px; background:#f9fafb; min-width:200px;">
+            <option value="">Sélectionner un pays</option>
+            @foreach($paysOptions as $id => $nom)
+                <option value="{{ $id }}">{{ $nom }}</option>
+            @endforeach
+        </select>
+        @endif
+
+        @if($filtreNiveau === 'region' && !empty($regionsOptions))
+        <select wire:model="filtreRegionId"
+            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
+                font-size:13px; background:#f9fafb; min-width:200px;">
+            <option value="">Sélectionner une région</option>
+            @foreach($regionsOptions as $id => $nom)
+                <option value="{{ $id }}">{{ $nom }}</option>
+            @endforeach
+        </select>
+        @endif
+
+        @if($filtreNiveau === 'ville' && !empty($villesOptions))
+        <select wire:model="filtreVilleId"
+            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
+                    font-size:13px; background:#f9fafb; min-width:200px;">
+            <option value="">Sélectionner une ville</option>
+            @foreach($villesOptions as $id => $nom)
+                <option value="{{ $id }}">{{ $nom }}</option>
+            @endforeach
+        </select>
+        @endif 
+        @if($filtreNiveau === 'site' && !empty($sitesOptions))
+        <select wire:model="filtreSiteId"
+            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
+                font-size:13px; background:#f9fafb; min-width:200px;">
+            <option value="">Sélectionner un site</option>
+            @foreach($sitesOptions as $id => $nom)
+                <option value="{{ $id }}">{{ $nom }}</option>
+            @endforeach
+        </select>
+        @endif
+
+        {{-- Résumé --}}
+        <p style="font-size:11px; color:#9ca3af; margin-top:8px;">
+            @if($filtreNiveau === 'tous')
+                Tous les sites accessibles seront inclus
+            @elseif($filtreNiveau === 'pays' && $filtrePaysId)
+                Sites du pays sélectionné
+            @elseif($filtreNiveau === 'region' && $filtreRegionId)
+                Sites de la région sélectionnée
+            @elseif($filtreNiveau === 'ville' && $filtreVilleId)
+                Sites de la ville sélectionnée
+            @elseif($filtreNiveau === 'site' && $filtreSiteId)
+                Site spécifique sélectionné
+            @else
+                Veuillez sélectionner un filtre
+            @endif
+        </p>
 
         {{-- Format et boutons d'export --}}
         <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
@@ -315,20 +411,109 @@
         <div style="margin-bottom:16px;">
             <label style="font-size:11px; font-weight:600; color:#9ca3af;
                         text-transform:uppercase; display:block; margin-bottom:8px;">
-                Sites à inclure (vide = tous)
+                Sélection des sites
             </label>
-            <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                @foreach($sitesOptions as $id => $nom)
-                <label style="display:flex; align-items:center; gap:6px; cursor:pointer;
-                            padding:6px 12px; border:1px solid #e5e7eb; border-radius:8px;
-                            background:{{ in_array($id, $rapportSiteIds) ? '#eff6ff' : 'white' }};
-                            border-color:{{ in_array($id, $rapportSiteIds) ? '#bfdbfe' : '#e5e7eb' }};">
-                    <input type="checkbox" wire:model="rapportSiteIds" value="{{ $id }}">
-                    <span style="font-size:13px; color:#374151;">{{ $nom }}</span>
-                </label>
-                @endforeach
-            </div>
+            <button wire:click="changerRapportFiltreNiveau('tous')"
+                style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                    cursor:pointer; border:1px solid #e5e7eb;
+                    background:{{ $rapportFiltreNiveau === 'tous' ? '#111827' : 'white' }};
+                    color:{{ $rapportFiltreNiveau === 'tous' ? 'white' : '#374151' }};">
+                Tous les sites
+            </button>
+            @if(!empty($paysOptions))
+            <button wire:click="changerRapportFiltreNiveau('pays')"
+                style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                    cursor:pointer; border:1px solid #e5e7eb;
+                    background:{{ $rapportFiltreNiveau === 'pays' ? '#111827' : 'white' }};
+                    color:{{ $rapportFiltreNiveau === 'pays' ? 'white' : '#374151' }};">
+                Par pays
+            </button>
+            @endif
+            @if(!empty($regionsOptions))
+            <button wire:click="changerRapportFiltreNiveau('region')"
+                style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                    cursor:pointer; border:1px solid #e5e7eb;
+                    background:{{ $rapportFiltreNiveau === 'region' ? '#111827' : 'white' }};
+                    color:{{ $rapportFiltreNiveau === 'region' ? 'white' : '#374151' }};">
+                Par région
+            </button>
+            @endif
+            @if(!empty($villesOptions))
+            <button wire:click="changerRapportFiltreNiveau('ville')"
+                style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                    cursor:pointer; border:1px solid #e5e7eb;
+                    background:{{ $rapportFiltreNiveau === 'ville' ? '#111827' : 'white' }};
+                    color:{{ $rapportFiltreNiveau === 'ville' ? 'white' : '#374151' }};">
+                Par ville
+            </button>
+            @endif
+            @if(count($sitesOptions) > 1)
+            <button wire:click="changerRapportFiltreNiveau('site')"
+                style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
+                    cursor:pointer; border:1px solid #e5e7eb;
+                    background:{{ $rapportFiltreNiveau === 'site' ? '#111827' : 'white' }};
+                    color:{{ $rapportFiltreNiveau === 'site' ? 'white' : '#374151' }};">
+                Site spécifique
+            </button>
+            @endif
+
         </div>
+
+        @if($rapportFiltreNiveau === 'pays' && !empty($paysOptions))
+        <select wire:model="rapportFiltrePaysId"
+            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
+                font-size:13px; background:#f9fafb; min-width:200px;">
+            <option value="">Sélectionner un pays</option>
+            @foreach($paysOptions as $id => $nom)
+                <option value="{{ $id }}">{{ $nom }}</option>
+            @endforeach
+        </select>
+        @endif
+        @if($rapportFiltreNiveau === 'region' && !empty($regionsOptions))
+        <select wire:model="rapportFiltreRegionId"
+            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
+                font-size:13px; background:#f9fafb; min-width:200px;">
+            <option value="">Sélectionner une région</option>
+            @foreach($regionsOptions as $id => $nom)
+                <option value="{{ $id }}">{{ $nom }}</option>
+            @endforeach
+        </select>
+        @endif
+        @if($rapportFiltreNiveau === 'ville' && !empty($villesOptions))
+        <select wire:model="rapportFiltreVilleId"
+            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
+                font-size:13px; background:#f9fafb; min-width:200px;">
+            <option value="">Sélectionner une ville</option>
+            @foreach($villesOptions as $id => $nom)
+                <option value="{{ $id }}">{{ $nom }}</option>
+            @endforeach
+        </select>
+        @endif
+        @if($rapportFiltreNiveau === 'site' && !empty($sitesOptions))
+        <select wire:model="rapportFiltreSiteId"
+            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
+                font-size:13px; background:#f9fafb; min-width:200px;">
+            <option value="">Sélectionner un site</option>
+            @foreach($sitesOptions as $id => $nom)
+                <option value="{{ $id }}">{{ $nom }}</option>
+            @endforeach
+        </select>
+        @endif
+        <p style="font-size:11px; color:#9ca3af; margin-top:8px;">
+            @if($rapportFiltreNiveau === 'tous')
+                Tous les sites accessibles seront inclus
+            @elseif($rapportFiltreNiveau === 'pays' && $rapportFiltrePaysId)
+                Sites du pays sélectionné
+            @elseif($rapportFiltreNiveau === 'region' && $rapportFiltreRegionId)
+                Sites de la région sélectionnée
+            @elseif($rapportFiltreNiveau === 'ville' && $rapportFiltreVilleId)
+                Sites de la ville sélectionnée
+            @elseif($rapportFiltreNiveau === 'site' && $rapportFiltreSiteId)
+                Site spécifique sélectionné
+            @else
+                Veuillez sélectionner un filtre
+            @endif
+        </p>
 
         {{-- Rapports configurés --}}
         @if(!empty($rapportsAuto))
