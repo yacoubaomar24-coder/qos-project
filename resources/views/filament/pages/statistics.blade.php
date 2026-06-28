@@ -1,6 +1,24 @@
 <x-filament-panels::page>
 <div style="display:flex; flex-direction:column; gap:24px;">
 
+    {{-- Libellés --}}
+    {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
+    {{ \App\Helpers\ConfigHelper::libelleMoyen() }}
+    {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
+
+    {{-- Avec couleurs --}}
+    <span style="color:{{ \App\Helpers\ConfigHelper::couleurSatisfait() }};">
+        {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
+    </span>
+
+    <span style="color:{{ \App\Helpers\ConfigHelper::couleurMoyen() }};">
+        {{ \App\Helpers\ConfigHelper::libelleMoyen() }}
+    </span>
+
+    <span style="color:{{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
+        {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
+    </span>
+
     {{-- ===================================================
          SECTION 1 : Répartition par niveau
     =================================================== --}}
@@ -38,220 +56,73 @@
         <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:10px;">
 
             {{-- Total des votes --}}
-            <div style="
-                display:flex;
-                flex-direction:column;
-                justify-content:center;
-                align-items:center;
-                padding:10px;
-                background:linear-gradient(135deg,#ffffff,#f9fafb);
-                border:2px solid #e5e7eb;
-                border-radius:16px;
-                box-shadow:0 2px 8px rgba(0,0,0,0.05);
-                height:95px;
-            ">
-
+            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px;
+                background:linear-gradient(135deg,#ffffff,#f9fafb);border:2px solid #e5e7eb;border-radius:16px;
+                box-shadow:0 2px 8px rgba(0,0,0,0.05);height:95px;">
+                
                 {{-- Titre --}}
-                <p style="
-                    font-size:12px;
-                    font-weight:600;
-                    letter-spacing:0.04em;
-                    color:#9ca3af;
-                    text-transform:uppercase;
-                    margin:0;
-                ">
-                    Total
-                </p>
+                <p style="font-size:12px;font-weight:600;letter-spacing:0.04em;color:#9ca3af;
+                    text-transform:uppercase;margin:0;">Total</p>
 
                 {{-- Valeur --}}
-                <p style="
-                    font-size:32px;
-                    font-weight:800;
-                    color:#111827;
-                    margin:8px 0 2px;
-                    line-height:1;
-                ">
+                <p style="font-size:32px;font-weight:800;color:#111827;margin:8px 0 2px;line-height:1;">
                     {{ $pn['total'] }}
                 </p>
 
                 {{-- Sous texte --}}
-                <span style="
-                    font-size:13px;
-                    color:#6b7280;
-                    font-weight:500;
-                ">
-                    Votes
-                </span>
-
+                <span style=" font-size:13px;color:#6b7280;font-weight:500;">Votes</span>
             </div>
             
             {{-- Total des satifactions --}}
-            <div style="
-                display:flex;
-                flex-direction:column;
-                justify-content:center;
-                align-items:center;
-                padding:10px;
-                background:linear-gradient(135deg,#f0fdf4,#dcfce7);
-                border:1px solid #bbf7d0;
-                border-radius:16px;
-                box-shadow:0 2px 8px rgba(22,163,74,0.08);
-                height:95px;
-            ">
-
-                {{-- Titre --}}
-                <p style="
-                    font-size:12px;
-                    font-weight:700;
-                    letter-spacing:0.05em;
-                    color:#15803d;
-                    text-transform:uppercase;
-                    margin:0;
-                ">
-                    Satisfaits
+            <div style="text-align:center; padding:12px; background:#f0fdf4; border-radius:10px;">
+                {{-- ✅ Libellé dynamique --}}
+                <p style="font-size:11px; color:#15803d; margin:0;">
+                    {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
                 </p>
-
-                {{-- Valeur --}}
-                <p style="
-                    font-size:32px;
-                    font-weight:800;
-                    color:#16a34a;
-                    margin:8px 0 4px;
-                    line-height:1;
-                ">
+                <p style="font-size:22px; font-weight:700; color:#16a34a; margin:4px 0 0;">
                     {{ $pn['satisfaits'] }}
                 </p>
-
-                {{-- Taux --}}
-                <div style="
-                    display:flex;
-                    align-items:center;
-                    gap:6px;
-                    margin-top:4px;
-                ">
-
-                    <span style="
-                        font-size:13px;
-                        font-weight:600;
-                        color:#166534;
-                    ">
-                        {{ $pn['taux_satisfait'] }}%
-                    </span>
-
-                </div>
-
+                <p style="font-size:12px; color:#6b7280; margin:2px 0 0;">
+                    {{ $pn['taux_satisfait'] }}%
+                </p>
             </div>
 
             {{-- Total des satifactions moyennes --}}
-            <div style="
-                display:flex;
-                flex-direction:column;
-                justify-content:center;
-                align-items:center;
-                padding:10px;
-                background:linear-gradient(135deg,#fffbeb,#fef3c7);
-                border:1px solid #fde68a;
-                border-radius:16px;
-                box-shadow:0 2px 8px rgba(217,119,6,0.08);
-                height:95px;
-            ">
-
+            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px;
+                background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1px solid #fde68a;border-radius:16px;
+                box-shadow:0 2px 8px rgba(217,119,6,0.08);height:95px;">
+            
                 {{-- Titre --}}
-                <p style="
-                    font-size:12px;
-                    font-weight:700;
-                    letter-spacing:0.05em;
-                    color:#b45309;
-                    text-transform:uppercase;
-                    margin:0;
-                ">
-                    Moyens
-                </p>
+                <p style="font-size:12px;font-weight:700;letter-spacing:0.05em;color:#b45309;
+                    text-transform:uppercase;margin:0;">Moyens</p>
 
                 {{-- Valeur --}}
-                <p style="
-                    font-size:32px;
-                    font-weight:800;
-                    color:#d97706;
-                    margin:8px 0 4px;
-                    line-height:1;
-                ">
-                    {{ $pn['moyens'] }}
-                </p>
-
+                <p style="font-size:32px;font-weight:800;color:#d97706; margin:8px 0 4px;line-height:1;">
+                    {{ $pn['moyens'] }}  </p>
+                
                 {{-- Taux --}}
-                <div style="
-                    display:flex;
-                    align-items:center;
-                    gap:6px;
-                    margin-top:4px;
-                ">
-
-                    <span style="
-                        font-size:13px;
-                        font-weight:600;
-                        color:#92400e;
-                    ">
-                        {{ $pn['taux_moyen'] }}%
-                    </span>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+                    <span style="font-size:13px;font-weight:600;color:#92400e;">{{ $pn['taux_moyen'] }}%</span>
                 </div>
             </div>
 
             {{-- Total des insatifactions --}}
-            <div style="
-                display:flex;
-                flex-direction:column;
-                justify-content:center;
-                align-items:center;
-                padding:10px;
-                background:linear-gradient(135deg,#fef2f2,#fee2e2);
-                border:1px solid #fecaca;
-                border-radius:16px;
-                box-shadow:0 2px 8px rgba(239,68,68,0.08);
-                height:95px;
-            ">
-
-                {{-- Titre --}}
-                <p style="
-                    font-size:12px;
-                    font-weight:700;
-                    letter-spacing:0.05em;
-                    color:#b91c1c;
-                    text-transform:uppercase;
-                    margin:0;
-                ">
-                    Insatisfaits
+            <div style="text-align:center; padding:12px; background:#fef2f2; border-radius:10px;">
+                {{-- ✅ Libellé dynamique --}}
+                <p style="font-size:11px; color:#b91c1c; margin:0;">
+                    {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
                 </p>
-
-                {{-- Valeur --}}
-                <p style="
-                    font-size:32px;
-                    font-weight:800;
-                    color:#ef4444;
-                    margin:8px 0 4px;
-                    line-height:1;
-                ">
+                <span style="color:{{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
+                    {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
+                </span>
+                <p style="font-size:22px; font-weight:700; color:#ef4444; margin:4px 0 0;">
                     {{ $pn['insatisfaits'] }}
                 </p>
-
-                {{-- Taux --}}
-                <div style="
-                    display:flex;
-                    align-items:center;
-                    gap:6px;
-                    margin-top:4px;
-                ">
-
-                    <span style="
-                        font-size:13px;
-                        font-weight:600;
-                        color:#991b1b;
-                    ">
-                        {{ $pn['taux_insatisfait'] }}%
-                    </span>
-                </div>
+                <p style="font-size:12px; color:#6b7280; margin:2px 0 0;">
+                    {{ $pn['taux_insatisfait'] }}%
+                </p>
             </div>
-
+            
         </div>
         @endif
 

@@ -272,6 +272,27 @@
                 Logo de l'organisation
             </label>
 
+            <input type="file"
+                wire:model="organisationLogo"
+                accept="image/png,image/jpeg,image/svg+xml"
+                style="border:1px solid #e5e7eb; border-radius:8px;
+                    padding:8px 12px; font-size:13px; background:#f9fafb; width:100%;">
+
+            {{-- Indicateur de chargement --}}
+            <div wire:loading wire:target="organisationLogo"
+                style="font-size:12px; color:#6b7280; margin-top:4px;">
+                Chargement en cours...
+            </div>
+
+            {{-- Aperçu avant sauvegarde --}}
+            @if($organisationLogo)
+                <div style="margin-top:8px;">
+                    <p style="font-size:12px; color:#6b7280; margin:0 0 4px;">Aperçu :</p>
+                    <img src="{{ $organisationLogo->temporaryUrl() }}"
+                        style="max-height:60px; border-radius:6px; border:1px solid #e5e7eb;">
+                </div>
+            @endif
+
             @if($logoActuel)
             {{-- Logo actuel --}}
             <div style="margin-bottom:12px;">
@@ -283,11 +304,6 @@
             </div>
             @endif
 
-            {{-- Upload --}}
-            <input type="file" wire:model="organisationLogo"
-                accept="image/png,image/jpeg,image/svg+xml"
-                style="border:1px solid #e5e7eb; border-radius:8px;
-                       padding:8px 12px; font-size:13px; background:#f9fafb; width:100%;">
             <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
                 Formats acceptés : PNG, JPG, SVG — Max 2MB
             </p>

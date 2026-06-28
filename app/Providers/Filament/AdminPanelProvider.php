@@ -23,6 +23,35 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // ✅ Charger la config de l'utilisateur connecté
+        \Filament\Facades\Filament::serving(function () use ($panel) {
+            /** @var \App\Models\Utilisateur|null $user */
+            $user   = filament()->auth()->user();
+            $config = \App\Models\Configuration::where('created_by', $user?->id)->first();
+
+            if (!$config) return;
+
+            $panel->brandName($config->organisation_nom);
+
+            if ($config->organisation_logo &&
+                \Illuminate\Support\Facades\Storage::disk('public')->exists($config->organisation_logo)) {
+
+                $logoUrl = \Illuminate\Support\Facades\Storage::url($config->organisation_logo);
+                $nom     = $config->organisation_nom;
+
+                $panel->brandLogo(fn() => view('filament.brand-logo', [
+                    'url' => $logoUrl,
+                    'nom' => $nom,
+                ]));
+            }
+
+            if ($config->couleur_primaire) {
+                $panel->colors([
+                    'primary' => \Filament\Support\Colors\Color::hex($config->couleur_primaire),
+                ]);
+            }
+             
+        });
 
         return $panel
             ->authGuard('web')
@@ -87,7 +116,6 @@ class AdminPanelProvider extends PanelProvider
             )
             //->brandLogo(fn () => view('filament.titre'))
             ->brandName('Collecte de Satisfaction Client')
-            //->brandLogo(asset('images/FAST.jpg'))  // public/images/logo.png
             ->globalSearch(false)                   // Désactiver la recherche globale
             ->sidebarCollapsibleOnDesktop()
             //->sidebarFullyCollapsibleOnDesktop()

@@ -7,9 +7,11 @@ use App\Models\Configuration;
 use App\Models\Utilisateur;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads; 
 
 class Parametres extends Page
 {
+    use WithFileUploads;
     protected static ?string $navigationLabel = 'Paramètres';
     protected static ?string $title           = 'Paramètres & Configuration';
     protected static ?int    $navigationSort  = 6;
@@ -54,7 +56,8 @@ class Parametres extends Page
     // Personnalisation interface
     // -----------------------------------------------
     public string  $organisationNom       = 'Mon Organisation';
-    public ?string $organisationLogo      = null;
+    //public ?string $organisationLogo      = null;
+    public $organisationLogo = null;
     public string  $couleurPrimaire       = '#f59e0b';
     public string  $couleurSecondaire     = '#111827';
     public ?string $logoActuel            = null;
@@ -144,6 +147,33 @@ class Parametres extends Page
         /** @var Utilisateur|null $user */
         $user = filament()->auth()->user();
 
+        $data = [
+            'organisation_nom'   => $this->organisationNom,
+            'couleur_primaire'   => $this->couleurPrimaire,
+            'couleur_secondaire' => $this->couleurSecondaire,
+        ];
+
+        // ✅ Gérer l'upload du logo
+        if ($this->organisationLogo) {
+            // Supprimer l'ancien logo
+            if ($this->logoActuel) {
+                Storage::disk('public')->delete($this->logoActuel);
+            }
+
+            // Sauvegarder le nouveau logo dans storage/app/public/logos/
+            $chemin = $this->organisationLogo->store('logos', 'public');
+            $data['organisation_logo'] = $chemin;
+            $this->logoActuel          = $chemin;
+
+            // Réinitialiser le champ
+            $this->organisationLogo = null;
+        }
+        
+        Configuration::updateOrCreate(
+            ['created_by' => $user?->id],
+            $data
+        );
+        /*
         Configuration::updateOrCreate(
             ['created_by' => $user?->id],
             [
@@ -151,7 +181,7 @@ class Parametres extends Page
                 'couleur_primaire'    => $this->couleurPrimaire,
                 'couleur_secondaire'  => $this->couleurSecondaire,
             ]
-        );
+        );*/
 
         $this->message = 'Interface personnalisée avec succès !';
     }
@@ -193,11 +223,20 @@ class Parametres extends Page
 
         $maintenant   = now();
         $heureActuelle = $maintenant->format('H:i');
-        $jourActuel   = $maintenant->dayOfWeek; // 0=dim, 1=lun, ..., 6=sam
+        //$jourActuel   = $maintenant->dayOfWeek; // 0=dim, 1=lun, ..., 6=sam
+        $jourActuel    = (int) $maintenant->format('N'); // 1=Lun, 7=Dim (ISO-8601)
 
-        // Vérifier le jour
+        // ✅ Convertir le jour ISO en format stocké (0=Dim, 1=Lun, ..., 6=Sam)
+        $jourConverti = $jourActuel === 7 ? 0 : $jourActuel;
+
         $joursActifs = $config->jours_actifs ?? [1, 2, 3, 4, 5];
-        if (!in_array($jourActuel, $joursActifs)) {
+        
+        // Vérifier le jour
+        if (!in_array($jourConverti, $joursActifs)) {
+            \Illuminate\Support\Facades\Log::info(
+                "Dispositif inactif — jour {$jourConverti} non configuré. Jours actifs: " .
+                implode(',', $joursActifs)
+            );
             return false;
         }
 
@@ -205,6 +244,13 @@ class Parametres extends Page
         $heureDebut = substr($config->heure_debut, 0, 5);
         $heureFin   = substr($config->heure_fin, 0, 5);
 
-        return $heureActuelle >= $heureDebut && $heureActuelle <= $heureFin;
+        $actif = $heureActuelle >= $heureDebut && $heureActuelle <= $heureFin;
+
+        \Illuminate\Support\Facades\Log::info(
+            "Vérification horaire — maintenant: {$heureActuelle} " .
+            "plage: {$heureDebut}→{$heureFin} — actif: " . ($actif ? 'oui' : 'non')
+        );
+
+        return $actif;
     }
 }
