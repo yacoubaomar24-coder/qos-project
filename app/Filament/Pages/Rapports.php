@@ -57,6 +57,7 @@ class Rapports extends Page
     // -----------------------------------------------
     // Propriétés pour les rapports automatiques
     // -----------------------------------------------
+    public ?int $rapportId = null;
     public string $rapportFrequence = 'hebdomadaire'; // quotidien, hebdomadaire, mensuel
     public string $rapportEmail = '';
     public string $rapportFiltreNiveau = 'tous';
@@ -441,4 +442,28 @@ class Rapports extends Page
         \App\Jobs\EnvoyerRapportsAutoJob::dispatchSync($rapport->frequence);
     }
 
+    // Charger un rapport dans le formulaire pour modification
+    // -----------------------------------------------
+    public function modifierRapport(int $rapportId): void
+    {
+        $rapport = \App\Models\RapportAuto::find($rapportId);
+        if (!$rapport) return;
+
+        // Pré-remplir le formulaire avec les valeurs du seuil
+        $this->rapportId      = $rapport->site_id;
+        $this->rapportFrequence = $rapport->frequence;
+        $this->rapportEmail     = $rapport->email_destination;
+    }
+
+    // -----------------------------------------------
+    // Activer ou désactiver un rapport
+    // -----------------------------------------------
+    public function toggleRapport(int $rapportId): void
+    {
+        $rapport = \App\Models\RapportAuto::find($rapportId);
+        if (!$rapport) return;
+
+        $rapport->update(['actif' => !$rapport->actif]);
+        $this->loadRapportsAuto();
+    }
 }

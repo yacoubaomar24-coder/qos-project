@@ -44,7 +44,7 @@ class Alertes extends Page
     {
         $this->sitesOptions = $this->getSitesOptions();
         $this->loadAlertes();
-        $this->loadSeuils();
+        //$this->loadSeuils();
     }
 
     // -----------------------------------------------
@@ -96,28 +96,6 @@ class Alertes extends Page
     }
 
     // -----------------------------------------------
-    // Charger les seuils configurés
-    // -----------------------------------------------
-    public function loadSeuils(): void
-    {
-        /** @var Utilisateur|null $user */
-        $user    = filament()->auth()->user();
-        $siteIds = array_keys($this->sitesOptions);
-
-        $this->seuils = Seuil::with('site')
-            ->where(function ($q) use ($siteIds, $user) {
-                $q->whereIn('site_id', $siteIds)
-                  ->orWhere(function ($q2) use ($user) {
-                      // Seuils globaux créés par cet utilisateur
-                      $q2->whereNull('site_id')
-                         ->where('created_by', $user?->id);
-                  });
-            })
-            ->get()
-            ->toArray();
-    }
-
-    // -----------------------------------------------
     // Marquer une alerte comme vue
     // -----------------------------------------------
     public function marquerVue(int $alerteId): void
@@ -141,41 +119,6 @@ class Alertes extends Page
     public function changerFiltre(string $statut): void
     {
         $this->filtreStatut = $statut;
-        $this->loadAlertes();
-    }
-
-    // -----------------------------------------------
-    // Créer ou modifier un seuil
-    // -----------------------------------------------
-    public function sauvegarderSeuil(): void {
-
-        /** @var Utilisateur|null $user */
-        $user = filament()->auth()->user();
-
-        Seuil::updateOrCreate(
-            [
-                // Clé unique — site + créateur
-                'site_id'    => $this->seuilSiteId ?: null,
-                'created_by' => $user?->id,
-            ],
-            [
-                'seuil_insatisfaction' => $this->seuilPourcentage,
-                'periode_heures'       => $this->seuilPeriode,
-                'notif_email'          => true, // ← toujours true
-                'actif'                => true,
-            ]
-        );
-
-        $this->loadSeuils();
-    }
-
-    // -----------------------------------------------
-    // Tester manuellement la vérification des seuils
-    // -----------------------------------------------
-    public function testerSeuils(): void
-    {
-        //\App\Jobs\VerifierSeuilsJob::dispatch();
-        \App\Jobs\VerifierSeuilsJob::dispatchSync();
         $this->loadAlertes();
     }
 
@@ -265,31 +208,5 @@ class Alertes extends Page
         }
 
         return array_unique(array_filter($emails));
-    }
-
-    // -----------------------------------------------
-    // Charger un seuil dans le formulaire pour modification
-    // -----------------------------------------------
-    public function modifierSeuil(int $seuilId): void
-    {
-        $seuil = \App\Models\Seuil::find($seuilId);
-        if (!$seuil) return;
-
-        // Pré-remplir le formulaire avec les valeurs du seuil
-        $this->seuilSiteId      = $seuil->site_id;
-        $this->seuilPourcentage = $seuil->seuil_insatisfaction;
-        $this->seuilPeriode     = $seuil->periode_heures;
-    }
-
-    // -----------------------------------------------
-    // Activer ou désactiver un seuil
-    // -----------------------------------------------
-    public function toggleSeuil(int $seuilId): void
-    {
-        $seuil = \App\Models\Seuil::find($seuilId);
-        if (!$seuil) return;
-
-        $seuil->update(['actif' => !$seuil->actif]);
-        $this->loadSeuils();
     }
 }

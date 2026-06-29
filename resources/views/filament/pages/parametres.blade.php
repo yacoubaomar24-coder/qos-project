@@ -341,7 +341,103 @@
     </div>
 
     {{-- ===================================================
-         SECTION 4 : Récapitulatif de la configuration actuelle
+        SECTION 4 : Configuration des seuils d'alerte
+    =================================================== --}}
+    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
+                padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+
+        <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 4px;">
+            Seuils d'alerte d'insatisfaction
+        </h3>
+        <p style="font-size:12px; color:#9ca3af; margin:0 0 16px;">
+            Déclenche une alerte si le taux d'insatisfaction dépasse le seuil configuré
+        </p>
+
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;">
+
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
+                    Site (vide = global)
+                </label>
+                <select wire:model="seuilSiteId"
+                    style="border:1px solid #e5e7eb; border-radius:8px;
+                        padding:8px 12px; font-size:13px; background:#f9fafb;">
+                    <option value="">Tous les sites</option>
+                    @foreach($sitesOptions as $id => $nom)
+                        <option value="{{ $id }}">{{ $nom }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
+                    Seuil insatisfaction (%)
+                </label>
+                <input type="number" wire:model="seuilPourcentage"
+                    min="1" max="100"
+                    style="border:1px solid #e5e7eb; border-radius:8px;
+                        padding:8px 12px; font-size:13px; background:#f9fafb;">
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
+                    Période (heures)
+                </label>
+                <input type="number" wire:model="seuilPeriode"
+                    min="1" max="168"
+                    style="border:1px solid #e5e7eb; border-radius:8px;
+                        padding:8px 12px; font-size:13px; background:#f9fafb;">
+            </div>
+
+        </div>
+
+        <button wire:click="sauvegarderSeuil"
+            style="background:#22c55e; color:white; border:none; border-radius:8px;
+                padding:8px 20px; font-size:13px; font-weight:600; cursor:pointer;">
+            Sauvegarder le seuil
+        </button>
+
+        {{-- Seuils existants --}}
+        @if(!empty($seuils))
+        <div style="margin-top:16px; border-top:1px solid #f3f4f6; padding-top:16px;">
+            @foreach($seuils as $seuil)
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 12px;
+                        background:#f9fafb; border-radius:8px; margin-bottom:8px;
+                        border:1px solid #e5e7eb;">
+                <div style="flex:1;">
+                    <p style="font-size:13px; font-weight:600; color:#111827; margin:0;">
+                        {{ $seuil['site_id'] ? ($seuil['site']['nom'] ?? 'N/A') : 'Global' }}
+                    </p>
+                    <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">
+                        Seuil : {{ $seuil['seuil_insatisfaction'] }}% —
+                        Période : {{ $seuil['periode_heures'] }}h
+                    </p>
+                </div>
+                <button wire:click="modifierSeuil({{ $seuil['id'] }})"
+                    style="background:#3b82f6; color:white; border:none; border-radius:6px;
+                        padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
+                    Modifier
+                </button>
+                <button wire:click="toggleSeuil({{ $seuil['id'] }})"
+                    style="background:{{ $seuil['actif'] ? '#ef4444' : '#22c55e' }};
+                        color:white; border:none; border-radius:6px;
+                        padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
+                    {{ $seuil['actif'] ? 'Désactiver' : 'Activer' }}
+                </button>
+                <span style="background:{{ $seuil['actif'] ? '#dcfce7' : '#fee2e2' }};
+                            color:{{ $seuil['actif'] ? '#15803d' : '#b91c1c' }};
+                            font-size:11px; padding:2px 8px; border-radius:999px; font-weight:600;">
+                    {{ $seuil['actif'] ? 'Actif' : 'Inactif' }}
+                </span>
+            </div>
+            @endforeach
+        </div>
+        @endif
+
+    </div>
+
+    {{-- ===================================================
+         SECTION 5 : Récapitulatif de la configuration actuelle
          Vue d'ensemble de tous les paramètres en un coup d'oeil
     =================================================== --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;

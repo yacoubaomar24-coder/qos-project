@@ -46,11 +46,22 @@ class VoteController extends Controller
             ], 404);
         }
 
-        // ✅ Vérifier si le dispositif est dans sa plage horaire d'activité
+        // Vérifier si le dispositif est dans sa plage horaire d'activité
         if (!\App\Filament\Pages\Parametres::dispositifEstActif($dispositif->created_by)) {
+            \Illuminate\Support\Facades\Log::warning(
+                "Vote refusé hors plage horaire — dispositif: {$dispositif->adresse_mac} " .
+                "— heure: " . now()->format('H:i')
+            );
+
             return response()->json([
                 'success' => false,
-                'message' => 'Le dispositif est en dehors de sa plage horaire d\'activité.',
+                'message' => 'Le dispositif est en dehors de sa plage horaire d\'activité. ' .
+                             'Votes acceptés entre ' .
+                             substr(\App\Models\Configuration::where('created_by', $dispositif->created_by)
+                                ->value('heure_debut'), 0, 5) .
+                             ' et ' .
+                             substr(\App\Models\Configuration::where('created_by', $dispositif->created_by)
+                                ->value('heure_fin'), 0, 5) . '.',
             ], 403);
         }
 

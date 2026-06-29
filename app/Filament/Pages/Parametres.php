@@ -13,9 +13,9 @@ class Parametres extends Page
 {
     use WithFileUploads;
     protected static ?string $navigationLabel = 'Paramètres';
-    protected static ?string $title           = 'Paramètres & Configuration';
-    protected static ?int    $navigationSort  = 6;
-    protected string         $view            = 'filament.pages.parametres';
+    protected static ?string $title = '';
+    protected static ?int $navigationSort = 6;
+    protected string $view = 'filament.pages.parametres';
 
     public static function getNavigationIcon(): ?string
     {
@@ -65,6 +65,13 @@ class Parametres extends Page
     // Message de confirmation
     public string $message = '';
 
+    public ?int    $seuilSiteId      = null;
+    public int     $seuilPourcentage = 40;
+    public int     $seuilPeriode     = 24;
+    public bool    $seuilEmail       = true;
+    public array   $seuils           = [];
+    public array   $sitesOptions     = [];
+
     public function mount(): void
     {
         // Charger la configuration existante
@@ -88,6 +95,10 @@ class Parametres extends Page
             $this->couleurSecondaire  = $config->couleur_secondaire;
             $this->logoActuel         = $config->organisation_logo;
         }
+
+        // Charger les sites et seuils
+        $this->sitesOptions = $this->getSitesOptions();
+        $this->loadSeuils();
     }
 
     // -----------------------------------------------
@@ -222,7 +233,12 @@ class Parametres extends Page
         if (!$config) return true; // Pas de config = toujours actif
 
         $maintenant   = now();
-        $heureActuelle = $maintenant->format('H:i');
+        //$heureActuelle = $maintenant->format('H:i');
+
+        // Conversion du format h:mn en mn
+        [$hNow, $mNow] = explode(':', now()->format('H:i'));
+        $heureActuelle = ((int) $hNow * 60) + (int) $mNow;
+
         //$jourActuel   = $maintenant->dayOfWeek; // 0=dim, 1=lun, ..., 6=sam
         $jourActuel    = (int) $maintenant->format('N'); // 1=Lun, 7=Dim (ISO-8601)
 
@@ -241,8 +257,13 @@ class Parametres extends Page
         }
 
         // Vérifier l'heure
-        $heureDebut = substr($config->heure_debut, 0, 5);
-        $heureFin   = substr($config->heure_fin, 0, 5);
+        //$heureDebut = substr($config->heure_debut, 0, 5);
+        //$heureFin   = substr($config->heure_fin, 0, 5);
+        [$hDebut, $mDebut] = explode(':', substr($config->heure_debut, 0, 5));
+        $heureDebut = ((int) $hDebut * 60) + (int) $mDebut;
+
+        [$hFin, $mFin] = explode(':', substr($config->heure_fin, 0, 5));
+        $heureFin = ((int) $hFin * 60) + (int) $mFin;
 
         $actif = $heureActuelle >= $heureDebut && $heureActuelle <= $heureFin;
 
@@ -252,5 +273,88 @@ class Parametres extends Page
         );
 
         return $actif;
+    }
+
+    // -----------------------------------------------
+    // Sites accessibles selon le rôle
+    // -----------------------------------------------
+    private function getSitesOptions(): array
+    {
+        /** @var Utilisateur|null $user */
+        $user = filament()->auth()->user();
+        if (!$user instanceof Utilisateur) return [];
+
+        $query = \App\Models\Site::query()->where('statut', true);
+
+        if ($user->hasRole('Super admin')) {
+            $adminIds = Utilisateur::where('created_by', $user->id)
+                ->where('role', 'Admin national')->pluck('id')->toArray();
+            $query->whereIn('created_by', array_merge([$user->id], $adminIds));
+        } elseif ($user->hasRole('Admin national')) {
+            $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)->pluck('id');
+            $villeIds  = \App\Models\Ville::whereIn('region_id', $regionIds)->pluck('id');
+            $query->whereIn('ville_id', $villeIds);
+        } elseif ($user->hasRole('Admin régional')) {
+            $villeIds = \App\Models\Ville::where('region_id', $user->region_id)->pluck('id');
+            $query->whereIn('ville_id', $villeIds);
+        } elseif ($user->hasRole('Admin de site')) {
+            $query->where('id', $user->site_id);
+        }
+
+        return $query->pluck('nom', 'id')->toArray();
+    }
+
+    // Charger les seuils
+    public function loadSeuils(): void
+    {
+        /** @var Utilisateur|null $user */
+        $user    = filament()->auth()->user();
+        $siteIds = array_keys($this->sitesOptions);
+
+        $this->seuils = \App\Models\Seuil::with('site')
+            ->where(function ($q) use ($siteIds, $user) {
+                $q->whereIn('site_id', $siteIds)
+                ->orWhere(function ($q2) use ($user) {
+                    $q2->whereNull('site_id')
+                        ->where('created_by', $user?->id);
+                });
+            })
+            ->get()->toArray();
+    }
+
+    // Sauvegarder un seuil
+    public function sauvegarderSeuil(): void
+    {
+        /** @var Utilisateur|null $user */
+        $user = filament()->auth()->user();
+
+        \App\Models\Seuil::updateOrCreate(
+            ['site_id' => $this->seuilSiteId ?: null, 'created_by' => $user?->id],
+            [
+                'seuil_insatisfaction' => $this->seuilPourcentage,
+                'periode_heures'       => $this->seuilPeriode,
+                'notif_email'          => true,
+                'actif'                => true,
+            ]
+        );
+        $this->message = 'Seuil sauvegardé avec succès !';
+        $this->loadSeuils();
+    }
+
+    public function modifierSeuil(int $seuilId): void
+    {
+        $seuil = \App\Models\Seuil::find($seuilId);
+        if (!$seuil) return;
+        $this->seuilSiteId      = $seuil->site_id;
+        $this->seuilPourcentage = $seuil->seuil_insatisfaction;
+        $this->seuilPeriode     = $seuil->periode_heures;
+    }
+
+    public function toggleSeuil(int $seuilId): void
+    {
+        $seuil = \App\Models\Seuil::find($seuilId);
+        if (!$seuil) return;
+        $seuil->update(['actif' => !$seuil->actif]);
+        $this->loadSeuils();
     }
 }

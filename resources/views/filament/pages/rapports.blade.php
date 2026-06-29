@@ -546,6 +546,21 @@
                     </p>
                 </div>
 
+                {{-- Bouton modifier — charge les valeurs dans le formulaire --}}
+                <button wire:click="modifierRapport({{ $rapport['id'] }})"
+                    style="background:#3b82f6; color:white; border:none; border-radius:6px;
+                        padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
+                    Modifier
+                </button>
+
+                {{-- Bouton activer/désactiver --}}
+                <button wire:click="toggleRapport({{ $rapport['id'] }})"
+                    style="background:{{ $rapport['actif'] ? '#ef4444' : '#22c55e' }}; color:white;
+                        border:none; border-radius:6px; padding:4px 10px;
+                        font-size:11px; font-weight:600; cursor:pointer;">
+                    {{ $rapport['actif'] ? 'Désactiver' : 'Activer' }}
+                </button>
+
                 {{-- Statut --}}
                 <span style="background:{{ $rapport['actif'] ? '#dcfce7' : '#fee2e2' }};
                             color:{{ $rapport['actif'] ? '#15803d' : '#b91c1c' }};

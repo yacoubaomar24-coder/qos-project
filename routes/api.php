@@ -26,6 +26,3 @@ Route::get('/votes', [VoteController::class, 'index']);
 
 // Route pour créer un vote 
 Route::post('/votes', [VoteController::class, 'store']);
-
-// Route pour vérifier un dispositif
-Route::post('/dispositifs/verify', [VoteController::class, 'verify']);
