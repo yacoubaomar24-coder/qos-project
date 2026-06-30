@@ -10,7 +10,7 @@ use Filament\Widgets\Widget;
 
 class MapWidget extends Widget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 3;
     protected int|string|array $columnSpan = 'full';
     protected string $view = 'filament.widgets.map-widget';
     protected static bool $isLazy = false;

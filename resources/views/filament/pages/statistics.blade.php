@@ -1,31 +1,12 @@
 <x-filament-panels::page>
 <div style="display:flex; flex-direction:column; gap:24px;">
 
-    {{-- Libellés --}}
-    {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
-    {{ \App\Helpers\ConfigHelper::libelleMoyen() }}
-    {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
-
-    {{-- Avec couleurs --}}
-    <span style="color:{{ \App\Helpers\ConfigHelper::couleurSatisfait() }};">
-        {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
-    </span>
-
-    <span style="color:{{ \App\Helpers\ConfigHelper::couleurMoyen() }};">
-        {{ \App\Helpers\ConfigHelper::libelleMoyen() }}
-    </span>
-
-    <span style="color:{{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
-        {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
-    </span>
-
     {{-- ===================================================
          SECTION 1 : Répartition par niveau
     =================================================== --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
                 margin:0px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
-        
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
             <div>
                 <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 4px;">
@@ -74,16 +55,19 @@
             </div>
             
             {{-- Total des satifactions --}}
-            <div style="text-align:center; padding:12px; background:#f0fdf4; border-radius:10px;">
+            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px;
+                background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1px solid #bbf7d0;border-radius:16px;
+                box-shadow:0 2px 8px rgba(22,163,74,0.08);height:95px;">
                 {{-- ✅ Libellé dynamique --}}
-                <p style="font-size:11px; color:#15803d; margin:0;">
+                <p style=" font-size:12px;font-weight:700;letter-spacing:0.05em;color:#15803d;
+                    text-transform:uppercase;margin:0;">
                     {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
                 </p>
-                <p style="font-size:22px; font-weight:700; color:#16a34a; margin:4px 0 0;">
+                <p style=" font-size:32px;font-weight:800;color:#16a34a;margin:8px 0 4px;line-height:1;">
                     {{ $pn['satisfaits'] }}
                 </p>
-                <p style="font-size:12px; color:#6b7280; margin:2px 0 0;">
-                    {{ $pn['taux_satisfait'] }}%
+                <p style=" display:flex;align-items:center;gap:6px;margin-top:4px;">
+                    <span style="font-size:13px;font-weight:600;color:#166534;">{{ $pn['taux_satisfait'] }}% </span>
                 </p>
             </div>
 
@@ -93,33 +77,41 @@
                 box-shadow:0 2px 8px rgba(217,119,6,0.08);height:95px;">
             
                 {{-- Titre --}}
-                <p style="font-size:12px;font-weight:700;letter-spacing:0.05em;color:#b45309;
-                    text-transform:uppercase;margin:0;">Moyens</p>
+                <p style=" font-size:12px;font-weight:700;letter-spacing:0.05em;color:#b45309;
+                    text-transform:uppercase;margin:0;">
+                    {{ \App\Helpers\ConfigHelper::libelleMoyen() }}
+                </p>
 
                 {{-- Valeur --}}
-                <p style="font-size:32px;font-weight:800;color:#d97706; margin:8px 0 4px;line-height:1;">
-                    {{ $pn['moyens'] }}  </p>
+                <p style=" font-size:32px;font-weight:800;color:#d97706;margin:8px 0 4px;line-height:1;">
+                    {{ $pn['moyens'] }}
+                </p>
                 
                 {{-- Taux --}}
-                <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
-                    <span style="font-size:13px;font-weight:600;color:#92400e;">{{ $pn['taux_moyen'] }}%</span>
-                </div>
+                <p style=" display:flex;align-items:center;gap:6px;margin-top:4px;">
+                    <span style="font-size:13px;font-weight:600;color:#92400e;">{{ $pn['taux_moyen'] }}% </span>
+                </p>
             </div>
 
-            {{-- Total des insatifactions --}}
-            <div style="text-align:center; padding:12px; background:#fef2f2; border-radius:10px;">
+            {{-- Total des insatifactions #fecaca --}}
+            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px;
+                background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-radius:16px;
+                box-shadow:0 2px 8px rgba(239,68,68,0.08);height:95px;
+                color: {{ \App\Helpers\ConfigHelper::couleurInsatisfait()}};">
+
                 {{-- ✅ Libellé dynamique --}}
-                <p style="font-size:11px; color:#b91c1c; margin:0;">
+                <p style="font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;margin:0;
+                        color: {{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
                     {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
                 </p>
-                <span style="color:{{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
-                    {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
-                </span>
-                <p style="font-size:22px; font-weight:700; color:#ef4444; margin:4px 0 0;">
+                <p style=" font-size:32px;font-weight:800;margin:8px 0 4px;line-height:1;
+                           color: {{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
                     {{ $pn['insatisfaits'] }}
                 </p>
-                <p style="font-size:12px; color:#6b7280; margin:2px 0 0;">
-                    {{ $pn['taux_insatisfait'] }}%
+                <p style=" display:flex;align-items:center;gap:6px;margin-top:4px;">
+                    <span style="font-size:13px;font-weight:600;
+                        color: {{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
+                        {{ $pn['taux_insatisfait'] }}% </span>
                 </p>
             </div>
             
@@ -167,120 +159,95 @@
         </h3>
 
         @if(!empty($chartData['classement']))
-            @foreach($chartData['classement'] as $index => $site)
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
 
-                {{-- Rang --}}
-                <div style="width:28px; height:28px; border-radius:50%;
-                            background: {{ $index === 0 ? '#fbbf24' : ($index === 1 ? '#9ca3af' : ($index === 2 ? '#b45309' : '#f3f4f6')) }};
-                            display:flex; align-items:center; justify-content:center;
-                            font-size:12px; font-weight:700; color: {{ $index < 3 ? 'white' : '#6b7280' }};">
-                    {{ $index + 1 }}
-                </div>
+            {{-- Conteneur des lignes — chaque ligne a un attribut data-page --}}
+            <div id="classement-liste">
+                @foreach($chartData['classement'] as $index => $site)
+                @php $page = intdiv($index, 5) + 1; @endphp
+                <div class="classement-ligne" data-page="{{ $page }}"
+                    style="display:flex; align-items:center; gap:12px; margin-bottom:12px; 
+                    {{ $page > 1 ? 'display:none;' : '' }}">
 
-                {{-- Nom du site --}}
-                <div style="flex:1; min-width:0;">
-                    <p style="font-size:13px; font-weight:600; color:#111827; margin:0;
-                              white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                        {{ $site['nom'] }}
-                    </p>
-                    <p style="font-size:11px; color:#9ca3af; margin:2px 0 0;">
-                        {{ $site['total'] }} votes
-                    </p>
-                </div>
+                    {{-- Rang --}}
+                    <div style="width:28px; height:28px; border-radius:50%;
+                                background: {{ $index === 0 ? '#fbbf24' : ($index === 1 ? '#9ca3af' : ($index === 2 ? '#b45309' : '#f3f4f6')) }};
+                                display:flex; align-items:center; justify-content:center;
+                                font-size:12px; font-weight:700; color: {{ $index < 3 ? 'white' : '#6b7280' }};">
+                        {{ $index + 1 }}
+                    </div>
 
-                {{-- Barre de progression --}}
-                <div style="flex:2; height:8px; background:#f3f4f6; border-radius:999px;">
-                    <div style="height:8px; border-radius:999px;
-                                background: {{ $site['color'] }};
-                                width: {{ $site['taux'] }}%;
-                                transition:width 0.5s ease;">
+                    {{-- Nom du site --}}
+                    <div style="flex:1; min-width:0;">
+                        <p style="font-size:13px; font-weight:600; color:#111827; margin:0;
+                                white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            {{ $site['nom'] }}
+                        </p>
+                        <p style="font-size:11px; color:#9ca3af; margin:2px 0 0;">
+                            {{ $site['total'] }} votes
+                        </p>
+                    </div>
+
+                    {{-- Barre de progression --}}
+                    <div style="flex:2; height:8px; background:#f3f4f6; border-radius:999px;">
+                        <div style="height:8px; border-radius:999px;
+                                    background: {{ $site['color'] }};
+                                    width: {{ $site['taux'] }}%;
+                                    transition:width 0.5s ease;">
+                        </div>
+                    </div>
+
+                    {{-- Taux --}}
+                    <div style="width:50px; text-align:right;">
+                        <span style="font-size:14px; font-weight:700; color: {{ $site['color'] }};">
+                            {{ $site['taux'] }}%
+                        </span>
                     </div>
                 </div>
-
-                {{-- Taux --}}
-                <div style="width:50px; text-align:right;">
-                    <span style="font-size:14px; font-weight:700; color: {{ $site['color'] }};">
-                        {{ $site['taux'] }}%
-                    </span>
-                </div>
-
+                @endforeach
             </div>
-            @endforeach
+
+            {{-- Pagination --}}
+            @php $totalPages = (int) ceil(count($chartData['classement']) / 5); @endphp
+
+            @if($totalPages > 1)
+            <div id="classement-pagination"
+                style="display:flex; justify-content:center; align-items:center; gap:6px; margin-top:16px;">
+
+                {{-- Bouton précédent --}}
+                <button onclick="changerPageClassement(-1)"
+                    style="border:1px solid #e5e7eb; background:white; border-radius:6px;
+                        padding:6px 10px; font-size:12px; cursor:pointer; color:#374151;">
+                    ‹
+                </button>
+            
+                {{-- Numéros de page --}}
+                @for($i = 1; $i <= $totalPages; $i++)
+                <button onclick="allerPageClassement({{ $i }})"
+                    class="page-btn-classement"
+                    data-numero="{{ $i }}"
+                    style="border:1px solid #e5e7eb; border-radius:6px;
+                        padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer;
+                        background:{{ $i === 1 ? '#111827' : 'white' }};
+                        color:{{ $i === 1 ? 'white' : '#374151' }};">
+                    {{ $i }}
+                </button>
+                @endfor
+            
+                {{-- Bouton suivant --}}
+                <button onclick="changerPageClassement(1)"
+                    style="border:1px solid #e5e7eb; background:white; border-radius:6px;
+                        padding:6px 10px; font-size:12px; cursor:pointer; color:#374151;">
+                    ›
+                </button>
+            </div>
+            @endif
         @else
             <p style="color:#9ca3af; text-align:center; padding:20px;">Aucune donnée disponible.</p>
         @endif
-
     </div>
 
     {{-- ===================================================
-         SECTION 4 : Anomalies détectées
-    =================================================== --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-                padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-
-        <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 4px;">
-            Détection automatique d'anomalies
-        </h3>
-        <p style="font-size:12px; color:#9ca3af; margin:0 0 16px;">
-            Alerte si chute de satisfaction ≥ 20 points aujourd'hui vs moyenne des 7 derniers jours
-        </p>
-
-        @if(empty($chartData['anomalies']))
-            <div style="display:flex; align-items:center; gap:10px; padding:12px;
-                        background:#f0fdf4; border-radius:10px; border:1px solid #bbf7d0;">
-                <span style="font-size:20px;">✅</span>
-                <p style="font-size:13px; color:#15803d; margin:0; font-weight:500;">
-                    Aucune anomalie détectée — tous les sites fonctionnent normalement.
-                </p>
-            </div>
-        @else
-            @foreach($chartData['anomalies'] as $anomalie)
-            <div style="display:flex; align-items:center; gap:12px; padding:12px; margin-bottom:8px;
-                        background: {{ $anomalie['niveau'] === 'critique' ? '#fef2f2' : '#fffbeb' }};
-                        border: 1px solid {{ $anomalie['niveau'] === 'critique' ? '#fecaca' : '#fde68a' }};
-                        border-radius:10px;">
-
-                {{--    critique → 🚨  (sirène rouge — situation grave)
-                        warning  → ⚠️  (triangle orange — attention requise)    --}}
-                <span style="font-size:20px;">
-                    {{ $anomalie['niveau'] === 'critique' ? '🚨' : '⚠️' }}
-                </span>
-
-                <div style="flex:1;">
-
-                    {{-- Nom du site --}}
-                    <p style="font-size:13px; font-weight:600;
-                              color: {{ $anomalie['niveau'] === 'critique' ? '#b91c1c' : '#b45309' }};
-                              margin:0;">
-                        {{ $anomalie['site'] }}
-                    </p>
-
-                    {{-- Comparaison chiffrée --}}
-                    <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">
-                        Aujourd'hui : {{ $anomalie['taux_today'] }}%
-                        — Moyenne 7j : {{ $anomalie['taux_week'] }}%
-                    </p>
-                </div>
-
-                <div style="text-align:right;">
-                    <span style="font-size:14px; font-weight:700;
-                                 color: {{ $anomalie['niveau'] === 'critique' ? '#ef4444' : '#f59e0b' }};">
-                        -{{ $anomalie['chute'] }}%
-                    </span>
-                    <p style="font-size:11px; color:#9ca3af; margin:2px 0 0;">
-                        {{ $anomalie['niveau'] === 'critique' ? 'CRITIQUE' : 'ATTENTION' }}
-                    </p>
-                </div>
-
-            </div>
-            @endforeach
-        @endif
-
-    </div>
-
-    {{-- ===================================================
-         SECTION 5 : Heatmap horaire
+         SECTION 4 : Heatmap horaire
     =================================================== --}}
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
                 padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
@@ -375,6 +342,34 @@
     </div>
 
 </div>
+
+{{-- Script de pagination — placer une seule fois sur la page --}}
+<script>
+    let pageClassementActuelle = 1;
+    const totalPagesClassement = {{ $totalPages ?? 1 }};
+
+    function allerPageClassement(numero) {
+        pageClassementActuelle = numero;
+
+        // Masquer toutes les lignes
+        document.querySelectorAll('.classement-ligne').forEach(function(ligne) {
+            ligne.style.display = (parseInt(ligne.dataset.page) === numero) ? 'flex' : 'none';
+        });
+        // Mettre à jour le style des boutons de page
+        document.querySelectorAll('.page-btn-classement').forEach(function(btn) {
+            const estActif = parseInt(btn.dataset.numero) === numero;
+            btn.style.background = estActif ? '#111827' : 'white';
+            btn.style.color      = estActif ? 'white' : '#374151';
+        });
+    }
+
+    function changerPageClassement(direction) {
+        let nouvellePage = pageClassementActuelle + direction;
+        if (nouvellePage < 1) nouvellePage = 1;
+        if (nouvellePage > totalPagesClassement) nouvellePage = totalPagesClassement;
+        allerPageClassement(nouvellePage);
+    }
+</script>
 
 {{-- ===================================================
      Scripts Chart.js

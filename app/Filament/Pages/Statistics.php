@@ -90,7 +90,6 @@ class Statistics extends Page
             'evolution' => $this->getEvolution($siteIds),
             'parNiveau' => $this->getParNiveau($siteIds),
             'classement' => $this->getClassement($siteIds),
-            'anomalies' => $this->getAnomalies($siteIds),
             'heatmap' => $this->getHeatmap(),
         ];
 
@@ -319,56 +318,7 @@ class Statistics extends Page
     }
 
     // -----------------------------------------------
-    // 4. Détection d'anomalies — chute soudaine
-    // Alerte si le taux d'aujourd'hui est inférieur
-    // de plus de 20% par rapport à la moyenne des 7 derniers jours
-    // -----------------------------------------------
-    private function getAnomalies(array $siteIds): array
-    {
-        $anomalies = [];
-
-        foreach ($siteIds as $siteId) {
-            $site = Site::find($siteId);
-            if (!$site) continue;
-
-            // Taux d'aujourd'hui = votes satisfaits aujourd'hui / total aujourd'hui
-            $totalToday = Vote::where('site_id', $siteId)->whereDate('created_at', today())->count();
-            $satisfaitsToday = Vote::where('site_id', $siteId)->whereDate('created_at', today())
-                ->where('niveau', 'satisfait')->count();
-            $tauxToday = $totalToday > 0 ? round(($satisfaitsToday / $totalToday) * 100, 1) : null;
-
-            // Taux semaine = votes satisfaits 7 derniers jours / total 7 jours
-            $totalWeek = Vote::where('site_id', $siteId)
-                ->whereBetween('created_at', [now()->subDays(7)->startOfDay(), now()->subDay()->endOfDay()])
-                ->count();
-            $satisfaitsWeek = Vote::where('site_id', $siteId)
-                ->whereBetween('created_at', [now()->subDays(7)->startOfDay(), now()->subDay()->endOfDay()])
-                ->where('niveau', 'satisfait')->count();
-            $tauxWeek = $totalWeek > 0 ? round(($satisfaitsWeek / $totalWeek) * 100, 1) : null;
-
-            // Détecter l'anomalie — chute de plus de 20 points
-            if ($tauxToday !== null && $tauxWeek !== null) {
-                $chute = $tauxWeek - $tauxToday;
-                if ($chute >= 20) {
-                    $anomalies[] = [
-                        'site' => $site->nom,
-                        'taux_today' => $tauxToday,
-                        'taux_week' => $tauxWeek,
-                        'chute' => round($chute, 1),
-                        'niveau' => $chute >= 40 ? 'critique' : 'warning',
-                    ];
-                }
-            }
-        }
-
-        // Trier par chute décroissante
-        usort($anomalies, fn($a, $b) => $b['chute'] <=> $a['chute']);
-
-        return $anomalies;
-    }
-
-    // -----------------------------------------------
-    // 5. Heatmap horaire — insatisfaction par heure/jour
+    // 4. Heatmap horaire — insatisfaction par heure/jour
     // Matrice 7 jours × 24 heures
     // -----------------------------------------------
     private function getHeatmap(): array
