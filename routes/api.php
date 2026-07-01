@@ -22,7 +22,15 @@ Route::prefix('v1')->group(function () {
 });*/
 
 // Route pour lister les votes
-Route::get('/votes', [VoteController::class, 'index']);
+//Route::get('/votes', [VoteController::class, 'index']);
 
 // Route pour créer un vote 
-Route::post('/votes', [VoteController::class, 'store']);
+//Route::post('/votes', [VoteController::class, 'store']);
+
+Route::prefix('v1')->group(function () {
+    // ✅ Enregistrer un vote — identification par token dans le header
+    Route::post('/votes', [VoteController::class, 'store']);
+
+    // ✅ Vérifier le dispositif et récupérer sa config
+    Route::get('/dispositifs/info', [VoteController::class, 'check']);
+});

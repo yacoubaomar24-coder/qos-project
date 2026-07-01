@@ -25,6 +25,8 @@ use App\Models\Utilisateur;
 //use App\Filament\Traits\HasResourcePermissions;
 use App\Filament\Resources\Traits\HasResourcePermissions;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Notifications\Notification;
+use Filament\Actions\Action;
 
 class DispositifResource extends Resource
 {
@@ -117,6 +119,7 @@ class DispositifResource extends Resource
                         'regex' => 'Format invalide. Exemple : AA:BB:CC:DD:EE:FF',
                         'unique' => 'Cette adresse MAC est déjà utilisée.',
                     ]),
+                
                 Toggle::make('statut')->label('Actif')->default(true),
         ]);
     }
@@ -128,7 +131,19 @@ class DispositifResource extends Resource
                 TextColumn::make('site.nom')->label('Site'),
                 TextColumn::make('nom')->searchable()->label('Nom'),
                 TextColumn::make('adresse_mac')->searchable()->label('Adresse MAC'),
-                //IconColumn::make('statut')->label('Statut')->boolean(),
+                TextColumn::make('token')
+                    ->label('Token')
+                    ->formatStateUsing(fn($state) => $state
+                        ? substr($state, 0, 12) . '...' // afficher seulement le début
+                        : 'Non généré'
+                    )
+                    ->copyable()    // ← bouton copier au clic
+                    ->tooltip('Cliquer pour copier le token complet')
+                    ->searchable(),
+                TextColumn::make('token_genere_le')
+                    ->label('Token généré le')
+                    ->dateTime('d/m/Y H:i')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ToggleColumn::make('statut')->label('Statut')
                     ->visible(function () {
 
@@ -146,6 +161,29 @@ class DispositifResource extends Resource
                 //
             ])->recordActions([
                 EditAction::make(),
+                // ✅ Action régénération token
+                Action::make('regenererToken')
+                    ->label('Régénérer token')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Régénérer le token')
+                    ->modalDescription('L\'ancien token sera invalidé immédiatement. Le dispositif IoT devra être reconfiguré avec le nouveau token.')
+                    ->action(function ($record) {
+                        $nouveauToken = \App\Models\Dispositif::genererToken($record->site_id);
+
+                        $record->update([
+                            'token'           => $nouveauToken,
+                            'token_genere_le' => now(),
+                        ]);
+
+                        Notification::make()
+                            ->title('Token régénéré')
+                            ->body("Nouveau token : {$nouveauToken}\n\nConfigurez-le sur le dispositif IoT.")
+                            ->warning()
+                            ->persistent()
+                            ->send();
+                    }),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
