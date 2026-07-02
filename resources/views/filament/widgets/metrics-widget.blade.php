@@ -38,7 +38,8 @@
                 {{-- svg style="width:20px;height:20px;" fill="none" viewBox="0 0 24 24" stroke="#22c55e" stroke-width="2">
                     path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 /svg> --}}
-                <p style="font-size:24px; font-weight:700; color: {{ $colorTaux }}; margin:0;">{{ $taux }}%</p>
+                <p style="font-size:24px; font-weight:700; color: #111827; margin:0;">{{ $taux }}%</p>
+                {{-- color: {{ $colorTaux }} --}}
             </div>
         </div>
     </div>
@@ -69,7 +70,7 @@
                 <p style="font-size:16px; font-weight:700; color: #111827; margin:0;">{{ $metrics['moinsbon']['nom'] }}</p>    
             </div>
             <div style="border-radius:8px; padding:8px;">
-                <p style="font-size:20px; font-weight:700; color: #ef4444; margin:0;">{{ $metrics['moinsbon']['taux'] }}%</p>
+                <p style="font-size:20px; font-weight:700; color: #111827; margin:0;">{{ $metrics['moinsbon']['taux'] }}%</p>
             </div>
         </div>
     </div>
