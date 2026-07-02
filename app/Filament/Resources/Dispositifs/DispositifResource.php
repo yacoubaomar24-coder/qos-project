@@ -138,6 +138,8 @@ class DispositifResource extends Resource
                         : 'Non généré'
                     )
                     ->copyable()    // ← bouton copier au clic
+                    // ✅ Copier la valeur brute complète, pas la valeur formatée
+                    ->copyableState(fn($state) => $state)
                     ->tooltip('Cliquer pour copier le token complet')
                     ->searchable(),
                 TextColumn::make('token_genere_le')

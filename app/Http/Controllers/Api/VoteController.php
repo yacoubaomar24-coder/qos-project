@@ -56,7 +56,7 @@ class VoteController extends Controller
 
         // 3. Valider la requête (le niveau de satisfaction)
         $validated = $request->validate([
-            'niveau' => 'required|in:satisfait,neutre,insatisfait',
+            'niveau' => 'required|in:satisfait,moyen,insatisfait',
         ]);
 
         // Vérifier si le dispositif est dans sa plage horaire d'activité
