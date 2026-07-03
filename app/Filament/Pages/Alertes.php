@@ -44,7 +44,7 @@ class Alertes extends Page
     {
         $this->sitesOptions = $this->getSitesOptions();
         $this->loadAlertes();
-        //$this->loadSeuils();
+        $this->loadSeuils();
     }
 
     // -----------------------------------------------
@@ -93,6 +93,33 @@ class Alertes extends Page
         }
 
         $this->alertes = $query->limit(50)->get()->toArray();
+    }
+
+    // Charger les seuils configurés
+    // -----------------------------------------------
+    public function loadSeuils(): void
+    {
+        /** @var Utilisateur|null $user */
+        $user    = filament()->auth()->user();
+        $siteIds = array_keys($this->sitesOptions);
+
+        $this->seuils = Seuil::with('site')
+            ->where(function ($q) use ($siteIds, $user) {
+                $q->whereIn('site_id', $siteIds)
+                  ->orWhere(function ($q2) use ($user) {
+                      // Seuils globaux créés par cet utilisateur
+                      $q2->whereNull('site_id')
+                        ->where('created_by', $user?->id);
+                  });
+            })
+            ->get()
+            ->toArray();
+    }
+
+    public function testerSeuils(): void
+    {
+        \App\Jobs\VerifierSeuilsJob::dispatch();
+        $this->loadAlertes();
     }
 
     // -----------------------------------------------
