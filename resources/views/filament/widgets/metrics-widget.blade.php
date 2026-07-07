@@ -1,10 +1,11 @@
 <div>
 @if(!empty($metrics))
 @php
-    $taux        = $metrics['taux'] ?? 0;
-    $colorTaux   = $taux >= 70 ? '#16a34a' : ($taux >= 40 ? '#d97706' : '#ef4444');
-    $colorMeilleur = '#16a34a';
-    $colorMoinsbon = '#ef4444';
+    $taux             = $metrics['taux'] ?? 0;
+    $taux_insatisfait = $metrics['taux_insatisfait'] ?? 0;
+    $colorTaux        = $taux >= 70 ? '#16a34a' : ($taux >= 40 ? '#d97706' : '#ef4444');
+    $colorMeilleur    = '#16a34a';
+    $colorMoinsbon    = '#ef4444';
 @endphp
 
 {{-- Ligne 1 : 3 métriques --}}
@@ -44,13 +45,28 @@
         </div>
     </div>
 
+    {{-- Taux d'insatisfaction --}}
+    <div style="background: #dfca9b; border:1px solid #e5e7eb; border-radius:12px; 
+                padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+                <p style="font-size:16px; color: #111827; margin:0 0 6px; font-weight:500;">Avis insatisfaits</p>
+                <p style="font-size:28px; font-weight:700; color: #111827; margin:0;">{{ $metrics['insatisfaits'] }}</p>    
+            </div>
+            <div style="border-radius:8px; padding:8px;">
+                <p style="font-size:20px; font-weight:700; color: #111827; margin:0;">{{ $taux_insatisfait }}%</p>
+            </div>
+        </div>
+    </div>
+
     {{-- Sites actifs --}}
     <div style="background:purple; border:1px solid #e5e7eb; border-radius:12px; 
                 padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
                 <p style="font-size:16px; color:white; margin:0 0 6px; font-weight:500;">Sites opérationnels</p>
-                <p style="font-size:28px; font-weight:700; color:white; margin:0;">{{ $metrics['sitesActifs'] }}</p>
+                <p style="font-size:28px; font-weight:700; color:white; margin:0;">
+                    {{ $metrics['sitesActifs'] }} / {{ $metrics['sitesTotals'] }}</p>
                 {{-- p style="font-size:14px; color:#6b7280; margin:0 0 6px;">Sites opérationnels/p> --}}
             </div>
             <div style="background:#f0fdf4; border-radius:8px; padding:8px;">
@@ -60,29 +76,14 @@
             </div>
         </div>
     </div>
-
-    {{-- Site à améliorer --}}
-    <div style="background: #dfca9b; border:1px solid #e5e7eb; border-radius:12px; 
-                padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div>
-                <p style="font-size:16px; color: #111827; margin:0 0 6px; font-weight:500;">Site à améliorer</p>
-                <p style="font-size:16px; font-weight:700; color: #111827; margin:0;">{{ $metrics['moinsbon']['nom'] }}</p>    
-            </div>
-            <div style="border-radius:8px; padding:8px;">
-                <p style="font-size:20px; font-weight:700; color: #111827; margin:0;">{{ $metrics['moinsbon']['taux'] }}%</p>
-            </div>
-        </div>
-    </div>
-
 </div>
 
 {{-- Ligne 2 : Meilleur + Moins bon --}}
 <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;">
 
     {{-- Meilleur site --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-left:4px solid #22c55e; 
-                border-radius:12px; padding:30px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <div style="background:white; border:1px solid #e5e7eb; border-left:6px solid #22c55e; 
+                border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex; align-items:center; gap:10px;">
                 <div style="background:#f0fdf4; border-radius:8px; padding:8px;">
@@ -104,8 +105,8 @@
     </div>
 
     {{-- Site à améliorer --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-left:4px solid #ef4444; 
-                border-radius:12px; padding:30px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <div style="background:white; border:1px solid #e5e7eb; border-left:6px solid #ef4444; 
+                border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex; align-items:center; gap:10px;">
                 <div style="background:#fef2f2; border-radius:8px; padding:8px;">

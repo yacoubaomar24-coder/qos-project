@@ -41,6 +41,7 @@ class MetricsWidget extends Widget
 
         $votesQuery = Vote::query();
         $sitesQuery = Site::query()->where('statut', true);
+        $totalsitesQuery = Site::query();
 
         // Filtre par période
         match ($this->period) {
@@ -61,26 +62,33 @@ class MetricsWidget extends Widget
             $siteIds = Site::whereIn('created_by', $creatorIds)->pluck('id');
             $votesQuery->whereIn('site_id', $siteIds);
             $sitesQuery->whereIn('created_by', $creatorIds);
+            $totalsitesQuery->whereIn('created_by', $creatorIds);
         } elseif ($user->hasRole('Admin national')) {
             $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)->pluck('id');
             $villeIds  = \App\Models\Ville::whereIn('region_id', $regionIds)->pluck('id');
             $siteIds   = Site::whereIn('ville_id', $villeIds)->pluck('id');
             $votesQuery->whereIn('site_id', $siteIds);
             $sitesQuery->whereIn('ville_id', $villeIds);
+            $totalsitesQuery->whereIn('ville_id', $villeIds);
         } elseif ($user->hasRole('Admin régional')) {
             $villeIds = \App\Models\Ville::where('region_id', $user->region_id)->pluck('id');
             $siteIds  = Site::whereIn('ville_id', $villeIds)->pluck('id');
             $votesQuery->whereIn('site_id', $siteIds);
             $sitesQuery->whereIn('ville_id', $villeIds);
+            $totalsitesQuery->whereIn('ville_id', $villeIds);
         } elseif ($user->hasRole('Admin de site')) {
             $votesQuery->where('site_id', $user->site_id);
             $sitesQuery->where('id', $user->site_id);
+            $totalsitesQuery->where('id', $user->site_id);
         }
 
         $total      = (clone $votesQuery)->count();
         $satisfaits = (clone $votesQuery)->where('niveau', 'satisfait')->count();
+        $insatisfaits = (clone $votesQuery)->where('niveau', 'insatisfait')->count();
         $taux       = $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0;
+        $taux_insatisfait       = $total > 0 ? round(($insatisfaits / $total) * 100, 1) : 0;
         $sitesActifs = (clone $sitesQuery)->count();
+        $sitesTotals = (clone $totalsitesQuery)->count();
 
         // Meilleur et moins bon site
         $siteIds     = (clone $sitesQuery)->pluck('id');
@@ -90,8 +98,11 @@ class MetricsWidget extends Widget
         return [
             'total'        => $total,
             'satisfaits'   => $satisfaits,
+            'insatisfaits'   => $insatisfaits,
             'taux'         => $taux,
+            'taux_insatisfait' => $taux_insatisfait,
             'sitesActifs'  => $sitesActifs,
+            'sitesTotals'  => $sitesTotals,
             'meilleur'     => $meilleur,
             'moinsbon'     => $moinsbon,
         ];

@@ -7,9 +7,13 @@ use App\Models\Vote;
 use App\Models\Utilisateur;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Contracts\HasForms; // <-- À AJOUTER
+use Filament\Forms\Concerns\InteractsWithForms;
 
-class SiteDetails extends Page
+class SiteDetails extends Page implements HasForms
 {
+    use InteractsWithForms;
 
     protected static ?string $navigationLabel = 'Vue par site';
     protected static ?string $title = '';
@@ -37,6 +41,7 @@ class SiteDetails extends Page
     public array $siteStats     = [];
     public array $sitesOptions  = [];
     public string $period       = 'week';
+    public ?string $selectedSite = null;
 
     public function mount(): void
     {
@@ -50,6 +55,11 @@ class SiteDetails extends Page
             // Dispatcher pour initialiser le chart au chargement (courbes)
             $this->dispatch('siteChanged', evolution: $this->siteStats['evolution'] ?? []);
         }
+
+        // Initialisez le formulaire si nécessaire ou définissez le site par défaut
+        $this->form->fill([
+            'selectedSite' => $this->siteStats['id'] ?? null,
+        ]);
     }
 
     // Charger les sites accessibles selon le rôle
@@ -273,12 +283,29 @@ class SiteDetails extends Page
         return $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0;
     }
 
+    /*
     public function changeSite(int $value = null): void
     {
         if ($value) $this->selectedSiteId = $value;
         $this->loadSiteStats();
 
         // ✅ Envoyer les nouvelles données au JS
+        $this->dispatch('siteChanged', evolution: $this->siteStats['evolution'] ?? []);
+    }*/
+
+    public function changeSite(int $value = null): void
+    {
+        if ($value) {
+            $this->selectedSiteId = $value;
+            
+            // 1. Assurer la synchronisation avec le formulaire Filament
+            $this->form->fill(['selectedSite' => $value]);
+        }
+        
+        // 2. Recharger les statistiques
+        $this->loadSiteStats();
+
+        // ✅ Envoyer les nouvelles données au JS pour Chart.js
         $this->dispatch('siteChanged', evolution: $this->siteStats['evolution'] ?? []);
     }
 
@@ -289,5 +316,23 @@ class SiteDetails extends Page
         $this->loadSiteStats();
 
         $this->dispatch('siteChanged', evolution: $this->siteStats['evolution'] ?? []);
+    }
+
+    protected function getFormSchema(): array
+    {
+        return [
+            Select::make('selectedSite')
+                ->label('Site')
+                ->options($this->sitesOptions)
+                ->searchable() // Rend le champ recherchable
+                ->live() // Indique à Filament de communiquer avec Livewire en temps réel
+                ->afterStateUpdated(function ($state) {
+                    // 1. On exécute votre fonction actuelle
+                    $this->changeSite($state);
+                    
+                    // 2. FORCE Livewire à re-rendre toute la page Blade
+                    $this->render(); 
+                }),
+        ];
     }
 }

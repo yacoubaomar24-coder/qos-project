@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-<div style="display:flex; flex-direction:column; gap:24px;">
+<div wire:poll.30s="loadAlertes" style="display:flex; flex-direction:column; gap:24px;">
 
     {{-- ===================================================
          EN-TÊTE
@@ -111,4 +111,10 @@
     </div>
 
 </div>
+<style>
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(1.3); }
+}
+</style>
 </x-filament-panels::page>

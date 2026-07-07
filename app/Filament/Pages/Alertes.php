@@ -26,6 +26,12 @@ class Alertes extends Page
     public int $seuilPourcentage = 40;
     public int $seuilPeriode = 24;
 
+    // -----------------------------------------------
+    // Polling automatique toutes les 30 secondes
+    // Livewire recharge les alertes automatiquement
+    // -----------------------------------------------
+    protected static ?string $pollingInterval = '30s';
+
     public static function getNavigationIcon(): ?string
     {
         return 'heroicon-o-bell-alert';
@@ -44,7 +50,6 @@ class Alertes extends Page
     {
         $this->sitesOptions = $this->getSitesOptions();
         $this->loadAlertes();
-        $this->loadSeuils();
     }
 
     // -----------------------------------------------
@@ -97,24 +102,6 @@ class Alertes extends Page
 
     // Charger les seuils configurés
     // -----------------------------------------------
-    public function loadSeuils(): void
-    {
-        /** @var Utilisateur|null $user */
-        $user    = filament()->auth()->user();
-        $siteIds = array_keys($this->sitesOptions);
-
-        $this->seuils = Seuil::with('site')
-            ->where(function ($q) use ($siteIds, $user) {
-                $q->whereIn('site_id', $siteIds)
-                  ->orWhere(function ($q2) use ($user) {
-                      // Seuils globaux créés par cet utilisateur
-                      $q2->whereNull('site_id')
-                        ->where('created_by', $user?->id);
-                  });
-            })
-            ->get()
-            ->toArray();
-    }
 
     public function testerSeuils(): void
     {
