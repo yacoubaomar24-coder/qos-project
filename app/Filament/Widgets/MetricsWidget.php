@@ -95,6 +95,10 @@ class MetricsWidget extends Widget
         $meilleur    = $this->getBestSite($siteIds, 'DESC');
         $moinsbon    = $this->getBestSite($siteIds, 'ASC');
 
+        // 4 meilleurs sites
+        //$metrics['sites'] = $this->getSitesPerformance($siteIds, 'DESC');
+        $sites = $this->getSitesPerformance($siteIds, 'DESC');
+
         return [
             'total'        => $total,
             'satisfaits'   => $satisfaits,
@@ -105,6 +109,7 @@ class MetricsWidget extends Widget
             'sitesTotals'  => $sitesTotals,
             'meilleur'     => $meilleur,
             'moinsbon'     => $moinsbon,
+            'sites'     => $sites,
         ];
     }
 
@@ -122,5 +127,40 @@ class MetricsWidget extends Widget
             'nom'  => Site::find($site->site_id)?->nom ?? 'N/A',
             'taux' => $site->total > 0 ? round(($site->satisfaits / $site->total) * 100, 1) : 0,
         ];
+    }
+
+    private function getSitesPerformance($siteIds, string $order = 'DESC'): array
+    {
+        $votes = Vote::whereIn('site_id', $siteIds)
+            ->select(
+                'site_id',
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(CASE WHEN niveau = "satisfait" THEN 1 ELSE 0 END) as satisfaits')
+            )
+            ->groupBy('site_id')
+            ->get()
+            ->keyBy('site_id');
+
+        return Site::whereIn('id', $siteIds)
+            ->get()
+            ->map(function ($site) use ($votes) {
+                $vote = $votes->get($site->id);
+
+                $total = $vote?->total ?? 0;
+                $satisfaits = $vote?->satisfaits ?? 0;
+
+                return [
+                    'id' => $site->id,
+                    'nom' => $site->nom ?? 'N/A',
+                    'total' => $total,
+                    'satisfaits' => $satisfaits,
+                    'taux' => $total > 0 ? round(($satisfaits / $total) * 100, 1) : 0,
+                ];
+            })
+            ->sortBy([
+                ['taux', strtolower($order) === 'asc' ? 'asc' : 'desc'],
+            ])
+            ->values()
+            ->toArray();
     }
 }

@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Pages;
 
 use App\Models\Site;
 use App\Models\Vote;
 use App\Models\Utilisateur;
-use Filament\Widgets\Widget;
+use Filament\Pages\Page;
 
-class AnomaliesWidget extends Widget
+class Anomalies extends Page
 {
-    protected static ?int $sort = 2; // après StatsOverview et MapWidget
+    protected static ?int $sort = 7; // après StatsOverview et MapWidget
     protected int|string|array $columnSpan = 'full';
     protected string $view = 'filament.widgets.anomalies-widget';
     protected static bool $isLazy = false;
@@ -19,6 +19,11 @@ class AnomaliesWidget extends Widget
     public function mount(): void
     {
         $this->anomalies = $this->getAnomalies();
+    }
+
+    public static function getNavigationIcon(): ?string
+    {
+        return 'heroicon-o-exclamation-triangle';
     }
 
     // Masquer aux Admins — comme les autres widgets de stats

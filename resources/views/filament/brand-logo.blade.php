@@ -1,7 +1,7 @@
 <div style="display:flex; align-items:center; gap:10px;">
     <img src="{{ $url }}"
          alt="Logo"
-         style="height:60px; width:auto; object-fit:contain;">
+         style="height:50px; width:auto; object-fit:contain;">
     
     {{-- ✅ Nom affiché à côté du logo --}}
     @if($nom)

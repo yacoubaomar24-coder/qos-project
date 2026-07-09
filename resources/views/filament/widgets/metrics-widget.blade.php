@@ -32,7 +32,7 @@
                 padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
-                <p style="font-size:16px; color: #111827; margin:0 0 6px; font-weight:500;"> Avis satifaits </p>
+                <p style="font-size:16px; color: #111827; margin:0 0 6px; font-weight:500;"> Avis satisfaits </p>
                 <p style="font-size:28px; font-weight:700; color: #111827; margin:0;">{{ $metrics['satisfaits'] }}</p>
             </div>
             <div style="border-radius:8px; padding:8px;">
@@ -77,7 +77,126 @@
         </div>
     </div>
 </div>
+@php
+    /*
+        Attendu :
+        $metrics['sites'] = [
+            ['nom' => 'Site A', 'taux' => 92],
+            ['nom' => 'Site B', 'taux' => 87],
+            ...
+        ];
+    */
 
+    $sites = collect($metrics['sites'] ?? []);
+
+    $topSites = $sites
+        ->sortByDesc('taux')
+        ->take(4)
+        ->values();
+
+    $lowSites = $sites
+        ->sortBy('taux')
+        ->take(4)
+        ->values();
+@endphp
+
+<div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px;">
+
+    {{-- Top 4 meilleurs sites --}}
+    <div style="background:white; border:1px solid #e5e7eb; border-radius:12px; padding:16px; 
+                box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+            <div style="width:40px; height:40px; border-radius:10px; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg style="width:22px; height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 5H3v3a4 4 0 004 4M19 5h2v3a4 4 0 01-4 4" />
+                </svg>
+            </div>
+
+            <div>
+                <h3 style="font-size:16px; color:#111827; margin:0; font-weight:700;">
+                    Top 4 — meilleurs sites
+                </h3>
+                <p style="font-size:12px; color:#8b8b8b; margin:2px 0 0; font-weight:600;">
+                    Taux de satisfaction
+                </p>
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            @foreach($topSites as $index => $site)
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="width:24px; height:22px; border-radius:999px; background:#dcfce7; color:#16a34a; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">
+                                {{ $index + 1 }}
+                            </span>
+                            <span style="font-size:14px; font-weight:600; color:#111827;">
+                                {{ $site['nom'] }}
+                            </span>
+                        </div>
+
+                        <span style="font-size:15px; font-weight:700; color:#16a34a;">
+                            {{ $site['taux'] }}%
+                        </span>
+                    </div>
+
+                    <div style="height:6px; background:#f3f4f6; border-radius:999px; overflow:hidden;">
+                        <div style="height:100%; width:{{ $site['taux'] }}%; background:linear-gradient(90deg,#22c55e,#16a34a); border-radius:999px;"></div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- 4 sites les moins performants --}}
+    <div style="background:white; border:1px solid #e5e7eb; border-radius:12px; padding:16px; 
+                box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+            <div style="width:40px; height:40px; border-radius:10px; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg style="width:22px; height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                </svg>
+            </div>
+
+            <div>
+                <h3 style="font-size:16px; color:#111827; margin:0; font-weight:700;">
+                    À améliorer en priorité
+                </h3>
+                <p style="font-size:12px; color:#8b8b8b; margin:2px 0 0; font-weight:600;">
+                    Taux de satisfaction
+                </p>
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            @foreach($lowSites as $index => $site)
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="width:24px; height:22px; border-radius:999px; background:#fee2e2; color:#dc2626; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">
+                                {{ $index + 1 }}
+                            </span>
+                            <span style="font-size:14px; font-weight:600; color:#111827;">
+                                {{ $site['nom'] }}
+                            </span>
+                        </div>
+
+                        <span style="font-size:15px; font-weight:700; color:#dc2626;">
+                            {{ $site['taux'] }}%
+                        </span>
+                    </div>
+
+                    <div style="height:6px; background:#f3f4f6; border-radius:999px; overflow:hidden;">
+                        <div style="height:100%; width:{{ $site['taux'] }}%; background:linear-gradient(90deg,#f97316,#dc2626); border-radius:999px;"></div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+</div>
 {{-- Ligne 2 : Meilleur + Moins bon --}}
 <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;">
 
