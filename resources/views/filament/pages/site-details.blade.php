@@ -203,7 +203,7 @@
         
         <script id="evolution-data" type="application/json">{!! json_encode($siteStats['evolution'] ?? []) !!}</script>
     </div>
-
+    
     {{-- LIGNE 4 : LES BLOCS DE COMPARAISON --}}
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 0px;">
         @php

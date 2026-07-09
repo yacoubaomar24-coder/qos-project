@@ -165,6 +165,7 @@ class AdminPanelProvider extends PanelProvider
             ->globalSearch(false)                   // Désactiver la recherche globale
             ->sidebarCollapsibleOnDesktop()
             //->sidebarFullyCollapsibleOnDesktop()
+            ->sidebarWidth('16rem') // Par défaut c'est 20rem (320px). '16rem' correspond à 250px.
             ;
     }
 }

@@ -10,10 +10,10 @@ use App\Jobs\EnvoyerRapportsAutoJob;
 Schedule::job(new VerifierSeuilsJob())->hourly();
 
 // Ou toutes les 15 minutes pour plus de réactivité
-//Schedule::job(new VerifierSeuilsJob())->everyFifteenMinutes();
+Schedule::job(new VerifierSeuilsJob())->everyFifteenMinutes();
 
 // Chaque minute
-Schedule::job(new VerifierSeuilsJob())->everyMinute()->name('verifier-seuils');
+//Schedule::job(new VerifierSeuilsJob())->everyMinute()->name('verifier-seuils');
 
 // Rapport quotidien — chaque jour à 8h00
 Schedule::job(new EnvoyerRapportsAutoJob('quotidien'))
