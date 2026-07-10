@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use Filament\Widgets\Widget;
 
+
 class PeriodFilter extends Widget
 {
     protected static ?int $sort = 0;
@@ -17,4 +18,5 @@ class PeriodFilter extends Widget
         // Filament v5 — dispatch vers tous les composants Livewire
         $this->dispatch('periodChanged', period: $this->period)->to(MetricsWidget::class);
     }
+
 }

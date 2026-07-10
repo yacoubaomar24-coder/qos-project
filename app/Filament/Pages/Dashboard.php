@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use Filament\Pages\Dashboard as BaseDashboard;
+use Livewire\Attributes\On;
 
 class Dashboard extends BaseDashboard
 {
@@ -27,6 +28,21 @@ class Dashboard extends BaseDashboard
         return null;
     }
 
+    public string $period = 'today';
+
+    public function mount(): void
+    {
+        $this->period = session('dashboard_period', 'today');
+    }
+
+    #[On('dashboardPeriodChanged')]
+    public function updatePeriod(string $period): void
+    {
+        $this->period = $period;
+
+        $this->dispatch('$refresh');
+    }
+
     public function getWidgets(): array
     {
         /** @var \App\Models\Utilisateur|null $user */
@@ -38,9 +54,9 @@ class Dashboard extends BaseDashboard
         ];
         
         return [
-            \App\Filament\Widgets\PeriodFilter::class,
+            //\App\Filament\Widgets\PeriodFilter::class,
             \App\Filament\Widgets\MetricsWidget::class,
-            \App\Filament\Widgets\AnomaliesWidget::class, 
+            //\App\Filament\Widgets\AnomaliesWidget::class, 
             \App\Filament\Widgets\MapWidget::class,
         ];
     }

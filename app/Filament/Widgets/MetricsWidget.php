@@ -27,6 +27,7 @@ class MetricsWidget extends Widget
     }
 
     #[\Livewire\Attributes\On('periodChanged')]
+    #[\Livewire\Attributes\On('periodeGlobaleChangee')]
     public function updatePeriod(string $period): void
     {
         $this->period  = $period;
@@ -44,12 +45,23 @@ class MetricsWidget extends Widget
         $totalsitesQuery = Site::query();
 
         // Filtre par période
+        /*
         match ($this->period) {
             'today' => $votesQuery->whereDate('created_at', today()),
             'week'  => $votesQuery->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]),
             'month' => $votesQuery->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year),
             'year'  => $votesQuery->whereYear('created_at', now()->year),
             default => $votesQuery->whereDate('created_at', today()),
+        };*/
+
+        $period = $this->period ?? session('dashboard_period', 'today');
+
+        match ($period) {
+            'today' => $votesQuery->whereDate('created_at', today()),
+            'week'  => $votesQuery->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]),
+            'month' => $votesQuery->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year),
+            'year'  => $votesQuery->whereYear('created_at', now()->year),
+            default => $votesQuery->whereMonth('created_at', now()->today)->whereYear('created_at', now()->year),
         };
 
         // Filtre par rôle

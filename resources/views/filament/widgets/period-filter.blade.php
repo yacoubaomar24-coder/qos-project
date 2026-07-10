@@ -1,47 +1,34 @@
-<x-filament-widgets::widget>
-
-<div style="background: linear-gradient(135deg, #0f172a, #1e3a8a);
-    border-radius:20px;padding:8px 12px; color:white;position:relative; overflow:hidden;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);">
-
-    {{-- Contenu principal --}}
-    <div style="display:flex;justify-content:space-between;align-items:center;
-        gap:20px;flex-wrap:wrap; position:relative;z-index:2;">
-
-        {{-- Partie gauche --}}
-        <div style="flex:1; min-width:280px;">
-
-            {{-- Badge --}}
-            <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);
-                padding:6px 14px;border-radius:999px;font-size:20px;font-weight:600;margin-bottom:10px;
-                backdrop-filter: blur(4px);">
-                📡 Tableau de bord
-            </div>
-
-            {{-- Sous-titre --}}
-            <p style="margin-top:2px;font-size:15px;color:rgba(255,255,255,0.9);max-width:700px;">
-                Vue d'ensemble en temps réel de tous les sites actifs
-            </p>
-        </div>
-
-        {{-- Partie droite --}}
-        <div style=" display:flex;flex-direction:column;gap:6px;min-width:220px;">
-            <label style="font-size:12px;font-weight:600;text-transform:uppercase;
-                letter-spacing:0.05em;color:rgba(255,255,255,0.8);">
-                Période
-            </label>
-
-            <select wire:model.live="period"
-                style="border:none;border-radius:10px;padding:12px 14px;font-size:14px;
-                    background:rgba(255,255,255,0.18);color:white;backdrop-filter: blur(6px);
-                    min-width:220px;outline:none;">
-                <option value="today" style="color:black;"> Aujourd'hui</option>
-                <option value="week" style="color:black;">Cette semaine</option>
-                <option value="month" style="color:black;">Ce mois</option>
-                <option value="year" style="color:black;">Cette année</option>
-            </select>
-        </div>
+<div class="hidden md:flex" 
+     style="position: absolute !important; 
+            left: 50% !important; 
+            transform: translateX(-50%) !important; 
+            z-index: 10 !important; 
+            display: flex !important;
+            flex-direction: row !important; /* Force l'alignement sur une seule ligne */
+            align-items: center !important; /* Aligne le titre et la période verticalement au centre */
+            gap: 20px !important; 
+            white-space: nowrap !important;">
+    
+    {{-- Titre Tableau de bord --}}
+    <div style="display: inline-flex !important; align-items: center !important; gap: 6px !important; 
+            font-size: 20px; font-weight: 600; color: #1e293b;">
+        <span>Tableau de bord</span>
     </div>
-</div>
 
-</x-filament-widgets::widget>
+    {{-- Sélecteur de Période --}}
+    <div style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important;">
+        <span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #64748b;">
+            Période
+        </span>
+        
+        <select wire:model.live="period"
+            style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px 10px; font-size: 13px;
+                background: white; color: #1e293b; outline: none; cursor: pointer; min-width: 130px;">
+            <option value="today">Aujourd'hui</option>
+            <option value="week">Cette semaine</option>
+            <option value="month">Ce mois</option>
+            <option value="year">Cette année</option>
+        </select>
+    </div>
+    
+</div>

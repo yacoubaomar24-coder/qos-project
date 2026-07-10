@@ -19,6 +19,8 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\HtmlString;
 use Filament\Support\Facades\FilamentView;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Blade;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -218,38 +220,217 @@ class AdminPanelProvider extends PanelProvider
             //->brandLogo(fn () => view('filament.titre'))
             ->brandName('Collecte de Satisfaction Client')
             ->globalSearch(false)                   // Désactiver la recherche globale
+            //->sidebarCollapsibleOnDesktop()
             ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('260px')
+            ->collapsedSidebarWidth('64px')
             //->sidebarFullyCollapsibleOnDesktop()
             ->sidebarWidth('16rem') // Par défaut c'est 20rem (320px). '16rem' correspond à 250px.
-            ->bootUsing(function () {
-                FilamentView::registerRenderHook(
-                        'panels::styles.after',
-                        fn () => new HtmlString('
-                            <style>
-                                /* 1. On s\'assure d\'abord que les éléments de droite ne bougent plus du tout */
-                                .fi-topbar > div > div:last-child,
-                                .fi-topbar div:nth-child(2) {
-                                    flex-direction: row !important;
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_START,
+                fn () => new HtmlString('
+                    <style>
+                        .fi-sidebar-header {
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: space-between !important;
+                            padding: 14px 16px !important;
+                        }
+
+                        .fi-sidebar-header > a,
+                        .fi-sidebar-header .fi-logo {
+                            margin-left: 0 !important;
+                            margin-right: auto !important;
+                            justify-content: flex-start !important;
+                            text-align: left !important;
+                        }
+
+                        .fi-sidebar-header button {
+                            margin-left: auto !important;
+                        }
+
+                        .fi-sidebar-header img {
+                            margin-left: 0 !important;
+                        }
+                       .fi-sidebar-header {
+                            display: none !important;
+                        } overflow: visible !important;
+                        .fi-sidebar-nav {
+                            padding-top: 12px !important;
+                        }
+                    </style>
+                ')
+            )
+            ->renderHook(
+                PanelsRenderHook::TOPBAR_END,
+                function (): \Illuminate\Support\HtmlString {
+                    /** @var \App\Models\Utilisateur|null $user */
+                    $user = filament()->auth()->user();
+
+                    if (!$user instanceof \App\Models\Utilisateur) {
+                        return new \Illuminate\Support\HtmlString('');
+                    }
+
+                    if ($user->hasRole('Admin')) {
+                        return new \Illuminate\Support\HtmlString('');
+                    }
+
+                    $period = session('dashboard_period', 'today');
+
+                    return new \Illuminate\Support\HtmlString("
+                        <div class='dashboard-topbar-period'>
+                            <span class='dashboard-topbar-title'>Dashboard</span>
+
+                            <span class='dashboard-topbar-separator'></span>
+
+                            <label class='dashboard-topbar-label'>
+                                Période
+                            </label>
+
+                            <select id='global-period-select'
+                                onchange='changerPeriodeGlobale(this.value)'
+                                class='dashboard-topbar-select'>
+                                <option value='today' " . ($period === 'today' ? 'selected' : '') . ">Aujourd'hui</option>
+                                <option value='week' " . ($period === 'week' ? 'selected' : '') . ">Cette semaine</option>
+                                <option value='month' " . ($period === 'month' ? 'selected' : '') . ">Ce mois</option>
+                                <option value='year' " . ($period === 'year' ? 'selected' : '') . ">Cette année</option>
+                            </select>
+                        </div>
+
+                        <style>
+                            .dashboard-topbar-period {
+                                position: fixed;
+                                top: 18px;
+                                left: 290px;
+                                z-index: 60;
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                white-space: nowrap;
+                                pointer-events: auto;
+                            }
+
+                            .dashboard-topbar-title {
+                                font-size: 22px;
+                                font-weight: 700;
+                                color: #111827;
+                            }
+
+                            .dashboard-topbar-separator {
+                                width: 1px;
+                                height: 24px;
+                                background: #e5e7eb;
+                                display: inline-block;
+                            }
+
+                            .dashboard-topbar-label {
+                                font-size: 12px;
+                                font-weight: 700;
+                                color: #9ca3af;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                            }
+
+                            .dashboard-topbar-select {
+                                border: 2px solid #111827;
+                                border-radius: 10px;
+                                padding: 7px 34px 7px 14px;
+                                font-size: 16px;
+                                background: #ffffff;
+                                color: #374151;
+                                cursor: pointer;
+                                min-width: 165px;
+                            }
+
+                            @media (max-width: 1024px) {
+                                .dashboard-topbar-period {
+                                    left: 210px;
+                                    gap: 8px;
                                 }
 
-                                /* 2. On crée un espace à droite du logo/nom pour accueillir le bouton */
-                                .fi-home-link,
-                                .fi-topbar-header-branding {
-                                    margin-right: 60px !important; /* Crée la place nécessaire */
-                                    position: relative !important;
+                                .dashboard-topbar-title {
+                                    font-size: 18px;
                                 }
 
-                                /* 3. On détache le bouton pour le placer précisément dans cet espace */
-                                button.fi-topbar-close-sidebar-btn,
-                                [class*="fi-topbar-close-sidebar-btn"] {
-                                    position: absolute !important;
-                                    left: 180px !important; /* Ajustez cette valeur (en pixels) selon la largeur de votre logo/nom */
-                                    margin: 0 !important;
+                                .dashboard-topbar-select {
+                                    min-width: 135px;
+                                    font-size: 14px;
+                                    padding: 6px 28px 6px 10px;
                                 }
-                            </style>
-                        ')
-                    );
-                });
-            
+                            }
+
+                            @media (max-width: 768px) {
+                                .dashboard-topbar-period {
+                                    position: static;
+                                    margin-left: 8px;
+                                    gap: 6px;
+                                }
+
+                                .dashboard-topbar-title,
+                                .dashboard-topbar-separator,
+                                .dashboard-topbar-label {
+                                    display: none;
+                                }
+
+                                .dashboard-topbar-select {
+                                    min-width: 110px;
+                                    max-width: 120px;
+                                    font-size: 12px;
+                                    padding: 5px 24px 5px 8px;
+                                    border-radius: 8px;
+                                }
+                            }
+                        </style>
+
+                        <script>
+                            function changerPeriodeGlobale(period) {
+                                if (window.Livewire) {
+                                    Livewire.dispatch('periodeGlobaleChangee', { period: period });
+                                }
+                            }
+                        </script>
+                    ");
+                }
+            )
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn () => new HtmlString('
+                    <style>
+                        @media (min-width: 1024px) {
+                            .fi-sidebar-header {
+                                display: flex !important;
+                                flex-direction: row !important;
+                                align-items: center !important;
+                                justify-content: flex-start !important;
+                                gap: 12px !important;
+                                padding: 14px 18px !important;
+                                min-height: 76px !important;
+                            }
+
+                            .fi-sidebar-header > a {
+                                display: flex !important;
+                                align-items: center !important;
+                                justify-content: flex-start !important;
+                                gap: 12px !important;
+                                margin: 0 !important;
+                                min-width: 0 !important;
+                            }
+
+                            .fi-sidebar-header .fi-logo {
+                                margin: 0 !important;
+                            }
+
+                            .fi-sidebar-header > button,
+                            .fi-sidebar-header button[aria-label],
+                            .fi-sidebar-header button[title] {
+                                position: static !important;
+                                margin-left: auto !important;
+                                transform: none !important;
+                                flex-shrink: 0 !important;
+                            }
+                        }
+                    </style>
+                ')
+            );
     }
 }
