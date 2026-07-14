@@ -46,7 +46,7 @@ class SiteResource extends Resource
         return $schema
             ->schema([
                 //Select::make('ville_id')->relationship('ville', 'nom'),
-                Select::make('ville_id')
+                Select::make('ville_id')->searchable()
                     ->options(function () {
                         /** @var Utilisateur $user */
                         //$user = filament()->auth()->user();
@@ -60,8 +60,18 @@ class SiteResource extends Resource
                         }
 
                         if ($user->hasRole('Super admin')) {
-                            // Super admin voit ses villes créées directement
-                            return $query->where('created_by', $user->id)->pluck('nom', 'id');
+
+                            // IDs des Admin nationaux créés par ce Super admin
+                            $adminNationauxIds = \App\Models\Utilisateur::where('created_by', $user->id)
+                                ->role('Admin national') // Spatie
+                                ->pluck('id');
+
+                            return $query
+                                ->where(function ($q) use ($user, $adminNationauxIds) {
+                                    $q->where('created_by', $user->id)
+                                    ->orWhereIn('created_by', $adminNationauxIds);
+                                })
+                                ->pluck('nom', 'id');
                         }
 
                         if ($user->hasRole('Admin national')) {

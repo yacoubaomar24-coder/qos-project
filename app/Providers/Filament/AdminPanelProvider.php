@@ -187,7 +187,7 @@ class AdminPanelProvider extends PanelProvider
                     $colorAnomalies = $nombreAnomalies > 0 ? '#f59e0b' : '#6b7280';
 
                     return new HtmlString("
-                        <div style='display:flex; align-items:center; gap:4px; margin-right:8px;'>
+                        <div style='display:flex; align-items:center; gap:16px; margin-right:16px;'>
                             <a href='{$urlAlertes}'
                                 style='position:relative; display:inline-flex; align-items:center;
                                         text-decoration:none; padding:6px; border-radius:8px;
@@ -275,18 +275,15 @@ class AdminPanelProvider extends PanelProvider
                         return new \Illuminate\Support\HtmlString('');
                     }
 
-                    $period = session('dashboard_period', 'today');
+                    $period = request()->query('period', 'today');
 
                     return new \Illuminate\Support\HtmlString("
                         <div class='dashboard-topbar-period'>
                             <span class='dashboard-topbar-title'>Dashboard</span>
-
                             <span class='dashboard-topbar-separator'></span>
-
                             <label class='dashboard-topbar-label'>
                                 Période
                             </label>
-
                             <select id='global-period-select'
                                 onchange='changerPeriodeGlobale(this.value)'
                                 class='dashboard-topbar-select'>
@@ -332,14 +329,14 @@ class AdminPanelProvider extends PanelProvider
                             }
 
                             .dashboard-topbar-select {
-                                border: 2px solid #111827;
-                                border-radius: 10px;
+                                border: 1.5px solid #111827;
+                                border-radius: 12px;
                                 padding: 7px 34px 7px 14px;
-                                font-size: 16px;
+                                font-size: 14px;
                                 background: #ffffff;
                                 color: #374151;
                                 cursor: pointer;
-                                min-width: 165px;
+                                min-width: 160px;
                             }
 
                             @media (max-width: 1024px) {
@@ -384,9 +381,12 @@ class AdminPanelProvider extends PanelProvider
 
                         <script>
                             function changerPeriodeGlobale(period) {
-                                if (window.Livewire) {
-                                    Livewire.dispatch('periodeGlobaleChangee', { period: period });
-                                }
+
+                                const url = new URL(window.location.href);
+
+                                url.searchParams.set('period', period);
+
+                                window.location.href = url.toString();
                             }
                         </script>
                     ");
@@ -396,38 +396,54 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::HEAD_END,
                 fn () => new HtmlString('
                     <style>
-                        @media (min-width: 1024px) {
-                            .fi-sidebar-header {
-                                display: flex !important;
-                                flex-direction: row !important;
-                                align-items: center !important;
-                                justify-content: flex-start !important;
-                                gap: 12px !important;
-                                padding: 14px 18px !important;
-                                min-height: 76px !important;
-                            }
+                        .app-brand {
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: flex-start !important;
+                            gap: 10px !important;
+                            min-width: 0 !important;
+                        }
 
-                            .fi-sidebar-header > a {
-                                display: flex !important;
-                                align-items: center !important;
-                                justify-content: flex-start !important;
-                                gap: 12px !important;
-                                margin: 0 !important;
-                                min-width: 0 !important;
-                            }
+                        .app-brand-logo {
+                            height: 50px !important;
+                            width: auto !important;
+                            object-fit: contain !important;
+                            flex-shrink: 0 !important;
+                        }
 
-                            .fi-sidebar-header .fi-logo {
-                                margin: 0 !important;
-                            }
+                        .app-brand-name {
+                            font-size: 22px !important;
+                            font-weight: 700 !important;
+                            color: #111827 !important;
+                            line-height: 1 !important;
+                            white-space: nowrap !important;
+                        }
 
-                            .fi-sidebar-header > button,
-                            .fi-sidebar-header button[aria-label],
-                            .fi-sidebar-header button[title] {
-                                position: static !important;
-                                margin-left: auto !important;
-                                transform: none !important;
-                                flex-shrink: 0 !important;
-                            }
+                        .fi-sidebar-header {
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: space-between !important;
+                            gap: 12px !important;
+                            padding: 14px 18px !important;
+                        }
+
+                        .fi-sidebar-header > a {
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: flex-start !important;
+                            margin: 0 !important;
+                            min-width: 0 !important;
+                        }
+
+                        .fi-sidebar-header button {
+                            margin-left: auto !important;
+                            flex-shrink: 0 !important;
+                        }
+
+                        .fi-sidebar-header button,
+                        .fi-sidebar-header [role="button"] {
+                            margin-left: auto !important;
+                            flex-shrink: 0 !important;
                         }
                     </style>
                 ')

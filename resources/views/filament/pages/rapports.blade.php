@@ -10,7 +10,7 @@
             Export & Rapports
         </h2>
         <p style="font-size:13px; color:#6b7280; margin:4px 0 0;">
-            Exportez vos données de satisfaction en PDF, Excel ou CSV
+            Exportez vos données de vote en PDF, Excel ou CSV
         </p>
     </div>
 
@@ -24,167 +24,127 @@
             Configurer l'export
         </h3>
 
-        {{-- Sélection de la période --}}
-        <div style="margin-bottom:16px;">
-            <label style="font-size:11px; font-weight:600; color:#9ca3af;
-                          text-transform:uppercase; display:block; margin-bottom:8px;">
-                Période
-            </label>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                @foreach([
-                    'day'    => "Aujourd'hui",
-                    'week'   => 'Cette semaine',
-                    'month'  => 'Ce mois',
-                    'year'   => 'Cette année',
-                    'custom' => 'Personnalisée',
-                ] as $val => $label)
-                <button wire:click="changerPeriode('{{ $val }}')"
-                    style="padding:6px 14px; border-radius:8px; font-size:12px;
-                           font-weight:600; cursor:pointer; border:1px solid #e5e7eb;
-                           background:{{ $exportPeriode === $val ? '#111827' : 'white' }};
-                           color:{{ $exportPeriode === $val ? 'white' : '#374151' }};">
-                    {{ $label }}
-                </button>
-                @endforeach
-            </div>
-        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; align-items:start;">
 
-        {{-- Dates personnalisées --}}
-        @if($exportPeriode === 'custom')
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
-                    Date début
+            {{-- Période --}}
+            <div style="padding:16px; border:1px solid #eef2f7; border-radius:12px; background: #cbcdd1;">
+                <label style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:10px;">
+                    Période d’export
                 </label>
-                <input type="date" wire:model="exportDateDebut"
-                    style="border:1px solid #e5e7eb; border-radius:8px;
-                           padding:8px 12px; font-size:13px; background:#f9fafb;">
+
+                <div style="display:flex; align-items:center; gap:2px; padding:2px; background: #9ca3af; 
+                            border:1px solid #e5e7eb; border-radius:8px; flex-wrap:wrap;">
+                    @foreach([
+                        'day'    => "Aujourd’hui",
+                        'week'   => 'Cette semaine',
+                        'month'  => 'Ce mois',
+                        'year'   => 'Cette année',
+                        'custom' => 'Personnalisée',
+                    ] as $val => $label)
+                        <button
+                            type="button"
+                            wire:click="changerPeriode('{{ $val }}')"
+                            style="padding:7px 12px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; border:none;
+                                background:{{ $exportPeriode === $val ? '#111827' : 'transparent' }};
+                                color:{{ $exportPeriode === $val ? '#ffffff' : '#4b5563' }};
+                                box-shadow:{{ $exportPeriode === $val ? '0 1px 3px rgba(0,0,0,0.16)' : 'none' }};
+                                white-space:nowrap;">
+                            {{ $label }}
+                        </button>
+                    @endforeach
+                </div>
+
+                @if($exportPeriode === 'custom')
+                    <div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:14px;">
+                        <div>
+                            <label style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; display:block; margin-bottom:6px;">
+                                Date début
+                            </label>
+                            <input type="date" wire:model="exportDateDebut"
+                                style="width:100%; border:1px solid #d1d5db; border-radius:9px; padding:9px 11px; font-size:13px; background:#ffffff; color:#111827;">
+                        </div>
+
+                        <div>
+                            <label style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; display:block; margin-bottom:6px;">
+                                Date fin
+                            </label>
+                            <input type="date" wire:model="exportDateFin"
+                                style="width:100%; border:1px solid #d1d5db; border-radius:9px; padding:9px 11px; font-size:13px; background:#ffffff; color:#111827;">
+                        </div>
+                    </div>
+                @endif
             </div>
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
-                    Date fin
+
+            {{-- Sites --}}
+            <div style="padding:16px; border:1px solid #eef2f7; border-radius:12px; background: #87a8d0;">
+                <label style="font-size:11px; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:10px;">
+                    Sites à inclure
                 </label>
-                <input type="date" wire:model="exportDateFin"
-                    style="border:1px solid #e5e7eb; border-radius:8px;
-                           padding:8px 12px; font-size:13px; background:#f9fafb;">
+
+                <div style="display:flex; flex-wrap:wrap; gap:2px; margin-bottom:12px;">
+                    @foreach([
+                        'tous' => 'Tous les sites',
+                        'pays' => 'Par pays',
+                        'region' => 'Par région',
+                        'ville' => 'Par ville',
+                        'site' => 'Site spécifique',
+                    ] as $val => $label)
+
+                        @continue($val === 'pays' && empty($paysOptions))
+                        @continue($val === 'region' && empty($regionsOptions))
+                        @continue($val === 'ville' && empty($villesOptions))
+                        @continue($val === 'site' && count($sitesOptions) <= 1)
+
+                        <button
+                            type="button"
+                            wire:click="changerFiltreNiveau('{{ $val }}')"
+                            style="padding:7px 13px; border-radius:999px; font-size:12px; font-weight:700; cursor:pointer;
+                                border:1px solid {{ $filtreNiveau === $val ? '#111827' : '#e5e7eb' }};
+                                background:{{ $filtreNiveau === $val ? '#111827' : '#ffffff' }};
+                                color:{{ $filtreNiveau === $val ? '#ffffff' : '#374151' }};">
+                            {{ $label }}
+                        </button>
+                    @endforeach
+                </div>
+
+                @if($filtreNiveau === 'pays' && !empty($paysOptions))
+                    <select wire:model="filtrePaysId" style="width:100%; max-width:320px; border:1px solid #d1d5db; border-radius:9px; padding:9px 11px; font-size:13px; background:#f9fafb;">
+                        <option value="">Sélectionner un pays</option>
+                        @foreach($paysOptions as $id => $nom)
+                            <option value="{{ $id }}">{{ $nom }}</option>
+                        @endforeach
+                    </select>
+                @endif
+
+                @if($filtreNiveau === 'region' && !empty($regionsOptions))
+                    <select wire:model="filtreRegionId" style="width:100%; max-width:320px; border:1px solid #d1d5db; border-radius:9px; padding:9px 11px; font-size:13px; background:#f9fafb;">
+                        <option value="">Sélectionner une région</option>
+                        @foreach($regionsOptions as $id => $nom)
+                            <option value="{{ $id }}">{{ $nom }}</option>
+                        @endforeach
+                    </select>
+                @endif
+
+                @if($filtreNiveau === 'ville' && !empty($villesOptions))
+                    <select wire:model="filtreVilleId" style="width:100%; max-width:320px; border:1px solid #d1d5db; border-radius:9px; padding:9px 11px; font-size:13px; background:#f9fafb;">
+                        <option value="">Sélectionner une ville</option>
+                        @foreach($villesOptions as $id => $nom)
+                            <option value="{{ $id }}">{{ $nom }}</option>
+                        @endforeach
+                    </select>
+                @endif
+
+                @if($filtreNiveau === 'site' && !empty($sitesOptions))
+                    <select wire:model="filtreSiteId" style="width:100%; max-width:320px; border:1px solid #d1d5db; border-radius:9px; padding:9px 11px; font-size:13px; background:#f9fafb;">
+                        <option value="">Sélectionner un site</option>
+                        @foreach($sitesOptions as $id => $nom)
+                            <option value="{{ $id }}">{{ $nom }}</option>
+                        @endforeach
+                    </select>
+                @endif
             </div>
+
         </div>
-        @endif
-
-        {{-- Sélection des sites --}}
-        <div style="margin-bottom:20px;">
-            <label style="font-size:11px; font-weight:600; color:#9ca3af;
-                          text-transform:uppercase; display:block; margin-bottom:8px;">
-                Sites à inclure
-            </label>
-
-            <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                <button wire:click="changerFiltreNiveau('tous')"
-                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
-                        cursor:pointer; border:1px solid #e5e7eb;
-                        background:{{ $filtreNiveau === 'tous' ? '#111827' : 'white' }};
-                        color:{{ $filtreNiveau === 'tous' ? 'white' : '#374151' }};">
-                    Tous les sites
-                </button>
-                @if(!empty($paysOptions))
-                <button wire:click="changerFiltreNiveau('pays')"
-                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
-                        cursor:pointer; border:1px solid #e5e7eb;
-                        background:{{ $filtreNiveau === 'pays' ? '#111827' : 'white' }};
-                        color:{{ $filtreNiveau === 'pays' ? 'white' : '#374151' }};">
-                    Par pays
-                </button>
-                @endif
-                @if(!empty($regionsOptions))
-                <button wire:click="changerFiltreNiveau('region')"
-                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
-                        cursor:pointer; border:1px solid #e5e7eb;
-                        background:{{ $filtreNiveau === 'region' ? '#111827' : 'white' }};
-                        color:{{ $filtreNiveau === 'region' ? 'white' : '#374151' }};">
-                    Par région
-                </button>
-                @endif
-                @if(!empty($villesOptions))
-                <button wire:click="changerFiltreNiveau('ville')"
-                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
-                        cursor:pointer; border:1px solid #e5e7eb;
-                        background:{{ $filtreNiveau === 'ville' ? '#111827' : 'white' }};
-                        color:{{ $filtreNiveau === 'ville' ? 'white' : '#374151' }};">
-                    Par ville
-                </button>
-                @endif
-                @if(count($sitesOptions) > 1)
-                <button wire:click="changerFiltreNiveau('site')"
-                    style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600;
-                        cursor:pointer; border:1px solid #e5e7eb;
-                        background:{{ $filtreNiveau === 'site' ? '#111827' : 'white' }};
-                        color:{{ $filtreNiveau === 'site' ? 'white' : '#374151' }};">
-                    Site spécifique
-                </button>
-                @endif
-            </div>
-        </div>
-
-        {{-- Select selon le niveau --}}
-        @if($filtreNiveau === 'pays' && !empty($paysOptions))
-        <select wire:model="filtrePaysId"
-            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
-                font-size:13px; background:#f9fafb; min-width:200px;">
-            <option value="">Sélectionner un pays</option>
-            @foreach($paysOptions as $id => $nom)
-                <option value="{{ $id }}">{{ $nom }}</option>
-            @endforeach
-        </select>
-        @endif
-
-        @if($filtreNiveau === 'region' && !empty($regionsOptions))
-        <select wire:model="filtreRegionId"
-            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
-                font-size:13px; background:#f9fafb; min-width:200px;">
-            <option value="">Sélectionner une région</option>
-            @foreach($regionsOptions as $id => $nom)
-                <option value="{{ $id }}">{{ $nom }}</option>
-            @endforeach
-        </select>
-        @endif
-
-        @if($filtreNiveau === 'ville' && !empty($villesOptions))
-        <select wire:model="filtreVilleId"
-            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
-                    font-size:13px; background:#f9fafb; min-width:200px;">
-            <option value="">Sélectionner une ville</option>
-            @foreach($villesOptions as $id => $nom)
-                <option value="{{ $id }}">{{ $nom }}</option>
-            @endforeach
-        </select>
-        @endif 
-        @if($filtreNiveau === 'site' && !empty($sitesOptions))
-        <select wire:model="filtreSiteId"
-            style="border:1px solid #e5e7eb; border-radius:8px; padding:8px 12px;
-                font-size:13px; background:#f9fafb; min-width:200px;">
-            <option value="">Sélectionner un site</option>
-            @foreach($sitesOptions as $id => $nom)
-                <option value="{{ $id }}">{{ $nom }}</option>
-            @endforeach
-        </select>
-        @endif
-
-        {{-- Résumé --}}
-        <p style="font-size:11px; color:#9ca3af; margin-top:8px;">
-            @if($filtreNiveau === 'tous')
-                Tous les sites accessibles seront inclus
-            @elseif($filtreNiveau === 'pays' && $filtrePaysId)
-                Sites du pays sélectionné
-            @elseif($filtreNiveau === 'region' && $filtreRegionId)
-                Sites de la région sélectionnée
-            @elseif($filtreNiveau === 'ville' && $filtreVilleId)
-                Sites de la ville sélectionnée
-            @elseif($filtreNiveau === 'site' && $filtreSiteId)
-                Site spécifique sélectionné
-            @else
-                Veuillez sélectionner un filtre
-            @endif
-        </p>
 
         {{-- Format et boutons d'export --}}
         <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
@@ -232,127 +192,6 @@
             </button>
 
         </div>
-
-    </div>
-
-    {{-- ===================================================
-         SECTION 2 : Aperçu des données
-    =================================================== --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-                padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-
-        <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 16px;">
-            Aperçu des données
-        </h3>
-
-        @php $apercu = $this->getApercu(); @endphp
-
-        @if(empty($apercu))
-            <p style="color:#9ca3af; text-align:center; padding:20px;">
-                Aucune donnée pour la période sélectionnée.
-            </p>
-        @else
-
-        {{-- Résumé global --}}
-        @php
-            $totalGlobal      = array_sum(array_column($apercu, 'total'));
-            $satisfaitsGlobal = array_sum(array_column($apercu, 'satisfaits'));
-            $tauxGlobal       = $totalGlobal > 0
-                ? round(($satisfaitsGlobal / $totalGlobal) * 100, 1) : 0;
-            $colorGlobal      = $tauxGlobal >= 70 ? '#16a34a' : ($tauxGlobal >= 40 ? '#d97706' : '#ef4444');
-        @endphp
-
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;">
-            <div style="background:#f9fafb; border-radius:10px; padding:12px; text-align:center;">
-                <p style="font-size:11px; color:#6b7280; margin:0;">Total avis</p>
-                <p style="font-size:24px; font-weight:700; color:#111827; margin:4px 0 0;">
-                    {{ $totalGlobal }}
-                </p>
-            </div>
-            <div style="background:#f9fafb; border-radius:10px; padding:12px; text-align:center;">
-                <p style="font-size:11px; color:#6b7280; margin:0;">Taux satisfaction global</p>
-                <p style="font-size:24px; font-weight:700; color:{{ $colorGlobal }}; margin:4px 0 0;">
-                    {{ $tauxGlobal }}%
-                </p>
-            </div>
-            <div style="background:#f9fafb; border-radius:10px; padding:12px; text-align:center;">
-                <p style="font-size:11px; color:#6b7280; margin:0;">Sites inclus</p>
-                <p style="font-size:24px; font-weight:700; color:#111827; margin:4px 0 0;">
-                    {{ count($apercu) }}
-                </p>
-            </div>
-        </div>
-
-        {{-- Tableau d'aperçu --}}
-        <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; font-size:13px;">
-                <thead>
-                    <tr style="background:#f9fafb;">
-                        <th style="padding:10px 12px; text-align:left; font-weight:600;
-                                   color:#6b7280; border-bottom:1px solid #e5e7eb;">#</th>
-                        <th style="padding:10px 12px; text-align:left; font-weight:600;
-                                   color:#6b7280; border-bottom:1px solid #e5e7eb;">Site</th>
-                        <th style="padding:10px 12px; text-align:left; font-weight:600;
-                                   color:#6b7280; border-bottom:1px solid #e5e7eb;">Région</th>
-                        <th style="padding:10px 12px; text-align:center; font-weight:600;
-                                   color:#6b7280; border-bottom:1px solid #e5e7eb;">Total</th>
-                        <th style="padding:10px 12px; text-align:center; font-weight:600;
-                                   color:#16a34a; border-bottom:1px solid #e5e7eb;">Satisfaits</th>
-                        <th style="padding:10px 12px; text-align:center; font-weight:600;
-                                   color:#d97706; border-bottom:1px solid #e5e7eb;">Moyens</th>
-                        <th style="padding:10px 12px; text-align:center; font-weight:600;
-                                   color:#ef4444; border-bottom:1px solid #e5e7eb;">Insatisfaits</th>
-                        <th style="padding:10px 12px; text-align:center; font-weight:600;
-                                   color:#6b7280; border-bottom:1px solid #e5e7eb;">Taux satisfait</th>
-                        <th style="padding:10px 12px; text-align:center; font-weight:600;
-                                   color:#6b7280; border-bottom:1px solid #e5e7eb;">Taux moyen</th>
-                        <th style="padding:10px 12px; text-align:center; font-weight:600;
-                                   color:#6b7280; border-bottom:1px solid #e5e7eb;">Taux insatisfait</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($apercu as $index => $ligne)
-                    @php
-                        $colorTaux = $ligne['taux_satisfaction'] >= 70 ? '#16a34a'
-                            : ($ligne['taux_satisfaction'] >= 40 ? '#d97706' : '#ef4444');
-                    @endphp
-                    <tr style="border-bottom:1px solid #f3f4f6;">
-                        <td style="padding:10px 12px; color:#9ca3af;">{{ $index + 1 }}</td>
-                        <td style="padding:10px 12px; font-weight:600; color:#111827;">
-                            {{ $ligne['site'] }}
-                        </td>
-                        <td style="padding:10px 12px; color:#6b7280;">{{ $ligne['region'] }}</td>
-                        <td style="padding:10px 12px; text-align:center; color:#111827;">
-                            {{ $ligne['total'] }}
-                        </td>
-                        <td style="padding:10px 12px; text-align:center; color:#16a34a; font-weight:600;">
-                            {{ $ligne['satisfaits'] }}
-                        </td>
-                        <td style="padding:10px 12px; text-align:center; color:#d97706; font-weight:600;">
-                            {{ $ligne['moyens'] }}
-                        </td>
-                        <td style="padding:10px 12px; text-align:center; color:#ef4444; font-weight:600;">
-                            {{ $ligne['insatisfaits'] }}
-                        </td>
-                        <td style="padding:10px 12px; text-align:center;
-                                   font-weight:700; color:{{ $colorTaux }};">
-                            {{ $ligne['taux_satisfaction'] }}%
-                        </td>
-                        <td style="padding:10px 12px; text-align:center;
-                                   font-weight:700; color:{{ $colorTaux }};">
-                            {{ $ligne['taux_moyen'] }}%
-                        </td>
-                        <td style="padding:10px 12px; text-align:center;
-                                   font-weight:700; color:{{ $ligne['taux_insatisfait'] >= 60 ? '#ef4444' : ($ligne['taux_insatisfait'] >= 30 ? '#d97706' : '#16a34a') }};">
-                            {{ $ligne['taux_insatisfait'] }}%
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        @endif
 
     </div>
 

@@ -44,7 +44,7 @@ class VilleResource extends Resource
         return $schema
             ->schema([
                 //Select::make('region_id')->relationship('region', 'nom')->required(),
-                Select::make('region_id')
+                Select::make('region_id')->searchable()
                     ->label('Région de la ville')
                     ->options(function () {
                         /** @var Utilisateur $user */

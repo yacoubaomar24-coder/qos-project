@@ -32,7 +32,11 @@ class Dashboard extends BaseDashboard
 
     public function mount(): void
     {
-        $this->period = session('dashboard_period', 'today');
+        $period = request()->query('period', 'today');
+
+        $this->period = in_array($period, ['today', 'week', 'month', 'year'], true)
+            ? $period
+            : 'today';
     }
 
     #[On('dashboardPeriodChanged')]

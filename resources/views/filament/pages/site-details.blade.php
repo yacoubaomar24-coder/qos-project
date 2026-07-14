@@ -5,18 +5,18 @@
          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
 
     {{-- LIGNE 1 : EN-TÊTE / TOP BAR --}}
-    <div style="background: white; border: 1px solid #f1f5f9; border-radius: 12px; padding: 8px 12px; 
+    <div style="background: #2483b78f; border: 1px solid #f1f5f9; border-radius: 12px; padding: 8px 12px; 
             display: flex; justify-content: space-between; align-items: center; 
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);">
         {{-- Gauche : Infos du Site Dynamique --}}
         <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="background: #6366f1; color: white; border-radius: 12px; width: 48px; height: 48px; 
+            <div style="background: white; color: white; border-radius: 12px; width: 48px; height: 48px; 
                 display: flex; align-items: center; justify-content: center; font-size: 22px; 
                 box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);">
                 🏢
             </div>
             <div>
-                <span style="font-size: 12px; color: #64748b; font-weight: 500; text-transform: uppercase; 
+                <span style="font-size: 12px; color: #252b32; font-weight: 500; text-transform: uppercase; 
                         letter-spacing: 0.05em;">Site sélectionné</span>
                 
                 {{-- Affichage sécurisé : Si $siteStats['nom'] n'est pas dispo, on affiche une valeur par défaut propre --}}
@@ -61,9 +61,9 @@
 
             @if(!empty($siteStats) && isset($siteStats['total']))
             <div style="text-align: right; border-left: 2px solid #f1f5f9; padding-left: 24px;">
-                <span style="font-size: 14px; color: #0b0c0eb3; font-weight: 500;">Total des avis</span>
-                <p style="font-size: 32px; font-weight: 800; color: #2563eb; margin: 0; line-height: 1.1; letter-spacing: -0.03em;">{{ number_format($siteStats['total'], 0, ',', ' ') }}</p>
-                <span style="font-size: 12px; color: #94a3b8; font-weight: 500;">votes au total</span>
+                <span style="font-size: 16px; color: #1b0c0eb3; font-weight: 500;">Total des avis</span>
+                <p style="font-size: 32px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.1; letter-spacing: -0.03em;">{{ number_format($siteStats['total'], 0, ',', ' ') }}</p>
+                <span style="font-size: 14px; color: #1b2129; font-weight: 500;">votes au total</span>
             </div>
             @endif
         </div>

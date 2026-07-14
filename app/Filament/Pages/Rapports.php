@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class Rapports extends Page
 {
     protected static ?string $navigationLabel = 'Export & Rapports';
-    protected static ?string $title = 'Export & Rapports';
+    protected static ?string $title = '';
     protected static ?int $navigationSort  = 5;
     protected string $view = 'filament.pages.rapports';
 

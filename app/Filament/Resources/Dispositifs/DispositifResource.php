@@ -46,7 +46,7 @@ class DispositifResource extends Resource
         return $schema
             ->schema([
                 //Select::make('site_id')->relationship('site', 'nom')->required(),
-                Select::make('site_id')
+                Select::make('site_id')->searchable()
                     ->options(function () {
                         /** @var Utilisateur $user */
                         //$user = filament()->auth()->user();

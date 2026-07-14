@@ -1,6 +1,6 @@
 <x-filament-panels::page>
 <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-            padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+            padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06); margin: 0 auto;">
 
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
                 padding:16px 20px; display:flex; justify-content:space-between;
