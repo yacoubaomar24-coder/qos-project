@@ -2,16 +2,43 @@
 <div style="display:flex; flex-direction:column; gap:24px;">
 
     {{-- ===================================================
-         EN-TÊTE
+     EN-TÊTE
     =================================================== --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-                padding:16px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-        <h2 style="font-size:18px; font-weight:700; color:#111827; margin:0;">
-            Export & Rapports
-        </h2>
-        <p style="font-size:13px; color:#6b7280; margin:4px 0 0;">
-            Exportez vos données de vote en PDF, Excel ou CSV
-        </p>
+    <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%);
+                border:1px solid #e5e7eb; border-radius:18px;
+                padding:20px 22px; box-shadow:0 8px 22px rgba(15,23,42,0.06);
+                display:flex; align-items:center; justify-content:space-between; gap:18px;">
+
+        <div style="display:flex; align-items:center; gap:14px; min-width:0;">
+            <div style="width:46px; height:46px; border-radius:14px;
+                        background:#ecfdf5; color:#16a34a;
+                        display:flex; align-items:center; justify-content:center;
+                        flex-shrink:0; box-shadow:inset 0 0 0 1px rgba(22,163,74,0.12);">
+                <svg style="width:24px; height:24px;" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3v12" />
+                    <path d="M8 11l4 4 4-4" />
+                    <path d="M5 19h14" />
+                    <path d="M7 19a2 2 0 01-2-2v-1" />
+                    <path d="M17 19a2 2 0 002-2v-1" />
+                </svg>
+            </div>
+
+            <div style="min-width:0;">
+                <h2 style="font-size:22px; font-weight:800; color:#111827; margin:0; line-height:1.2;">
+                    Export & Rapports
+                </h2>
+                <p style="font-size:13px; color:#6b7280; margin:5px 0 0; line-height:1.45;">
+                    Générez et téléchargez vos données de vote aux formats PDF, Excel ou CSV.
+                </p>
+            </div>
+        </div>
+
+        <span style="font-size:12px; font-weight:800; color:#15803d;
+                    background:#dcfce7; border:1px solid #bbf7d0;
+                    border-radius:999px; padding:6px 11px; white-space:nowrap;">
+            Export
+        </span>
     </div>
 
     {{-- ===================================================
@@ -20,9 +47,38 @@
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
                 padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
-        <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 16px;">
-            Configurer l'export
-        </h3>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:34px; height:34px; border-radius:10px;
+                            background:#ecfdf5; color:#16a34a;
+                            display:flex; align-items:center; justify-content:center;
+                            flex-shrink:0;">
+                    <svg style="width:18px; height:18px;" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v10" />
+                        <path d="M8 9l4 4 4-4" />
+                        <path d="M5 18h14" />
+                        <path d="M7 18a2 2 0 01-2-2" />
+                        <path d="M17 18a2 2 0 002-2" />
+                    </svg>
+                </div>
+
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:#111827; margin:0;">
+                        Configurer l’export
+                    </h3>
+                    <p style="font-size:12px; color:#6b7280; margin:3px 0 0;">
+                        Choisissez la période, les sites concernés et le format du fichier.
+                    </p>
+                </div>
+            </div>
+
+            <span style="font-size:11px; font-weight:800; color:#15803d;
+                        background:#dcfce7; border:1px solid #bbf7d0;
+                        border-radius:999px; padding:4px 8px; white-space:nowrap;">
+                Export
+            </span>
+        </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; align-items:start;">
 
@@ -201,9 +257,37 @@
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
                 padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
-        <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 16px;">
-            Rapports automatiques par email
-        </h3>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:34px; height:34px; border-radius:10px;
+                            background:#eff6ff; color:#2563eb;
+                            display:flex; align-items:center; justify-content:center;
+                            flex-shrink:0;">
+                    <svg style="width:18px; height:18px;" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 6h16v12H4z" />
+                        <path d="M4 7l8 6 8-6" />
+                        <path d="M18 3v4" />
+                        <path d="M16 5h4" />
+                    </svg>
+                </div>
+
+                <div>
+                    <h3 style="font-size:16px; font-weight:800; color:#111827; margin:0;">
+                        Rapports automatiques par email
+                    </h3>
+                    <p style="font-size:12px; color:#6b7280; margin:3px 0 0;">
+                        Planifiez l’envoi régulier des rapports aux destinataires définis.
+                    </p>
+                </div>
+            </div>
+
+            <span style="font-size:11px; font-weight:800; color:#1d4ed8;
+                        background:#dbeafe; border:1px solid #bfdbfe;
+                        border-radius:999px; padding:4px 8px; white-space:nowrap;">
+                Email
+            </span>
+        </div>
 
         {{-- Formulaire de configuration --}}
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;">

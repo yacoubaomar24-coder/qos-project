@@ -7,118 +7,133 @@
     <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
                 margin:0px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-            <div>
-                <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 4px;">
-                    Répartition globale par niveau de votes
-                </h3>
-            </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div>
+                    <h3 style="font-size:15px; font-weight:700; color:#1e293b; margin:0; letter-spacing:-0.01em;">
+                        Répartition globale par niveau de votes
+                    </h3>
+                </div>
 
-            {{-- Sélecteur période --}}
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <p>
-                    <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
-                        Période</label>
+                {{-- Sélecteur période aligné horizontalement --}}
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.05em;">
+                        Période
+                    </span>
                     <select wire:change="changePeriod($event.target.value)"
-                        style="border:1px solid #e5e7eb; border-radius:8px; padding:6px 12px;
-                            font-size:13px; background:#f9fafb; color:#374151;">
+                        style="border:1px solid #e2e8f0; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600; background:#ffffff; color:#334155; box-shadow:0 1px 2px 0 rgba(0,0,0,0.05); cursor:pointer; outline:none; transition: border-color 0.2s;">
                         <option value="day"   {{ $period === 'day'   ? 'selected' : '' }}>Aujourd'hui</option>
                         <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
                         <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
                         <option value="year"  {{ $period === 'year'  ? 'selected' : '' }}>Cette année</option>
                     </select>
-                </p>
+                </div>
             </div>
-        </div>
                 
-        @if(!empty($chartData['parNiveau']))
-        @php $pn = $chartData['parNiveau']; @endphp
+            @if(!empty($chartData['parNiveau']))
+            @php 
+                $pn = $chartData['parNiveau']; 
+                $colorInsatisfait = \App\Helpers\ConfigHelper::couleurInsatisfait();
+            @endphp
 
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:10px;">
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:10px;">
 
-            {{-- Total des votes --}}
-            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px;
-                background:linear-gradient(135deg,#ffffff,#f9fafb);border:2px solid #e5e7eb;border-radius:16px;
-                box-shadow:0 2px 8px rgba(0,0,0,0.05);height:95px;">
+                {{-- Total des votes --}}
+                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
+                    background: #ffffff; border:1px solid #e2e8f0; border-radius:12px;
+                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
+                    
+                    <span style="font-size:11px; font-weight:700; letter-spacing:0.05em; color:#64748b; text-transform:uppercase; margin:0;">
+                        Total
+                    </span>
+
+                    <span style="font-size:28px; font-weight:800; color:#0f172a; margin:4px 0; line-height:1; letter-spacing:-0.02em;">
+                        {{ $pn['total'] }}
+                    </span>
+
+                    <span style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;">
+                        Votes
+                    </span>
+                </div>
                 
-                {{-- Titre --}}
-                <p style="font-size:12px;font-weight:600;letter-spacing:0.04em;color:#9ca3af;
-                    text-transform:uppercase;margin:0;">Total</p>
+                {{-- Total des satisfactions --}}
+                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
+                    background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;
+                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
+                    
+                    <span style="font-size:11px; font-weight:700; letter-spacing:0.05em; color: #15803d; text-transform:uppercase; margin:0;">
+                        {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
+                    </span>
+                    
+                    <span style="font-size:28px; font-weight:800; color:#16a34a; margin:4px 0; line-height:1; letter-spacing:-0.02em;">
+                        {{ $pn['satisfaits'] }}
+                    </span>
+                    
+                    <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700;">
+                        {{ $pn['taux_satisfait'] }}%
+                    </span>
+                </div>
 
-                {{-- Valeur --}}
-                <p style="font-size:32px;font-weight:800;color:#111827;margin:8px 0 2px;line-height:1;">
-                    {{ $pn['total'] }}
-                </p>
+                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
+                    background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;
+                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <p style="font-size:16px; color: #15803d; margin:0 0 6px; font-weight:500;"> 
+                                {{ \App\Helpers\ConfigHelper::libelleSatisfait() }} </p>
+                            <p style="font-size:28px; font-weight:700; color: #16a34a; margin:0;">
+                                {{ $pn['satisfaits'] }}</p>
+                        </div>
+                        <div style="border-radius:8px; padding:8px;">
+                            <span style="background:#dcfce7; color:#15803d; 
+                                        padding:2px 8px; border-radius:999px; font-size:16px; font-weight:700;">
+                                {{ $pn['taux_satisfait'] }}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-                {{-- Sous texte --}}
-                <span style=" font-size:13px;color:#6b7280;font-weight:500;">Votes</span>
-            </div>
-            
-            {{-- Total des satifactions --}}
-            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px;
-                background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1px solid #bbf7d0;border-radius:16px;
-                box-shadow:0 2px 8px rgba(22,163,74,0.08);height:95px;">
-                {{-- ✅ Libellé dynamique --}}
-                <p style=" font-size:12px;font-weight:700;letter-spacing:0.05em;color:#15803d;
-                    text-transform:uppercase;margin:0;">
-                    {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
-                </p>
-                <p style=" font-size:32px;font-weight:800;color:#16a34a;margin:8px 0 4px;line-height:1;">
-                    {{ $pn['satisfaits'] }}
-                </p>
-                <p style=" display:flex;align-items:center;gap:6px;margin-top:4px;">
-                    <span style="font-size:13px;font-weight:600;color:#166534;">{{ $pn['taux_satisfait'] }}% </span>
-                </p>
-            </div>
-
-            {{-- Total des satifactions moyennes --}}
-            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px;
-                background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1px solid #fde68a;border-radius:16px;
-                box-shadow:0 2px 8px rgba(217,119,6,0.08);height:95px;">
-            
-                {{-- Titre --}}
-                <p style=" font-size:12px;font-weight:700;letter-spacing:0.05em;color:#b45309;
-                    text-transform:uppercase;margin:0;">
-                    {{ \App\Helpers\ConfigHelper::libelleMoyen() }}
-                </p>
-
-                {{-- Valeur --}}
-                <p style=" font-size:32px;font-weight:800;color:#d97706;margin:8px 0 4px;line-height:1;">
-                    {{ $pn['moyens'] }}
-                </p>
+                {{-- Total des satisfactions moyennes --}}
+                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
+                    background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;
+                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
                 
-                {{-- Taux --}}
-                <p style=" display:flex;align-items:center;gap:6px;margin-top:4px;">
-                    <span style="font-size:13px;font-weight:600;color:#92400e;">{{ $pn['taux_moyen'] }}% </span>
-                </p>
-            </div>
+                    <span style="font-size:11px; font-weight:700; letter-spacing:0.05em; color:#b45309; text-transform:uppercase; margin:0;">
+                        {{ \App\Helpers\ConfigHelper::libelleMoyen() }}
+                    </span>
 
-            {{-- Total des insatifactions #fecaca --}}
-            <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:10px;
-                background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fecaca;border-radius:16px;
-                box-shadow:0 2px 8px rgba(239,68,68,0.08);height:95px;
-                color: {{ \App\Helpers\ConfigHelper::couleurInsatisfait()}};">
+                    <span style="font-size:28px; font-weight:800; color:#d97706; margin:4px 0; line-height:1; letter-spacing:-0.02em;">
+                        {{ $pn['moyens'] }}
+                    </span>
+                    
+                    <span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700;">
+                        {{ $pn['taux_moyen'] }}%
+                    </span>
+                </div>
 
-                {{-- ✅ Libellé dynamique --}}
-                <p style="font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;margin:0;
-                        color: {{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
-                    {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
-                </p>
-                <p style=" font-size:32px;font-weight:800;margin:8px 0 4px;line-height:1;
-                           color: {{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
-                    {{ $pn['insatisfaits'] }}
-                </p>
-                <p style=" display:flex;align-items:center;gap:6px;margin-top:4px;">
-                    <span style="font-size:13px;font-weight:600;
-                        color: {{ \App\Helpers\ConfigHelper::couleurInsatisfait() }};">
-                        {{ $pn['taux_insatisfait'] }}% </span>
-                </p>
+                {{-- Total des insatisfactions --}}
+                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
+                    background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;
+                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
+  
+                    <span style="font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; margin:0; color:{{ $colorInsatisfait }};">
+                        {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
+                    </span>
+                    
+                    <span style="font-size:28px; font-weight:800; margin:4px 0; line-height:1; letter-spacing:-0.02em; color:{{ $colorInsatisfait }};">
+                        {{ $pn['insatisfaits'] }}
+                    </span>
+                    
+                    <span style="background:rgba(239, 68, 68, 0.08); padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; color:{{ $colorInsatisfait }};">
+                        {{ $pn['taux_insatisfait'] }}%
+                    </span>
+                </div>
+                
             </div>
-            
-        </div>
-        @endif
+            @endif
 
     </div>
+
 
     {{-- ===================================================
          SECTION 2 : Évolution temporelle (Courbe et histogramme)

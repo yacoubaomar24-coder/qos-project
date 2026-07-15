@@ -9,10 +9,14 @@ use Filament\Pages\Page;
 
 class Anomalies extends Page
 {
-    protected static ?int $sort = 7; // après StatsOverview et MapWidget
+    protected static ?string $navigationLabel = 'Anomalies';
+
+    protected static ?string $title = '';
     protected int|string|array $columnSpan = 'full';
-    protected string $view = 'filament.widgets.anomalies-widget';
+    protected string $view = 'filament.pages.anomalies';
     protected static bool $isLazy = false;
+
+    protected static ?int $navigationSort  = 6;
 
     public array $anomalies = [];
 

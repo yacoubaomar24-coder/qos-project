@@ -24,13 +24,74 @@ use Illuminate\Support\Facades\Blade;
 
 class AdminPanelProvider extends PanelProvider
 {
+    private function getSiteIdsParRole(\App\Models\Utilisateur $user): \Illuminate\Support\Collection
+    {
+        $query = \App\Models\Site::query()->where('statut', true);
+
+        if ($user->hasRole('Super admin')) {
+            $adminIds = \App\Models\Utilisateur::where('created_by', $user->id)
+                ->where('role', 'Admin national')->pluck('id')->toArray();
+            $query->whereIn('created_by', array_merge([$user->id], $adminIds));
+
+        } elseif ($user->hasRole('Admin national')) {
+            $regionIds = \App\Models\Region::where('pays_id', $user->pays_id)->pluck('id');
+            $villeIds  = \App\Models\Ville::whereIn('region_id', $regionIds)->pluck('id');
+            $query->whereIn('ville_id', $villeIds);
+
+        } elseif ($user->hasRole('Admin régional')) {
+            $villeIds = \App\Models\Ville::where('region_id', $user->region_id)->pluck('id');
+            $query->whereIn('ville_id', $villeIds);
+
+        } elseif ($user->hasRole('Admin de site')) {
+            $query->where('id', $user->site_id);
+        }
+
+        return $query->pluck('id');
+    }
+
+    private function getConfigParRole(?\App\Models\Utilisateur $user): ?\App\Models\Configuration
+    {
+        if ($user === null) {
+            return null;
+        }
+        
+        // Super admin — sa propre config
+        if ($user->hasRole('Super admin')) {
+            return \App\Models\Configuration::where('created_by', $user->id)->first();
+        }
+
+        // Autres admins — config du Super admin qui les a créés
+        // Remonter jusqu'au Super admin via created_by
+        $createur = $user;
+        $maxNiveaux = 3; // éviter boucle infinie
+
+        for ($i = 0; $i < $maxNiveaux; $i++) {
+            if (!$createur->created_by) break;
+
+            $parent = \App\Models\Utilisateur::find($createur->created_by);
+            if (!$parent) break;
+
+            if ($parent->hasRole('Super admin')) {
+                return \App\Models\Configuration::where('created_by', $parent->id)->first();
+            }
+
+            $createur = $parent;
+        }
+
+        return null;
+    }
+
     public function panel(Panel $panel): Panel
     {
         // ✅ Charger la config de l'utilisateur connecté
         \Filament\Facades\Filament::serving(function () use ($panel) {
             /** @var \App\Models\Utilisateur|null $user */
             $user   = filament()->auth()->user();
-            $config = \App\Models\Configuration::where('created_by', $user?->id)->first();
+            
+            //$config = \App\Models\Configuration::where('created_by', $user?->id)->first();
+            $config = $this->getConfigParRole($user);  // Trouver la config selon le rôle
+
+            $user   = filament()->auth()->user();
 
             if (!$config) return;
 
@@ -127,7 +188,8 @@ class AdminPanelProvider extends PanelProvider
                     if ($user->hasRole('Admin')) return new HtmlString('');
 
                     // Compter les alertes nouvelles
-                    $siteIds = \App\Models\Site::where('created_by', $user->id)->pluck('id');
+                    // $siteIds = \App\Models\Site::where('created_by', $user->id)->pluck('id');
+                    $siteIds = $this->getSiteIdsParRole($user);
 
                     $nombreAlertes = \App\Models\Alerte::whereIn('site_id', $siteIds)
                         ->where('statut', 'nouvelle')
@@ -218,7 +280,7 @@ class AdminPanelProvider extends PanelProvider
                 }
             )
             //->brandLogo(fn () => view('filament.titre'))
-            ->brandName('Collecte de Satisfaction Client')
+            ->brandName('QoS - System')
             ->globalSearch(false)                   // Désactiver la recherche globale
             //->sidebarCollapsibleOnDesktop()
             ->sidebarCollapsibleOnDesktop()
@@ -396,54 +458,33 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::HEAD_END,
                 fn () => new HtmlString('
                     <style>
-                        .app-brand {
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: flex-start !important;
-                            gap: 10px !important;
-                            min-width: 0 !important;
-                        }
+                         @media (min-width: 1024px) {
+                            .fi-sidebar-header {
+                                position: relative !important;
+                                display: flex !important;
+                                align-items: center !important;
+                                min-height: 76px !important;
+                                padding: 14px 48px 14px 16px !important;
+                            }
 
-                        .app-brand-logo {
-                            height: 50px !important;
-                            width: auto !important;
-                            object-fit: contain !important;
-                            flex-shrink: 0 !important;
-                        }
+                            .fi-sidebar-header a,
+                            .fi-sidebar-header .fi-logo {
+                                display: flex !important;
+                                align-items: center !important;
+                                justify-content: flex-start !important;
+                                margin: 0 !important;
+                                min-width: 0 !important;
+                            }
 
-                        .app-brand-name {
-                            font-size: 22px !important;
-                            font-weight: 700 !important;
-                            color: #111827 !important;
-                            line-height: 1 !important;
-                            white-space: nowrap !important;
-                        }
-
-                        .fi-sidebar-header {
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: space-between !important;
-                            gap: 12px !important;
-                            padding: 14px 18px !important;
-                        }
-
-                        .fi-sidebar-header > a {
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: flex-start !important;
-                            margin: 0 !important;
-                            min-width: 0 !important;
-                        }
-
-                        .fi-sidebar-header button {
-                            margin-left: auto !important;
-                            flex-shrink: 0 !important;
-                        }
-
-                        .fi-sidebar-header button,
-                        .fi-sidebar-header [role="button"] {
-                            margin-left: auto !important;
-                            flex-shrink: 0 !important;
+                            .fi-sidebar-header button,
+                            .fi-sidebar-header [role="button"] {
+                                position: absolute !important;
+                                right: 14px !important;
+                                top: 50% !important;
+                                transform: translateY(-50%) !important;
+                                margin: 0 !important;
+                                z-index: 5 !important;
+                            }
                         }
                     </style>
                 ')
