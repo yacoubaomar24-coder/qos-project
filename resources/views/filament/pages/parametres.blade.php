@@ -462,7 +462,7 @@
             </span>
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px;">
 
             {{-- Nom de l'organisation --}}
             <div style="display:flex; flex-direction:column; gap:4px;">
@@ -487,6 +487,23 @@
                                border-radius:8px; cursor:pointer;">
                     <input type="text" wire:model="couleurPrimaire"
                         placeholder="#f59e0b"
+                        style="flex:1; border:1px solid #e5e7eb; border-radius:8px;
+                               padding:8px 12px; font-size:13px; background:#f9fafb;">
+                </div>
+            </div>
+
+            {{-- Couleur secondaire --}}
+            <div style="display:flex; flex-direction:column; gap:4px;">
+                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">
+                    Couleur secondaire (boutons, accents)
+                </label>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <input type="color" wire:model="couleurSecondaire"
+                        value="{{ $couleurSecondaire }}"
+                        style="width:50px; height:38px; border:none;
+                               border-radius:8px; cursor:pointer;">
+                    <input type="text" wire:model="couleurSecondaire"
+                        placeholder="#111827"
                         style="flex:1; border:1px solid #e5e7eb; border-radius:8px;
                                padding:8px 12px; font-size:13px; background:#f9fafb;">
                 </div>
@@ -547,14 +564,19 @@
             </p>
             <div style="display:flex; align-items:center; gap:12px;">
                 {{-- Simulation barre de navigation --}}
-                <div style="background:{{ $couleurPrimaire }}; border-radius:8px;
+                <div style="background:{{ $couleurSecondaire }}; border-radius:8px;
                             padding:8px 16px; color:white; font-size:13px; font-weight:600;">
                     {{ $organisationNom ?: 'Mon Organisation' }}
                 </div>
                 <div style="background:{{ $couleurPrimaire }}; border-radius:8px;
                             padding:8px 16px; color:white; font-size:13px; font-weight:600;
                             opacity:0.8;">
-                    Bouton exemple
+                    Bouton primaire exemple
+                </div>
+                <div style="background:{{ $couleurSecondaire }}; border-radius:8px;
+                            padding:8px 16px; color:white; font-size:13px; font-weight:600;
+                            opacity:0.8;">
+                    Bouton secondaire exemple
                 </div>
             </div>
         </div>

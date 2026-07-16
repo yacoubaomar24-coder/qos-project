@@ -108,6 +108,8 @@ class VoteController extends Controller
                 'couleur_satisfait'   => $config?->couleur_satisfait    ?? '#22c55e',
                 'couleur_moyen'      => $config?->couleur_moyen       ?? '#f59e0b',
                 'couleur_insatisfait' => $config?->couleur_insatisfait  ?? '#ef4444',
+                'couleur_primaire' => $config?->couleur_insatisfait  ?? '#f58032',
+                'couleur_secondaire' => $config?->couleur_insatisfait  ?? '#111827',
                 // Plage horaire active
                 'actif_maintenant'    => \App\Filament\Pages\Parametres::dispositifEstActif($dispositif->created_by),
                 'timestamp' => $vote->created_at,

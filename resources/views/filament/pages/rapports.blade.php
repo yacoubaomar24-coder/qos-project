@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-<div style="display:flex; flex-direction:column; gap:24px;">
+<div wire:poll.300000ms="verifierEtEnvoyerRapports" style="display:flex; flex-direction:column; gap:24px;">
 
     {{-- ===================================================
      EN-TÊTE
@@ -289,6 +289,19 @@
             </span>
         </div>
 
+        {{-- Indicateur de modification en cours --}}
+            @if($rapportEnCoursId)
+            <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px;
+                        padding:8px 12px; margin-top:8px; font-size:12px; color:#1d4ed8;">
+                ✏️ Mode modification — cliquez "Configurer le rapport" pour sauvegarder
+                <button wire:click="$set('rapportEnCoursId', null)"
+                    style="background:none; border:none; color:#6b7280; cursor:pointer;
+                        font-size:11px; margin-left:8px; text-decoration:underline;">
+                    Annuler
+                </button>
+            </div>
+            @endif
+            
         {{-- Formulaire de configuration --}}
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;">
 
@@ -507,6 +520,20 @@
 
             </div>
             @endforeach
+
+            {{-- Indicateur de modification en cours --}}
+            @if($rapportEnCoursId)
+            <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px;
+                        padding:8px 12px; margin-top:8px; font-size:12px; color:#1d4ed8;">
+                ✏️ Mode modification — cliquez "Configurer le rapport" pour sauvegarder
+                <button wire:click="$set('rapportEnCoursId', null)"
+                    style="background:none; border:none; color:#6b7280; cursor:pointer;
+                        font-size:11px; margin-left:8px; text-decoration:underline;">
+                    Annuler
+                </button>
+            </div>
+            @endif
+            
         </div>
         @endif
 

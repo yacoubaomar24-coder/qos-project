@@ -52,4 +52,14 @@ class ConfigHelper
     {
         return static::get()?->couleur_insatisfait ?? '#ef4444';
     }
+
+    public static function couleurPrimaire(): string
+    {
+        return static::get()?->couleur_insatisfait ?? '#ef4444';
+    }
+
+    public static function couleurSecondaire(): string
+    {
+        return static::get()?->couleur_insatisfait ?? '#ef4444';
+    }
 }

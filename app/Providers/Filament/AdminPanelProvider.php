@@ -243,7 +243,7 @@ class AdminPanelProvider extends PanelProvider
                         : '';
 
                     $urlAlertes    = url('/admin/alertes');
-                    $urlDashboard  = url('/admin/anomalies'); 
+                    $urlAnomalies  = url('/admin/anomalies'); 
 
                     $colorAlertes   = $nombreAlertes   > 0 ? '#ef4444' : '#6b7280';
                     $colorAnomalies = $nombreAnomalies > 0 ? '#f59e0b' : '#6b7280';
@@ -263,7 +263,7 @@ class AdminPanelProvider extends PanelProvider
                                 {$badgeAlertes}
                             </a>
 
-                            <a href='{$urlDashboard}'
+                            <a href='{$urlAnomalies}'
                                 style='position:relative; display:inline-flex; align-items:center;
                                     text-decoration:none; padding:6px; border-radius:8px;
                                     color:{$colorAnomalies};'
@@ -488,6 +488,7 @@ class AdminPanelProvider extends PanelProvider
                         }
                     </style>
                 ')
-            );
+            )
+            ;
     }
 }

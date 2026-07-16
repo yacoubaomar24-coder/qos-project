@@ -58,6 +58,8 @@ class Rapports extends Page
     // Propriétés pour les rapports automatiques
     // -----------------------------------------------
     public ?int $rapportId = null;
+
+    public ?int $rapportEnCoursId = null;
     public string $rapportFrequence = 'hebdomadaire'; // quotidien, hebdomadaire, mensuel
     public string $rapportEmail = '';
     public string $rapportFiltreNiveau = 'tous';
@@ -411,13 +413,28 @@ class Rapports extends Page
             $this->rapportFiltreSiteId,
         );
 
-        \App\Models\RapportAuto::create([
+        $data = [
             'frequence'         => $this->rapportFrequence,
             'site_ids'          => !empty($siteIds) ? $siteIds : null,
             'email_destination' => $this->rapportEmail,
             'created_by'        => $user?->id,
             'actif'             => true,
-        ]);
+        ];
+
+        if ($this->rapportEnCoursId) {
+            // ✅ Modifier le rapport existant
+            \App\Models\RapportAuto::find($this->rapportEnCoursId)?->update($data);
+            $this->message = 'Rapport modifié avec succès !';
+        } else {
+            // ✅ Créer un nouveau rapport
+            \App\Models\RapportAuto::create($data);
+            $this->message = 'Rapport configuré avec succès !';
+        }
+
+        // Réinitialiser le formulaire
+        $this->rapportEnCoursId  = null;
+        $this->rapportFrequence  = 'hebdomadaire';
+        $this->rapportEmail      = '';
 
         $this->loadRapportsAuto();
     }
@@ -444,15 +461,20 @@ class Rapports extends Page
 
     // Charger un rapport dans le formulaire pour modification
     // -----------------------------------------------
-    public function modifierRapport(int $rapportId): void
+    public function modifierRapport(int $id): void
     {
-        $rapport = \App\Models\RapportAuto::find($rapportId);
+        $rapport = \App\Models\RapportAuto::find($id);
         if (!$rapport) return;
 
-        // Pré-remplir le formulaire avec les valeurs du seuil
-        $this->rapportId      = $rapport->site_id;
-        $this->rapportFrequence = $rapport->frequence;
-        $this->rapportEmail     = $rapport->email_destination;
+        // Pré-remplir le formulaire
+        $this->rapportEnCoursId      = $id;
+        $this->rapportFrequence      = $rapport->frequence;
+        $this->rapportEmail          = $rapport->email_destination;
+        $this->rapportFiltreNiveau   = 'tous'; // reset filtre
+        $this->rapportFiltrePaysId   = null;
+        $this->rapportFiltreRegionId = null;
+        $this->rapportFiltreVilleId  = null;
+        $this->rapportFiltreSiteId   = null;
     }
 
     // -----------------------------------------------
@@ -466,4 +488,61 @@ class Rapports extends Page
         $rapport->update(['actif' => !$rapport->actif]);
         $this->loadRapportsAuto();
     }
+
+    // -----------------------------------------------
+    // Vérifier et envoyer les rapports selon leur fréquence
+    // Appelé automatiquement toutes les 5 minutes
+    // -----------------------------------------------
+    public function verifierEtEnvoyerRapports(): void
+    {
+        $maintenant = now();
+
+        // Récupérer les rapports actifs
+        \App\Models\RapportAuto::where('actif', true)
+            ->each(function (\App\Models\RapportAuto $rapport) use ($maintenant) {
+
+                $doitEnvoyer = false;
+
+                // Vérifier si c'est le moment d'envoyer
+                match ($rapport->frequence) {
+
+                    // Quotidien — envoyer à 8h00 si pas encore envoyé aujourd'hui
+                    'quotidien' => $doitEnvoyer =
+                        $maintenant->format('H:i') >= '08:00' &&
+                        (
+                            !$rapport->derniere_execution ||
+                            $rapport->derniere_execution->format('Y-m-d') < $maintenant->format('Y-m-d')
+                        ),
+
+                    // Hebdomadaire — envoyer le lundi à 8h00
+                    'hebdomadaire' => $doitEnvoyer =
+                        $maintenant->dayOfWeek === 1 && // 1 = lundi
+                        $maintenant->format('H:i') >= '08:00' &&
+                        (
+                            !$rapport->derniere_execution ||
+                            $rapport->derniere_execution->startOfWeek()->format('Y-W')
+                            < $maintenant->startOfWeek()->format('Y-W')
+                        ),
+
+                    // Mensuel — envoyer le 1er du mois à 8h00
+                    'mensuel' => $doitEnvoyer =
+                        $maintenant->day === 1 &&
+                        $maintenant->format('H:i') >= '08:00' &&
+                        (
+                            !$rapport->derniere_execution ||
+                            $rapport->derniere_execution->format('Y-m') < $maintenant->format('Y-m')
+                        ),
+
+                    default => null,
+                };
+
+                if ($doitEnvoyer) {
+                    \App\Jobs\EnvoyerRapportsAutoJob::dispatchSync($rapport->frequence);
+                    \Illuminate\Support\Facades\Log::info(
+                        "Rapport {$rapport->frequence} envoyé automatiquement à " . $maintenant->format('H:i')
+                    );
+                }
+            });
+    }
+
 }

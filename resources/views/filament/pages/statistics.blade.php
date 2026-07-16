@@ -73,26 +73,6 @@
                     </span>
                 </div>
 
-                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
-                    background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;
-                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
-                    
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div>
-                            <p style="font-size:16px; color: #15803d; margin:0 0 6px; font-weight:500;"> 
-                                {{ \App\Helpers\ConfigHelper::libelleSatisfait() }} </p>
-                            <p style="font-size:28px; font-weight:700; color: #16a34a; margin:0;">
-                                {{ $pn['satisfaits'] }}</p>
-                        </div>
-                        <div style="border-radius:8px; padding:8px;">
-                            <span style="background:#dcfce7; color:#15803d; 
-                                        padding:2px 8px; border-radius:999px; font-size:16px; font-weight:700;">
-                                {{ $pn['taux_satisfait'] }}%
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
                 {{-- Total des satisfactions moyennes --}}
                 <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
                     background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;

@@ -7,6 +7,7 @@ use App\Models\Seuil;
 use App\Models\Site;
 use App\Models\Utilisateur;
 use Filament\Pages\Page;
+use App\Models\Configuration;
 
 class Alertes extends Page
 {
@@ -26,11 +27,22 @@ class Alertes extends Page
     public int $seuilPourcentage = 40;
     public int $seuilPeriode = 24;
 
+    public string  $couleurPrimaire       = '#f59e0b';
+    public string  $couleurSecondaire     = '#111827';
+
     // -----------------------------------------------
     // Polling automatique toutes les 30 secondes
     // Livewire recharge les alertes automatiquement
     // -----------------------------------------------
-    protected static ?string $pollingInterval = '30s';
+    protected static ?string $pollingInterval = '60s';
+    public function verifierEtCharger(): void
+    {
+        // Vérifier les seuils automatiquement
+        (new \App\Jobs\VerifierSeuilsJob())->handle();
+
+        // Recharger les alertes
+        $this->loadAlertes();
+    }
 
     public static function getNavigationIcon(): ?string
     {
@@ -48,6 +60,14 @@ class Alertes extends Page
 
     public function mount(): void
     {
+        // Charger la configuration existante
+        /** @var Utilisateur|null $user */
+        $user   = filament()->auth()->user();
+
+        $config = Configuration::where('created_by', $user?->id)->first();
+        $this->couleurPrimaire  = $config->couleur_primaire;
+        $this->couleurSecondaire  = $config->couleur_secondaire;
+        
         $this->sitesOptions = $this->getSitesOptions();
         $this->loadAlertes();
     }

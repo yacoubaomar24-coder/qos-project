@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-<div wire:poll.30s="loadAlertes" style="display:flex; flex-direction:column; gap:24px;">
+<div wire:poll.60000ms="verifierEtCharger" style="display:flex; flex-direction:column; gap:24px;">
 
     {{-- ===================================================
          EN-TÊTE
@@ -16,9 +16,9 @@
             </p>
         </div>
 
-        {{-- Bouton test manuel --}}
-        <button wire:click="testerSeuils"
-            style="background:#f59e0b; color:white; border:none; border-radius:8px;
+        {{-- Bouton test manuel : testerSeuils --}}
+        <button wire:click="verifierEtCharger"
+            style="background: {{ $couleurSecondaire }}; color:white; border:none; border-radius:8px;
                    padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer;">
             Vérifier les alertes
         </button>
