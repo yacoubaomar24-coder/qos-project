@@ -74,7 +74,7 @@
                         Libellés des boutons de satisfaction
                     </h3>
                     <p style="font-size:13px; color:#6b7280; margin:5px 0 0; line-height:1.45;">
-                        Personnalisez les textes et les couleurs affichés sur les dispositifs IoT et dans les statistiques.
+                        Personnalisez les textes et les couleurs affichés dans les statistiques et autres.
                     </p>
                 </div>
             </div>
@@ -87,9 +87,12 @@
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px;">
 
             {{-- Satisfait --}}
-            <div style="position:relative; overflow:hidden; border:1px solid #bbf7d0; border-radius:16px; padding:18px; background:linear-gradient(180deg,#ffffff 0%,#f0fdf4 100%); box-shadow:0 8px 20px rgba(22,163,74,0.08);">
+            <div style="position:relative; overflow:hidden; border:1px solid #bbf7d0; border-radius:16px; 
+                        padding:18px; background:linear-gradient(180deg,#ffffff 0%,#f0fdf4 100%); 
+                        box-shadow:0 8px 20px rgba(22,163,74,0.08);">
 
-                <div style="position:absolute; top:0; left:0; right:0; height:4px; background:{{ $couleurSatisfait }};"></div>
+                <div style="position:absolute; top:0; left:0; right:0; height:4px; 
+                        background:{{ $couleurSatisfait }};"></div>
 
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px;">
                     <div style="display:flex; align-items:center; gap:11px;">
@@ -184,7 +187,7 @@
                     </div>
 
                     <span style="font-size:11px; font-weight:800; color:#92400e; background:#fef3c7; border:1px solid #fde68a; border-radius:999px; padding:4px 9px; white-space:nowrap;">
-                        Neutre
+                        Moyen
                     </span>
                 </div>
 
@@ -380,8 +383,8 @@
             </label>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 @foreach([
-                    1 => 'Lun', 2 => 'Mar', 3 => 'Mer',
-                    4 => 'Jeu', 5 => 'Ven', 6 => 'Sam', 0 => 'Dim'
+                    1 => 'Lundi', 2 => 'Mardi', 3 => 'Mercredi',
+                    4 => 'Jeudi', 5 => 'Vendredi', 6 => 'Samedi', 0 => 'Dimanche'
                 ] as $num => $label)
                 <label style="display:flex; align-items:center; gap:6px; cursor:pointer;
                               padding:8px 14px; border:1px solid #e5e7eb; border-radius:8px;
@@ -398,14 +401,14 @@
         </div>
 
         {{-- Aperçu de la plage --}}
-        <div style="background:#f9fafb; border-radius:10px; padding:12px; margin-bottom:16px;">
-            <p style="font-size:13px; color:#374151; margin:0;">
+        <div style="background: #f9fafb; border-radius:10px; padding:12px; margin-bottom:16px;">
+            <p style="font-size:14px; color: #374151; margin:0;">
                 Les dispositifs seront actifs de
                 <strong>{{ $heureDebut }}</strong> à <strong>{{ $heureFin }}</strong>
                 @if(!empty($joursActifs))
                     les
                     @php
-                        $jourLabels = [0=>'Dim',1=>'Lun',2=>'Mar',3=>'Mer',4=>'Jeu',5=>'Ven',6=>'Sam'];
+                        $jourLabels = [0=>'Dimanche',1=>'Lundi',2=>'Mardi',3=>'Mercredi',4=>'Jeudi',5=>'Vendredi',6=>'Samedi'];
                         $jours = array_map(fn($j) => $jourLabels[$j] ?? '', $joursActifs);
                     @endphp
                     <strong>{{ implode(', ', $jours) }}</strong>

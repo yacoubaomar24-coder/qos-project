@@ -4,11 +4,15 @@ namespace App\Filament\Pages;
 
 use App\Models\Site;
 use App\Models\Vote;
+use Filament\Forms\Components\Select;
 use App\Models\Utilisateur;
 use Filament\Pages\Page;
+use Filament\Forms\Contracts\HasForms; // <-- À AJOUTER
+use Filament\Forms\Concerns\InteractsWithForms;
 
 class Statistics extends Page
 {
+    use InteractsWithForms;
     protected static ?string $navigationLabel = 'Statistiques & Analyses';
     protected static ?string $title = '';
     protected static ?int $navigationSort  = 3;  // 3 après dashbord 1, Vue par site : 2
@@ -40,6 +44,10 @@ class Statistics extends Page
     public array $sitesOptions = [];        // liste des sites
     public array $chartData = [];        // données pour tous les graphiques
 
+    public array $siteStats     = [];
+
+    public ?string $selectedSite = null;
+
     public function mount(): void
     {
         // Charger les sites accessibles selon le rôle
@@ -48,6 +56,10 @@ class Statistics extends Page
 
         // Charger toutes les données
         $this->loadChartData();
+
+        $this->form->fill([
+            'selectedSite' => $this->siteStats['id'] ?? null,
+        ]);
     }
 
     // -----------------------------------------------
@@ -380,5 +392,37 @@ class Statistics extends Page
     {
         $this->selectedSiteId = $siteId;
         $this->loadChartData();
+    }
+
+    public function changeSite(int $value = null): void
+    {
+        if ($value) {
+            $this->selectedSiteId = $value;
+            
+            // 1. Assurer la synchronisation avec le formulaire Filament
+            $this->form->fill(['selectedSite' => $value]);
+        }
+        
+        // 2. Recharger les statistiques
+        $this->loadChartData();
+
+    }
+
+    protected function getFormSchema(): array
+    {
+        return [
+            Select::make('selectedSite')
+                ->label('Site')
+                ->options($this->sitesOptions)
+                ->searchable() // Rend le champ recherchable
+                ->live() // Indique à Filament de communiquer avec Livewire en temps réel
+                ->afterStateUpdated(function ($state) {
+                    // 1. On exécute votre fonction actuelle
+                    $this->changeSite($state);
+                    
+                    // 2. FORCE Livewire à re-rendre toute la page Blade
+                    $this->render(); 
+                }),
+        ];
     }
 }

@@ -270,6 +270,15 @@
                     @endforeach
                 </select>
             </div>
+            
+            <div style="display: flex; gap: 4px;">
+                <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 16px; font-size: 13px; 
+                        font-weight: 500; background: #ffffff; color: #334155; 
+                        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; outline: none; 
+                        min-width: 220px;">
+                    {{ $this->form }}
+                </div>
+            </div>
         </div>
 
         {{-- Légende heatmap --}}
