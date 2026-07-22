@@ -291,7 +291,7 @@ window.addEventListener("siteChanged", function(event) {
                     label: "Satisfait (%)",
                     data: evolution.map(function(d) { return d.taux_satisfait; }),
                     borderColor: "#10b981",
-                    backgroundColor: "rgba(16, 185, 129, 0.04)",
+                    backgroundColor: "rgba(51, 202, 151, 0.5)",
                     borderWidth: 3,
                     fill: true,
                     tension: 0.38,

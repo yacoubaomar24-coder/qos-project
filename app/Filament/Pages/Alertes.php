@@ -65,8 +65,8 @@ class Alertes extends Page
         $user   = filament()->auth()->user();
 
         $config = Configuration::where('created_by', $user?->id)->first();
-        $this->couleurPrimaire  = $config->couleur_primaire;
-        $this->couleurSecondaire  = $config->couleur_secondaire;
+        $this->couleurPrimaire  = $config?->couleur_primaire ?? '#f58032';
+        $this->couleurSecondaire  = $config?->couleur_secondaire ?? '#325ee2';
         
         $this->sitesOptions = $this->getSitesOptions();
         $this->loadAlertes();

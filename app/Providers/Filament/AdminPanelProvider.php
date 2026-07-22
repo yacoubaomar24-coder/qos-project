@@ -89,13 +89,21 @@ class AdminPanelProvider extends PanelProvider
             $user   = filament()->auth()->user();
             
             //$config = \App\Models\Configuration::where('created_by', $user?->id)->first();
+
+            //$user   = filament()->auth()->user();
+
+            // ✅ Toujours vider le brand Filament — peu importe la config
+            $panel->brandName('');
+            $panel->brandLogo(fn() => new \Illuminate\Support\HtmlString(''));
+            $panel->brandLogoHeight('0px');
+
+            if (!$user instanceof \App\Models\Utilisateur) return;
+
             $config = $this->getConfigParRole($user);  // Trouver la config selon le rôle
-
-            $user   = filament()->auth()->user();
-
+            
             if (!$config) return;
 
-            $panel->brandName($config->organisation_nom);
+            //$panel->brandName($config->organisation_nom);
 
             if ($config->organisation_logo &&
                 \Illuminate\Support\Facades\Storage::disk('public')->exists($config->organisation_logo)) {
@@ -112,6 +120,11 @@ class AdminPanelProvider extends PanelProvider
             if ($config->couleur_primaire) {
                 $panel->colors([
                     'primary' => \Filament\Support\Colors\Color::hex($config->couleur_primaire),
+                ]);
+            }
+            if ($config->couleur_secondaire) {
+                $panel->colors([
+                    'secondary' => \Filament\Support\Colors\Color::hex($config->couleur_secondaire),
                 ]);
             }
              
@@ -179,6 +192,7 @@ class AdminPanelProvider extends PanelProvider
                         : ''
                 ),
             )
+            // Notifications des alertes et des anomalies
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
                 function (): HtmlString {
@@ -288,41 +302,8 @@ class AdminPanelProvider extends PanelProvider
             ->collapsedSidebarWidth('64px')
             //->sidebarFullyCollapsibleOnDesktop()
             ->sidebarWidth('16rem') // Par défaut c'est 20rem (320px). '16rem' correspond à 250px.
-            ->renderHook(
-                PanelsRenderHook::SIDEBAR_START,
-                fn () => new HtmlString('
-                    <style>
-                        .fi-sidebar-header {
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: space-between !important;
-                            padding: 14px 16px !important;
-                        }
-
-                        .fi-sidebar-header > a,
-                        .fi-sidebar-header .fi-logo {
-                            margin-left: 0 !important;
-                            margin-right: auto !important;
-                            justify-content: flex-start !important;
-                            text-align: left !important;
-                        }
-
-                        .fi-sidebar-header button {
-                            margin-left: auto !important;
-                        }
-
-                        .fi-sidebar-header img {
-                            margin-left: 0 !important;
-                        }
-                       .fi-sidebar-header {
-                            display: none !important;
-                        } overflow: visible !important;
-                        .fi-sidebar-nav {
-                            padding-top: 12px !important;
-                        }
-                    </style>
-                ')
-            )
+            
+            // Titre dashbord et période
             ->renderHook(
                 PanelsRenderHook::TOPBAR_END,
                 function (): \Illuminate\Support\HtmlString {
@@ -454,40 +435,51 @@ class AdminPanelProvider extends PanelProvider
                     ");
                 }
             )
+
             ->renderHook(
-                PanelsRenderHook::HEAD_END,
-                fn () => new HtmlString('
-                    <style>
-                         @media (min-width: 1024px) {
-                            .fi-sidebar-header {
-                                position: relative !important;
-                                display: flex !important;
-                                align-items: center !important;
-                                min-height: 76px !important;
-                                padding: 14px 48px 14px 16px !important;
-                            }
+                \Filament\View\PanelsRenderHook::TOPBAR_START,
+                function (): \Illuminate\Support\HtmlString {
+                    /** @var \App\Models\Utilisateur|null $user */
+                    $user   = filament()->auth()->user();
+                    /*
+                    $config = $user instanceof \App\Models\Utilisateur
+                        ? \App\Models\Configuration::where('created_by', $user?->id)->first()
+                        : null;*/
+                    if (!$user instanceof \App\Models\Utilisateur) {
+                        return new \Illuminate\Support\HtmlString('');
+                    }
 
-                            .fi-sidebar-header a,
-                            .fi-sidebar-header .fi-logo {
-                                display: flex !important;
-                                align-items: center !important;
-                                justify-content: flex-start !important;
-                                margin: 0 !important;
-                                min-width: 0 !important;
-                            }
+                    $config = $this->getConfigParRole($user);  // Trouver la config selon le rôle
+            
+                    //$user   = filament()->auth()->user();
 
-                            .fi-sidebar-header button,
-                            .fi-sidebar-header [role="button"] {
-                                position: absolute !important;
-                                right: 14px !important;
-                                top: 50% !important;
-                                transform: translateY(-50%) !important;
-                                margin: 0 !important;
-                                z-index: 5 !important;
-                            }
-                        }
-                    </style>
-                ')
+                    $nom     = $config?->organisation_nom ?? 'QoS-System';
+                    $logoUrl = $config?->organisation_logo
+                        ? \Illuminate\Support\Facades\Storage::url($config->organisation_logo)
+                        : null;
+
+                    $logoHtml = $logoUrl
+                        ? "<img src='{$logoUrl}' style='height:45px; width:auto; object-fit:contain;'>"
+                        : "<div style='width:28px; height:28px; background:#f59e0b; border-radius:6px;
+                                    display:flex; align-items:center; justify-content:center;
+                                    font-weight:700; color:white; font-size:13px;'>
+                            " . strtoupper(substr($nom, 0, 1)) . "
+                        </div>";
+
+                    return new \Illuminate\Support\HtmlString("
+                        <div style='display:flex; align-items:center; gap:10px; margin-right:16px;'>
+                            {$logoHtml}
+
+                            <span style='font-size:20px; font-weight:700; color: #111827; white-space:nowrap;'>
+                                {$nom}
+                            </span>
+
+                            <div style='width: 1px; height: 20px; background: #e5e7eb; 
+                                    flex-shrink: 0; margin-left: auto;'></div>
+                        </div>
+                    ");
+                    
+                }
             )
             ;
     }

@@ -20,6 +20,14 @@ class Anomalies extends Page
 
     public array $anomalies = [];
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        /** @var Utilisateur|null $user */
+        $user = filament()->auth()->user();
+        if (!$user instanceof Utilisateur) return false;
+        return !$user->hasRole('Admin');
+    }
+    
     public function mount(): void
     {
         $this->anomalies = $this->getAnomalies();
