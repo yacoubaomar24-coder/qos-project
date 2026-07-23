@@ -467,15 +467,25 @@ class AdminPanelProvider extends PanelProvider
                         </div>";
 
                     return new \Illuminate\Support\HtmlString("
-                        <div style='display:flex; align-items:center; gap:10px; margin-right:16px;'>
-                            {$logoHtml}
+                        <div style='display:flex; align-items:center; gap:10px; 
+                            margin-right:-65px; pointer-events:none;overflow:hidden;
+                            width:280px;min-width:280px;max-width:280px;'>
+                            
+                            <a href='" . url('/admin') . "'
+                                style='display:flex; align-items:center; gap:10px;
+                                        text-decoration:none; pointer-events:auto; min-width:0;'>
 
-                            <span style='font-size:20px; font-weight:700; color: #111827; white-space:nowrap;'>
-                                {$nom}
-                            </span>
+                                    <div style='flex-shrink:0;font-size:20px;'>{$logoHtml}</div>
 
-                            <div style='width: 1px; height: 20px; background: #e5e7eb; 
-                                    flex-shrink: 0; margin-left: auto;'></div>
+                                    <span style='font-size:16px; font-weight:700; color:#111827;
+                                                white-space:nowrap; overflow:hidden;
+                                                text-overflow:ellipsis; max-width:200px;'>
+                                        {$nom}
+                                    </span>
+
+                            </a>
+                            <div style='width:1px; height:20px; background: #e5e7eb; 
+                                    flex-shrink:0; margin-left:auto; pointer-events:none;'></div>
                         </div>
                     ");
                     

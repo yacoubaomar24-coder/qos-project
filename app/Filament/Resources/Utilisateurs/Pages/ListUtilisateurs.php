@@ -13,12 +13,13 @@ class ListUtilisateurs extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('+ Ajouter un utilisateur '),
         ];
     }
 
     public function getBreadcrumbs(): array
     {
-        return []; // ← retourne un tableau vide = pas de breadcrumb
+        return []; // ← retourne un tableau vide = pas de breadcrumb donc pas de utilisateurs/list
     }
 }
