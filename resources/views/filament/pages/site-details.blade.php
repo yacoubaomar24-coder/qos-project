@@ -5,29 +5,95 @@
          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc;">
 
     {{-- LIGNE 1 : EN-TÊTE / TOP BAR --}}
-    <div style="background: #2483b78f; border: 1px solid #f1f5f9; border-radius: 12px; padding: 8px 12px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);">
-    
-        {{-- Gauche : Infos du Site Dynamique --}}
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="background: white; color: white; border-radius: 12px; width: 48px; height: 48px; 
-                display: flex; align-items: center; justify-content: center; font-size: 22px; 
-                box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);">
+    <style>
+        .header-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: #2483b78f;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .select-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            background: #ffffff;
+            color: #334155;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .stats-box {
+            text-align: left;
+        }
+
+        /* --- STYLES ORDINATEUR (Écrans > 768px) --- */
+        @media (min-width: 768px) {
+            .header-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 20px;
+            }
+
+            .header-right {
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-end;
+                width: auto;
+            }
+
+            .select-box {
+                width: auto;
+                min-width: 240px;
+            }
+
+            .stats-box {
+                text-align: right;
+                border-left: 2px solid rgba(255, 255, 255, 0.3);
+                padding-left: 20px;
+            }
+        }
+    </style>
+
+    <div class="header-container">
+        
+        {{-- Gauche : Infos du Site --}}
+        <div class="header-left">
+            <div style="background: white; border-radius: 12px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2); flex-shrink: 0;">
                 🏢
             </div>
             <div>
-                <span style="font-size: 12px; color: #252b32; font-weight: 500; text-transform: uppercase; 
-                        letter-spacing: 0.05em;">Site sélectionné</span>
+                <span style="font-size: 11px; color: #252b32; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Site sélectionné</span>
                 
-                {{-- Affichage sécurisé : Si $siteStats['nom'] n'est pas dispo, on affiche une valeur par défaut propre --}}
-                <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 2px 0 4px 0; 
-                    letter-spacing: -0.02em;">
+                <h2 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 2px 0; letter-spacing: -0.02em;">
                     {{ $siteStats['site'] ?? 'Aucun site sélectionné' }}
                 </h2>
                 
                 @if(!empty($siteStats) && (isset($siteStats['ville']) || isset($siteStats['region']) || isset($siteStats['pays'])))
-                    <p style="font-size: 13px; color: #404a58; margin: 0; display: flex; align-items: center; gap: 4px;">
+                    <p style="font-size: 13px; color: #404a58; margin: 0;">
                         {{ $siteStats['ville'] ?? '' }} {{ isset($siteStats['region']) ? '- '.$siteStats['region'] : '' }}
                         {{ isset($siteStats['pays']) ? '- '.$siteStats['pays'] : '' }}
                     </p>
@@ -35,41 +101,25 @@
             </div>
         </div>
 
-        {{-- Droite : Selecteur de site & Total des avis --}}
-        <div style="display: flex; gap: 4px;">
-            <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 16px; font-size: 13px; 
-                    font-weight: 500; background: #ffffff; color: #334155; 
-                    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; outline: none; 
-                    min-width: 220px;">
+        {{-- Droite : Selecteur & Total --}}
+        <div class="header-right">
+            
+            <div class="select-box">
                 {{ $this->form }}
             </div>
-            {{--  div style="display: flex; flex-direction: column; gap: 4px;">
-                <span style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
-                    Changer de Site</span>
-                
-                {{-- Utilisation directe de wire:model si défini dans votre composant, sinon wire:change classique --}}
-                {{-- select wire:change="changeSite($event.target.value)"
-                    style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 16px; font-size: 13px; 
-                    font-weight: 500; background: #ffffff; color: #334155; 
-                    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; outline: none; 
-                    min-width: 220px;">
-                    foreach($sitesOptions as $id => $nom)
-                        {{-- On laisse l'attribut sélectionné se gérer via votre logique de composant --}}
-                        {{-- option value="{{ $id }}">{{ $nom }}/option>
-                    endforeach
-                /select>
-            /div --}}
 
             @if(!empty($siteStats) && isset($siteStats['total']))
-            <div style="text-align: right; border-left: 2px solid #f1f5f9; padding-left: 24px;">
-                <span style="font-size: 16px; color: #1b0c0eb3; font-weight: 500;">Total des avis</span>
-                <p style="font-size: 32px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.1; letter-spacing: -0.03em;">{{ number_format($siteStats['total'], 0, ',', ' ') }}</p>
-                <span style="font-size: 14px; color: #1b2129; font-weight: 500;">votes au total</span>
+            <div class="stats-box">
+                <span style="font-size: 12px; color: #1b0c0eb3; font-weight: 600; text-transform: uppercase; display: block;">Total des avis</span>
+                <p style="font-size: 28px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1; letter-spacing: -0.03em;">{{ number_format($siteStats['total'], 0, ',', ' ') }}</p>
+                <span style="font-size: 12px; color: #1b2129; font-weight: 500;">votes au total</span>
             </div>
             @endif
-        </div>
-    </div>
 
+        </div>
+
+    </div>
+    
     @if(empty($siteStats))
         <div style="background: white; border-radius: 16px; padding: 48px; text-align: center; color: #94a3b8; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
             Aucune donnée disponible pour ce site.
@@ -186,11 +236,12 @@
             </div>
             
             {{-- Filtre de période placé ici --}}
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; 
-                      letter-spacing: 0.05em;">Période :</span>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; width: 100%; box-sizing: border-box;">
+                <span style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">
+                    Période :
+                </span>
                 <select wire:change="changePeriod($event.target.value)"
-                    style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; background: #f8fafc; color: #334155; cursor: pointer; outline: none;">
+                    style="width: auto; max-width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; background: #f8fafc; color: #334155; cursor: pointer; outline: none; box-sizing: border-box;">
                     <option value="day"   {{ $period === 'day'   ? 'selected' : '' }}>Aujourd'hui</option>
                     <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
                     <option value="month" {{ $period === 'month' ? 'selected' : '' }}>30 derniers jours</option>
@@ -219,49 +270,69 @@
         @endphp
 
         {{-- Bloc Régional --}}
-        <div style="background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="background: #f0fdfa; color: #0d9488; font-size: 20px; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; width: 100%; box-sizing: border-box;">
+    
+            <!-- Partie Gauche : Icône + Titres -->
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1 1 240px; min-width: 0;">
+                <div style="background: #f0fdfa; color: #0d9488; font-size: 20px; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     👥
                 </div>
-                <div>
-                    <h4 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">Comparaison régionale</h4>
-                    <p style="font-size: 13px; color: #64748b; margin: 4px 0 0 0;">Par rapport à la moyenne des sites de la région</p>
+                <div style="min-width: 0;">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Comparaison régionale</h4>
+                    <p style="font-size: 12px; color: #64748b; margin: 2px 0 0 0; line-height: 1.3;">Par rapport à la moyenne des sites de la région</p>
                 </div>
             </div>
-            <div style="text-align: right; display: flex; align-items: center; gap: 16px;">
-                <div>
-                    <span style="font-size: 12px; color: #94a3b8; font-weight: 500; display: block; margin-bottom: 2px;">Moyenne</span>
-                    <strong style="font-size: 24px; font-weight: 800; color: #1e293b;">{{ $siteStats['moyenne_regionale'] ?? 0 }}%</strong>
+
+            <!-- Partie Droite : Chiffres + Badge -->
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 16px; flex: 1 1 auto; margin-left: auto;">
+                <div style="text-align: right;">
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; text-transform: uppercase; letter-spacing: 0.02em;">Moyenne</span>
+                    <strong style="font-size: 22px; font-weight: 800; color: #1e293b; line-height: 1;">{{ $siteStats['moyenne_regionale'] ?? 0 }}%</strong>
                 </div>
-                <div style="background: {{ $bgRegionBadge }}; color: {{ $colorRegion }}; padding: 8px 12px; border-radius: 10px; text-align: center; min-width: 90px; box-sizing: border-box;">
-                    <span style="font-size: 14px; font-weight: 800; display: block;">{{ $diffRegion >= 0 ? '+' : '' }}{{ $diffRegion }}%</span>
-                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em;">{{ $diffRegion >= 0 ? 'Au-dessus' : 'En-dessous' }}</span>
+                
+                <div style="background: {{ $bgRegionBadge }}; color: {{ $colorRegion }}; padding: 6px 10px; border-radius: 10px; text-align: center; flex-shrink: 0; box-sizing: border-box; min-width: 80px;">
+                    <span style="font-size: 13px; font-weight: 800; display: block; line-height: 1.2;">
+                        {{ $diffRegion >= 0 ? '+' : '' }}{{ $diffRegion }}%
+                    </span>
+                    <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; display: block; white-space: nowrap; margin-top: 2px;">
+                        {{ $diffRegion >= 0 ? 'Au-dessus' : 'En-dessous' }}
+                    </span>
                 </div>
             </div>
+
         </div>
 
         {{-- Bloc National --}}
-        <div style="background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div style="background: #eff6ff; color: #2563eb; font-size: 20px; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; border: 1px solid #f1f5f9; border-radius: 16px; padding: 16px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; width: 100%; box-sizing: border-box;">
+
+            <!-- Partie Gauche : Icône + Titres -->
+            <div style="display: flex; align-items: center; gap: 12px; flex: 1 1 240px; min-width: 0;">
+                <div style="background: #eff6ff; color: #2563eb; font-size: 20px; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                     🌐
                 </div>
-                <div>
-                    <h4 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0;">Comparaison nationale</h4>
-                    <p style="font-size: 13px; color: #64748b; margin: 4px 0 0 0;">Par rapport à la moyenne nationale</p>
+                <div style="min-width: 0;">
+                    <h4 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Comparaison nationale</h4>
+                    <p style="font-size: 12px; color: #64748b; margin: 2px 0 0 0; line-height: 1.3;">Par rapport à la moyenne nationale</p>
                 </div>
             </div>
-            <div style="text-align: right; display: flex; align-items: center; gap: 16px;">
-                <div>
-                    <span style="font-size: 12px; color: #94a3b8; font-weight: 500; display: block; margin-bottom: 2px;">Moyenne</span>
-                    <strong style="font-size: 24px; font-weight: 800; color: #1e293b;">{{ $siteStats['moyenne_nationale'] ?? 0 }}%</strong>
+
+            <!-- Partie Droite : Chiffres + Badge -->
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 16px; flex: 1 1 auto; margin-left: auto;">
+                <div style="text-align: right;">
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: 600; display: block; text-transform: uppercase; letter-spacing: 0.02em;">Moyenne</span>
+                    <strong style="font-size: 22px; font-weight: 800; color: #1e293b; line-height: 1;">{{ $siteStats['moyenne_nationale'] ?? 0 }}%</strong>
                 </div>
-                <div style="background: {{ $bgNationalBadge }}; color: {{ $colorNational }}; padding: 8px 12px; border-radius: 10px; text-align: center; min-width: 90px; box-sizing: border-box;">
-                    <span style="font-size: 14px; font-weight: 800; display: block;">{{ $diffNational >= 0 ? '+' : '' }}{{ $diffNational }}%</span>
-                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em;">{{ $diffNational >= 0 ? 'Au-dessus' : 'En-dessous' }}</span>
+                
+                <div style="background: {{ $bgNationalBadge }}; color: {{ $colorNational }}; padding: 6px 10px; border-radius: 10px; text-align: center; flex-shrink: 0; box-sizing: border-box; min-width: 80px;">
+                    <span style="font-size: 13px; font-weight: 800; display: block; line-height: 1.2;">
+                        {{ $diffNational >= 0 ? '+' : '' }}{{ $diffNational }}%
+                    </span>
+                    <span style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; display: block; white-space: nowrap; margin-top: 2px;">
+                        {{ $diffNational >= 0 ? 'Au-dessus' : 'En-dessous' }}
+                    </span>
                 </div>
             </div>
+
         </div>
 
     </div>
