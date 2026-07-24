@@ -315,20 +315,24 @@
         {{-- Données JSON --}}
         <script id="map-data" type="application/json">{!! json_encode($sitesData) !!}</script>
 
-        <div class="mt-3 text-sm"
-             style="display: flex; gap: 16px; flex-wrap: nowrap; white-space: nowrap;margin-top:4px">
-            <span style="display:flex;align-items:center;gap:6px;">
-                <span style="width:12px;height:12px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+        <div class="mt-3 text-sm" 
+            style="display: flex; gap: 12px 16px; flex-wrap: wrap; margin-top: 4px;">
+            
+            <span style="display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
+                <span style="width: 12px; height: 12px; border-radius: 50%; background: #22c55e; flex-shrink: 0;"></span>
                 Satisfait (+70%)
             </span>
-            <span style="display:flex;align-items:center;gap:6px;">
-                <span style="width:12px;height:12px;border-radius:50%;background:#fb923c;display:inline-block;"></span>
+
+            <span style="display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
+                <span style="width: 12px; height: 12px; border-radius: 50%; background: #fb923c; flex-shrink: 0;"></span>
                 Moyennement satisfait (40-69%)
             </span>
-            <span style="display:flex;align-items:center;gap:6px;">
-                <span style="width:12px;height:12px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+
+            <span style="display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
+                <span style="width: 12px; height: 12px; border-radius: 50%; background: #ef4444; flex-shrink: 0;"></span>
                 Insatisfait (-40%)
             </span>
+
         </div>
 
         {{-- Leaflet CSS + JS --}}

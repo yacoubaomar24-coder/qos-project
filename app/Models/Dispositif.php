@@ -14,7 +14,6 @@ class Dispositif extends Model
         'created_by',
         'site_id',
         'nom',
-        'adresse_mac',
         'token',  
         'token_genere_le',
         'derniere_connexion',  // Permet de savoir si un dispositif est toujours actif ou abandonné.

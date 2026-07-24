@@ -9,7 +9,7 @@
 @endphp
 
 {{-- Ligne 1 : 3 métriques --}}
-<div style="display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; 
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; 
             margin-top:-14px; margin-bottom:16px;">
 
     {{-- Total avis --}}
@@ -105,11 +105,25 @@
         ->values();
 @endphp
 
-<div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top: -8px;">
+{{-- repeat(auto-fit, minmax(200px, 1fr))    repeat(3,minmax(0,1fr)) --}}
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); 
+            gap:16px; margin-top: -8px;">
 
-    {{-- Top 4 meilleurs sites --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:12px; padding:16px; 
-                box-shadow:0 1px 3px rgba(0,0,0,0.06); height:90%;">
+    {{-- Top 4 meilleurs sites--}}
+    <div class="mon-card">
+        <style>
+            .mon-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+                padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+                height: auto; /* Hauteur adaptative sur mobile */
+            }
+
+            /* Sur ordinateur (>= 768px) */
+            @media (min-width: 768px) {
+                .mon-card {
+                    height: 90%; /* On remet la hauteur de 90% */
+                }
+            }
+        </style>
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:26px;">
             <div style="width:40px; height:40px; border-radius:10px; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                 <svg style="width:22px; height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -156,9 +170,21 @@
         </div>
     </div>
 
-    {{-- Histogramme --}}
-    <div style="background:white; border:1px solid #e5e7eb;border-radius:12px;
-            padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.06); height:90%;">
+    {{-- Donuts --}}
+    <div class="mon-card">
+        <style>
+            .mon-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+                padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+                height: auto; /* Hauteur adaptative sur mobile */
+            }
+
+            /* Sur ordinateur (>= 768px) */
+            @media (min-width: 768px) {
+                .mon-card {
+                    height: 90%; /* On remet la hauteur de 90% */
+                }
+            }
+        </style>
         <p style="font-size:15px; font-weight:600; color:#374151;">
             Votes par niveau
         </p>
@@ -172,8 +198,20 @@
     </div>
 
     {{-- 4 sites les moins performants --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:12px; padding:16px; 
-                box-shadow:0 1px 3px rgba(0,0,0,0.06);  height:90%;">
+    <div class="mon-card">
+        <style>
+            .mon-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+                padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+                height: auto; /* Hauteur adaptative sur mobile */
+            }
+
+            /* Sur ordinateur (>= 768px) */
+            @media (min-width: 768px) {
+                .mon-card {
+                    height: 90%; /* On remet la hauteur de 90% */
+                }
+            }
+        </style>
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:26px;">
             <div style="width:40px; height:40px; border-radius:10px; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                 <svg style="width:22px; height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -221,9 +259,24 @@
 
 </div>
 
-<div style="display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;
-            margin-top:-12px">
+<div class="ma-grille-responsive">
+    <style>
+        .ma-grille-responsive {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 10px; /* Marge propre pour le mobile */
+            margin-bottom: -30px;
+            }
 
+            /* À partir des tablettes et ordinateurs (768px et +) */
+            @media (min-width: 768px) {
+            .ma-grille-responsive {
+                margin-top: -12px; /* On applique la marge négative uniquement sur grand écran */
+            }
+        }
+    </style>
+     
     {{-- Total dispositifs IoT --}}
     <div style="background:white; border:1px solid #e5e7eb; border-left:8px solid #2563eb;
                 border-radius:12px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">

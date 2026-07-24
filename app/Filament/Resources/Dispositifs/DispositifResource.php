@@ -110,16 +110,6 @@ class DispositifResource extends Resource
                     ->label('Nom du site')
                     ->required(),
                 TextInput::make('nom')->label('Nom du dispositif')->required(),
-                TextInput::make('adresse_mac')
-                    ->label('Adresse MAC')
-                    ->placeholder('AA:BB:CC:DD:EE:FF')
-                    ->unique(ignoreRecord: true)
-                    ->rules(['regex:/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/'])
-                    ->validationMessages([
-                        'regex' => 'Format invalide. Exemple : AA:BB:CC:DD:EE:FF',
-                        'unique' => 'Cette adresse MAC est déjà utilisée.',
-                    ]),
-                
                 Toggle::make('statut')->label('Actif')->default(true),
         ]);
     }
@@ -130,7 +120,6 @@ class DispositifResource extends Resource
         return $table->columns([
                 TextColumn::make('site.nom')->label('Site'),
                 TextColumn::make('nom')->searchable()->label('Nom'),
-                TextColumn::make('adresse_mac')->searchable()->label('Adresse MAC'),
                 TextColumn::make('token')
                     ->label('Token')
                     ->formatStateUsing(fn($state) => $state

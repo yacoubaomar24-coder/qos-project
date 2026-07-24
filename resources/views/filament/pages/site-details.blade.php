@@ -8,6 +8,7 @@
     <div style="background: #2483b78f; border: 1px solid #f1f5f9; border-radius: 12px; padding: 8px 12px; 
             display: flex; justify-content: space-between; align-items: center; 
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);">
+    
         {{-- Gauche : Infos du Site Dynamique --}}
         <div style="display: flex; align-items: center; gap: 16px;">
             <div style="background: white; color: white; border-radius: 12px; width: 48px; height: 48px; 
@@ -85,7 +86,7 @@
     @endphp
 
     {{-- LIGNE 2 : LES 3 CARTES KPIS ÉPURÉES --}}
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
         
         {{-- Card Satisfait --}}
         <div style="background: white; border: 1px solid #f1f5f9; border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);">
@@ -205,7 +206,7 @@
     </div>
     
     {{-- LIGNE 4 : LES BLOCS DE COMPARAISON --}}
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 0px;">
+    <div style="display: grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 0px;">
         @php
             $diffRegion   = round($tauxSatisfaction - ($siteStats['moyenne_regionale'] ?? 0), 1);
             $diffNational = round($tauxSatisfaction - ($siteStats['moyenne_nationale'] ?? 0), 1);
