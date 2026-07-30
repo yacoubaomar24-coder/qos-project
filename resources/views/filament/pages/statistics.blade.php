@@ -4,145 +4,175 @@
     {{-- ===================================================
          SECTION 1 : Répartition par niveau
     =================================================== --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-                margin:0px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; margin:0px; padding:10px; 
+                margin-top: -10px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <div>
-                    <h3 style="font-size:15px; font-weight:700; color:#1e293b; margin:0; letter-spacing:-0.01em;">
-                        Répartition globale par niveau de votes
-                    </h3>
+        <style>
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr); /* 2 colonnes par défaut sur mobile */
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            @media (min-width: 1024px) {
+                .stats-grid {
+                    grid-template-columns: repeat(4, 1fr) !important; /* 4 colonnes sur une seule ligne en mode ordinateur */
+                }
+            }
+        </style>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div>
+                <h3 style="font-size:14px; font-weight:700; color:#1e293b; margin:0; letter-spacing:-0.01em;">
+                    Répartition globale par niveau de votes
+                </h3>
+            </div>
+
+            {{-- Sélecteur période aligné horizontalement --}}
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; display:none; @media(min-width: 640px){display:inline;}">
+                    Période
+                </span>
+                <select wire:change="changePeriod($event.target.value)"
+                    style="border:1px solid #e2e8f0; border-radius:8px; padding:5px 10px; font-size:11px; font-weight:600; background:#ffffff; color:#334155; box-shadow:0 1px 2px 0 rgba(0,0,0,0.05); cursor:pointer; outline:none; transition: border-color 0.2s;">
+                    <option value="day"   {{ $period === 'day'   ? 'selected' : '' }}>Aujourd'hui</option>
+                    <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
+                    <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
+                    <option value="year"  {{ $period === 'year'  ? 'selected' : '' }}>Cette année</option>
+                </select>
+            </div>
+        </div>
+                    
+        @if(!empty($chartData['parNiveau']))
+        @php 
+            $pn = $chartData['parNiveau']; 
+            $colorInsatisfait = \App\Helpers\ConfigHelper::couleurInsatisfait();
+        @endphp
+
+        {{-- Grille adaptative gérée via la classe CSS --}}
+        <div class="stats-grid">
+
+            {{-- Total des votes --}}
+            <div style="display:flex; flex-direction:column; justify-content:space-between; padding:10px; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.04); height:90px; box-sizing:border-box; min-width:0;">
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                    <span style="font-size:9px; font-weight:700; color: #64748b; text-transform:uppercase; background: #f1f5f9; padding:2px 6px; border-radius:4px;">Total</span>
+                    <span style="font-size:9px; color: #94a3b8; font-weight:700; text-transform:uppercase;">Global</span>
                 </div>
-
-                {{-- Sélecteur période aligné horizontalement --}}
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.05em;">
-                        Période
-                    </span>
-                    <select wire:change="changePeriod($event.target.value)"
-                        style="border:1px solid #e2e8f0; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600; background:#ffffff; color:#334155; box-shadow:0 1px 2px 0 rgba(0,0,0,0.05); cursor:pointer; outline:none; transition: border-color 0.2s;">
-                        <option value="day"   {{ $period === 'day'   ? 'selected' : '' }}>Aujourd'hui</option>
-                        <option value="week"  {{ $period === 'week'  ? 'selected' : '' }}>Cette semaine</option>
-                        <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Ce mois</option>
-                        <option value="year"  {{ $period === 'year'  ? 'selected' : '' }}>Cette année</option>
-                    </select>
+                <div style="display:flex; align-items:baseline; gap:4px;">
+                    <span style="font-size:24px; font-weight:800; color:#0f172a; line-height:1;">{{ $pn['total'] }}</span>
+                    <span style="font-size:10px; color:#64748b; font-weight:600;">votes</span>
                 </div>
             </div>
-                
-            @if(!empty($chartData['parNiveau']))
-            @php 
-                $pn = $chartData['parNiveau']; 
-                $colorInsatisfait = \App\Helpers\ConfigHelper::couleurInsatisfait();
-            @endphp
 
-            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:10px;">
-
-                {{-- Total des votes --}}
-                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
-                    background: #ffffff; border:1px solid #e2e8f0; border-radius:12px;
-                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
-                    
-                    <span style="font-size:11px; font-weight:700; letter-spacing:0.05em; color:#64748b; text-transform:uppercase; margin:0;">
-                        Total
-                    </span>
-
-                    <span style="font-size:28px; font-weight:800; color:#0f172a; margin:4px 0; line-height:1; letter-spacing:-0.02em;">
-                        {{ $pn['total'] }}
-                    </span>
-
-                    <span style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:0.02em;">
-                        Votes
-                    </span>
+            {{-- Total des satisfactions --}}
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.04); height:90px; box-sizing:border-box; min-width:0;">
+                <div style="display:flex; flex-direction:column; max-width:65%; overflow:hidden;">
+                    <span style="font-size:14px; font-weight:700; color: #15803d; 
+                            letter-spacing:0.05em; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">
+                            {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}</span>
+                    <span style="background: #f1f5f9; color: black; padding:2px 6px; border-radius:999px; 
+                            font-size:14px; font-weight:700; width:fit-content; margin-top:4px;">
+                            {{ $pn['taux_satisfait'] }}%</span>
                 </div>
-                
-                {{-- Total des satisfactions --}}
-                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
-                    background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;
-                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
-                    
-                    <span style="font-size:11px; font-weight:700; letter-spacing:0.05em; color: #15803d; text-transform:uppercase; margin:0;">
-                        {{ \App\Helpers\ConfigHelper::libelleSatisfait() }}
-                    </span>
-                    
-                    <span style="font-size:28px; font-weight:800; color:#16a34a; margin:4px 0; line-height:1; letter-spacing:-0.02em;">
-                        {{ $pn['satisfaits'] }}
-                    </span>
-                    
-                    <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700;">
-                        {{ $pn['taux_satisfait'] }}%
-                    </span>
-                </div>
-
-                {{-- Total des satisfactions moyennes --}}
-                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
-                    background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;
-                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
-                
-                    <span style="font-size:11px; font-weight:700; letter-spacing:0.05em; color:#b45309; text-transform:uppercase; margin:0;">
-                        {{ \App\Helpers\ConfigHelper::libelleMoyen() }}
-                    </span>
-
-                    <span style="font-size:28px; font-weight:800; color:#d97706; margin:4px 0; line-height:1; letter-spacing:-0.02em;">
-                        {{ $pn['moyens'] }}
-                    </span>
-                    
-                    <span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700;">
-                        {{ $pn['taux_moyen'] }}%
-                    </span>
-                </div>
-
-                {{-- Total des insatisfactions --}}
-                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px;
-                    background:#ffffff; border:1px solid #e2e8f0; border-radius:12px;
-                    box-shadow:0 1px 3px 0 rgba(0,0,0,0.05); height:95px; box-sizing:border-box;">
-  
-                    <span style="font-size:11px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; margin:0; color:{{ $colorInsatisfait }};">
-                        {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}
-                    </span>
-                    
-                    <span style="font-size:28px; font-weight:800; margin:4px 0; line-height:1; letter-spacing:-0.02em; color:{{ $colorInsatisfait }};">
-                        {{ $pn['insatisfaits'] }}
-                    </span>
-                    
-                    <span style="background:rgba(239, 68, 68, 0.08); padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; color:{{ $colorInsatisfait }};">
-                        {{ $pn['taux_insatisfait'] }}%
-                    </span>
-                </div>
-                
+                <span style="font-size:28px; font-weight:800; color:#16a34a; line-height:1; letter-spacing:-0.03em;">{{ $pn['satisfaits'] }}</span>
             </div>
-            @endif
+            
+            {{-- Total des satisfactions moyennes --}}
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.04); height:90px; box-sizing:border-box; min-width:0;">
+                <div style="display:flex; flex-direction:column; max-width:65%; overflow:hidden;">
+                    <span style="font-size:14px; font-weight:700; color: #b45309;
+                                letter-spacing:0.05em; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;
+                                ">{{ \App\Helpers\ConfigHelper::libelleMoyen() }}</span>
+                    <span style="background: #f1f5f9; color: black; padding:2px 6px; border-radius:999px; 
+                                font-size:14px; font-weight:700; width:fit-content; margin-top:4px;">
+                                {{ $pn['taux_moyen'] }}%</span>
+                </div>
+                <span style="font-size:28px; font-weight:800; color: #d97706; line-height:1; 
+                            letter-spacing:-0.03em;">{{ $pn['moyens'] }}</span>
+            </div>
+            
+            {{-- Total des insatisfactions --}}
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#ffffff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.04); height:90px; box-sizing:border-box; min-width:0;">
+                <div style="display:flex; flex-direction:column; max-width:65%; overflow:hidden;">
+                    <span style="font-size:14px; font-weight:700; color: {{ $colorInsatisfait }}; letter-spacing:0.05em; 
+                        text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">
+                        {{ \App\Helpers\ConfigHelper::libelleInsatisfait() }}</span>
+                    <span style="background: #f1f5f9; color: black; padding:2px 6px; border-radius:999px; 
+                            font-size:14px; font-weight:700; width:fit-content; margin-top:4px;">
+                            {{ $pn['taux_insatisfait'] }}%</span>
+                </div>
+                <span style="font-size:28px; font-weight:800; color:{{ $colorInsatisfait }}; line-height:1; letter-spacing:-0.03em;">{{ $pn['insatisfaits'] }}</span>
+            </div>
+            
+        </div>
+        @endif
 
     </div>
-
 
     {{-- ===================================================
          SECTION 2 : Évolution temporelle (Courbe et histogramme)
     =================================================== --}}
-    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:0px;margin:0px;width:100%">
-        <div style="background:white; border:1px solid #e5e7eb; grid-column: span 3;
-                border-radius:16px;padding:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
-            <p style="font-size:15px; font-weight:600; color:#374151;margin-bottom:6px">
-                Évolution des taux  dans le temps
-            </p>
-        
-            <canvas id="chart-evolution" style="max-height:250px;"></canvas>
-            <script id="data-evolution" type="application/json">{!! json_encode($chartData['evolution'] ?? []) !!}</script>
-        </div>
-        {{-- Histogramme --}}
-        <div style="background:white; border:1px solid #e5e7eb;border-radius:16px;
-                padding:10px; box-shadow:0 1px 3px rgba(0,0,0,0.06); height:100%;">
-            <p style="font-size:15px; font-weight:600; color:#374151; margin-bottom:6px">
-                Histogrammes
-            </p>
+    <div style="width:100%; box-sizing:border-box; margin:0; margin-top: -4px; padding:0;" class="charts-wrapper">
+    <style>
+        .charts-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 240px; /* Hauteur optimisée pour le mobile */
+        }
+        @media (min-width: 1024px) {
+            .charts-wrapper {
+                display: grid;
+                grid-template-columns: 2.8fr 1.2fr;
+            }
+            .canvas-container {
+                height: 270px; /* Hauteur plus grande pour le mode ordinateur */
+            }
+        }
+        .chart-box {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            box-sizing: border-box;
+            width: 100%;
+            min-width: 0;
+        }
+        .canvas-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
 
-            {{-- Conteneur graphique --}}
-            <div style="position:relative;height:250px;width:100%;">
-                <canvas id="chart-niveau"></canvas>
-            </div>
-            <script id="data-niveau" type="application/json">{!! json_encode($chartData['parNiveau']) !!}</script>
+    {{-- Bloc Évolution --}}
+    <div class="chart-box">
+        <p style="font-size:15px; font-weight:600; color:#374151; margin:0 0 12px 0;">
+            Évolution des taux dans le temps
+        </p>
+        <div class="canvas-container">
+            <canvas id="chart-evolution"></canvas>
         </div>
+        <script id="data-evolution" type="application/json">{!! json_encode($chartData['evolution'] ?? []) !!}</script>
     </div>
 
+    {{-- Histogramme --}}
+    <div class="chart-box">
+        <p style="font-size:15px; font-weight:600; color:#374151; margin:0 0 12px 0;">
+            Histogrammes
+        </p>
+        <div class="canvas-container">
+            <canvas id="chart-niveau"></canvas>
+        </div>
+        <script id="data-niveau" type="application/json">{!! json_encode($chartData['parNiveau']) !!}</script>
+    </div>
+</div>
+    
     {{-- ===================================================
          SECTION 3 : Classement des sites
     =================================================== --}}
@@ -244,10 +274,10 @@
     {{-- ===================================================
          SECTION 4 : Heatmap horaire
     =================================================== --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-                padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        {{-- En-tête : Titre et Sélecteur (Adaptatif mobile/desktop) --}}
+        <div style="display:flex; flex-direction: column; gap: 12px; margin-bottom:16px; @media(min-width: 640px) { flex-direction: row; justify-content: space-between; align-items: center; }">
             <div>
                 <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0 0 4px;">
                     Heatmap horaire d'insatisfaction
@@ -258,31 +288,18 @@
             </div>
 
             {{-- Sélecteur site pour heatmap --}}
-            <div style="display:flex; flex-direction:column; gap:4px;">
-                <label style="font-size:11px; font-weight:600; color:#9ca3af; text-transform:uppercase;">Site</label>
-                <select wire:change="changeHeatmapSite($event.target.value)"
-                    style="border:1px solid #e5e7eb; border-radius:8px; padding:6px 12px;
-                           font-size:13px; background:#f9fafb; color:#374151;">
-                    @foreach($sitesOptions as $id => $nom)
-                        <option value="{{ $id }}" {{ $selectedSiteId == $id ? 'selected' : '' }}>
-                            {{ $nom }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <div style="display: flex; gap: 4px;">
+            <div style="display: flex; gap: 4px; width: 100%; @media(min-width: 640px) { width: auto; }">
                 <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 16px; font-size: 13px; 
                         font-weight: 500; background: #ffffff; color: #334155; 
                         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); cursor: pointer; outline: none; 
-                        min-width: 220px;">
+                        width: 100%; box-sizing: border-box; @media(min-width: 640px) { min-width: 220px; width: auto; }">
                     {{ $this->form }}
                 </div>
             </div>
         </div>
 
-        {{-- Légende heatmap --}}
-        <div style="display:flex; gap:12px; margin-bottom:12px; font-size:11px; color:#6b7280;">
+        {{-- Légende heatmap (passage à la ligne automatique) --}}
+        <div style="display:flex; flex-wrap: wrap; gap:8px 12px; margin-bottom:16px; font-size:11px; color:#6b7280;">
             <span style="display:flex; align-items:center; gap:4px;">
                 <span style="width:12px; height:12px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:2px; display:inline-block;"></span>
                 Aucun vote
@@ -303,8 +320,8 @@
 
         {{-- Grille heatmap --}}
         @if(!empty($chartData['heatmap']))
-        <div style="overflow-x:auto;">
-            <table style="width:100%; border-collapse:collapse; font-size:11px;">
+        <div style="overflow-x:auto; -webkit-overflow-scrolling: touch;">
+            <table style="width:100%; border-collapse:collapse; font-size:11px; min-width: 500px;">
 
                 {{-- En-tête heures --}}
                 <thead>
@@ -328,7 +345,7 @@
                         @foreach($ligne['heures'] as $cell)
                         <td style="padding:1px;">
                             <div title="H{{ str_pad($cell['heure'], 2, '0', STR_PAD_LEFT) }} — {{ $cell['total'] }} votes — {{ $cell['taux'] }}% insatisfaits"
-                                 style="width:100%; aspect-ratio:1; min-width:16px; border-radius:3px;
+                                style="width:100%; aspect-ratio:1; min-width:14px; border-radius:3px;
                                         background: {{ $cell['color'] }}; cursor:default;">
                             </div>
                         </td>
@@ -442,7 +459,12 @@ function drawNiveauChart() {
             },
             scales: {
                 y: { beginAtZero: true, title: { display: true, text: "Votes" } },
-                x: { grid: { display: false } }
+                x: { grid: { display: false } },
+                x: {
+                    ticks: {
+                        autoSkip: false // Empêche Chart.js de masquer les libellés
+                    }
+                }
             }
         }
     });

@@ -10,6 +10,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\ThemeMode;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -136,6 +137,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            //->darkMode(\Filament\Support\Enums\ThemeMode::System)
             ->colors([
                 'primary' => Color::Amber, // Couleur principale (ex: boutons, liens)
                 'secondary' => Color::Gray, // Couleur secondaire (ex: arrière-plan, éléments de navigation)
@@ -441,17 +443,12 @@ class AdminPanelProvider extends PanelProvider
                 function (): \Illuminate\Support\HtmlString {
                     /** @var \App\Models\Utilisateur|null $user */
                     $user   = filament()->auth()->user();
-                    /*
-                    $config = $user instanceof \App\Models\Utilisateur
-                        ? \App\Models\Configuration::where('created_by', $user?->id)->first()
-                        : null;*/
+                    
                     if (!$user instanceof \App\Models\Utilisateur) {
                         return new \Illuminate\Support\HtmlString('');
                     }
 
                     $config = $this->getConfigParRole($user);  // Trouver la config selon le rôle
-            
-                    //$user   = filament()->auth()->user();
 
                     $nom     = $config?->organisation_nom ?? 'QoS-System';
                     $logoUrl = $config?->organisation_logo
@@ -467,6 +464,8 @@ class AdminPanelProvider extends PanelProvider
                         </div>";
 
                     return new \Illuminate\Support\HtmlString("
+
+                        
                         <div style='display:flex; align-items:center; gap:10px; 
                             margin-right:-65px; pointer-events:none;overflow:hidden;
                             width:280px;min-width:280px;max-width:280px;'>

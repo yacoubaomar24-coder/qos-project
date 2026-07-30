@@ -27,20 +27,20 @@
     {{-- ===================================================
          SECTION 2 : Historique des alertes
     =================================================== --}}
-    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px;
-                padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <div style="background:white; border:1px solid #e5e7eb; border-radius:16px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        {{-- En-tête : Titre et Filtres adaptatifs --}}
+        <div style="display:flex; flex-direction: column; gap: 12px; margin-bottom:16px; @media(min-width: 768px) { flex-direction: row; justify-content: space-between; align-items: center; }">
             <h3 style="font-size:15px; font-weight:600; color:#374151; margin:0;">
                 Historique des alertes
             </h3>
 
-            {{-- Filtres statut --}}
-            <div style="display:flex; gap:8px;">
+            {{-- Filtres statut (scrollable horizontalement sur mobile si besoin) --}}
+            <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; width: 100%; @media(min-width: 768px) { width: auto; }">
                 @foreach(['toutes' => 'Toutes', 'nouvelle' => 'Nouvelles', 'vue' => 'Vues', 'resolue' => 'Résolues'] as $val => $label)
                 <button wire:click="changerFiltre('{{ $val }}')"
-                    style="padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600;
-                           cursor:pointer; border:1px solid #e5e7eb;
+                    style="padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600;
+                           cursor:pointer; border:1px solid #e5e7eb; white-space: nowrap;
                            background:{{ $filtreStatut === $val ? '#111827' : 'white' }};
                            color:{{ $filtreStatut === $val ? 'white' : '#374151' }};">
                     {{ $label }}
@@ -55,50 +55,54 @@
             </div>
         @else
             @foreach($alertes as $alerte)
-            <div style="display:flex; align-items:center; gap:12px; padding:12px;
-                        margin-bottom:8px; border-radius:10px;
+            <div style="display:flex; flex-direction: column; gap: 12px; padding:14px;
+                        margin-bottom:10px; border-radius:10px;
                         background:{{ $alerte['statut'] === 'nouvelle' ? '#fef2f2' : ($alerte['statut'] === 'vue' ? '#fffbeb' : '#f0fdf4') }};
-                        border:1px solid {{ $alerte['statut'] === 'nouvelle' ? '#fecaca' : ($alerte['statut'] === 'vue' ? '#fde68a' : '#bbf7d0') }};">
+                        border:1px solid {{ $alerte['statut'] === 'nouvelle' ? '#fecaca' : ($alerte['statut'] === 'vue' ? '#fde68a' : '#bbf7d0') }};
+                        @media(min-width: 640px) { flex-direction: row; align-items: center; }">
 
-                {{-- Icône --}}
-                <span style="font-size:20px; flex-shrink:0;">
-                    {{ $alerte['statut'] === 'nouvelle' ? '🚨' : ($alerte['statut'] === 'vue' ? '⚠️' : '✅') }}
-                </span>
+                {{-- Ligne supérieure sur mobile (Icône + Infos) --}}
+                <div style="display:flex; align-items:flex-start; gap:12px; width: 100%;">
+                    {{-- Icône --}}
+                    <span style="font-size:20px; flex-shrink:0; margin-top: 2px;">
+                        {{ $alerte['statut'] === 'nouvelle' ? '🚨' : ($alerte['statut'] === 'vue' ? '⚠️' : '✅') }}
+                    </span>
 
-                {{-- Infos --}}
-                <div style="flex:1;">
-                    <p style="font-size:13px; font-weight:600; color:#111827; margin:0;">
-                        {{ $alerte['site']['nom'] ?? 'N/A' }}
-                    </p>
-                    <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">
-                        Taux insatisfaction : <strong style="color:#ef4444;">{{ $alerte['taux_insatisfaction'] }}%</strong>
-                        — Seuil : {{ $alerte['seuil_configure'] }}%
-                        — {{ $alerte['total_votes'] }} votes
-                    </p>
-                    <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
-                        {{ \Carbon\Carbon::parse($alerte['created_at'])->timezone('Africa/Niamey')->format('d/m/Y H:i') }}
-                        — Email : {{ $alerte['email_envoye'] ? '✅ envoyé' : '❌ non envoyé' }}
-                    </p>
+                    {{-- Infos --}}
+                    <div style="flex:1; min-width: 0;">
+                        <p style="font-size:13px; font-weight:600; color:#111827; margin:0; word-break: break-word;">
+                            {{ $alerte['site']['nom'] ?? 'N/A' }}
+                        </p>
+                        <p style="font-size:12px; color:#6b7280; margin:4px 0 0;">
+                            Taux insatisfaction : <strong style="color:#ef4444;">{{ $alerte['taux_insatisfaction'] }}%</strong>
+                            — Seuil : {{ $alerte['seuil_configure'] }}%
+                            — {{ $alerte['total_votes'] }} votes
+                        </p>
+                        <p style="font-size:11px; color:#9ca3af; margin:4px 0 0;">
+                            {{ \Carbon\Carbon::parse($alerte['created_at'])->timezone('Africa/Niamey')->format('d/m/Y H:i') }}
+                            — Email : {{ $alerte['email_envoye'] ? '✅ envoyé' : '❌ non envoyé' }}
+                        </p>
+                    </div>
                 </div>
 
-                {{-- Actions --}}
-                <div style="display:flex; gap:8px; flex-shrink:0;">
+                {{-- Actions (Passent en bas sur mobile, alignées à droite sur desktop) --}}
+                <div style="display:flex; flex-wrap: wrap; gap:6px; width: 100%; @media(min-width: 640px) { width: auto; flex-shrink:0; justify-content: flex-end; }">
                     @if($alerte['statut'] === 'nouvelle')
                     <button wire:click="marquerVue({{ $alerte['id'] }})"
                         style="background:#f59e0b; color:white; border:none; border-radius:6px;
-                               padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
+                               padding:6px 12px; font-size:11px; font-weight:600; cursor:pointer; flex: 1; @media(min-width: 640px) { flex: initial; }">
                         Marquer vue
                     </button>
                     @endif
                     @if($alerte['statut'] !== 'resolue')
                     <button wire:click="marquerResolue({{ $alerte['id'] }})"
                         style="background:#22c55e; color:white; border:none; border-radius:6px;
-                               padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
+                               padding:6px 12px; font-size:11px; font-weight:600; cursor:pointer; flex: 1; @media(min-width: 640px) { flex: initial; }">
                         Résoudre
                     </button>
                     <button wire:click="renvoyerNotification({{ $alerte['id'] }})"
                         style="background:#3b82f6; color:white; border:none; border-radius:6px;
-                            padding:4px 10px; font-size:11px; font-weight:600; cursor:pointer;">
+                               padding:6px 12px; font-size:11px; font-weight:600; cursor:pointer; flex: 1; @media(min-width: 640px) { flex: initial; }">
                         Renvoyer mail
                     </button>
                     @endif
@@ -109,7 +113,6 @@
         @endif
 
     </div>
-
 </div>
 <style>
 @keyframes pulse-dot {
